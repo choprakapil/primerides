@@ -1,5 +1,8 @@
+"use client";
+
 import React from "react";
 import Link from "next/link";
+import { MotionIcon } from "motion-icons-react";
 
 interface PageHeaderProps {
   title: string;
@@ -44,9 +47,12 @@ export default function PageHeader({
             background: "rgba(198, 159, 70, 0.18)",
             borderColor: "rgba(198, 159, 70, 0.45)",
             color: "#f7d58b",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "8px",
           }}
         >
-          <i className="fa-solid fa-car-side"></i> {subtitle}
+          <MotionIcon name="Sparkles" animation="pulse" trigger="always" size={13} color="#f7d58b" /> {subtitle}
         </span>
         <h1 className="section-title-large text-white mb-2" style={{ fontSize: "48px" }}>
           {title}

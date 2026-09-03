@@ -1,10 +1,14 @@
+"use client";
+
 import React from "react";
+import { MotionIcon } from "motion-icons-react";
+import Link from "next/link";
 
 const STATS = [
-  { value: "50+", label: "Company Owned Cars" },
-  { value: "10,000+", label: "Trips Completed" },
-  { value: "4.9 ★", label: "Google Review Rating" },
-  { value: "24/7", label: "RSA & Support" },
+  { value: "50+", label: "Company Owned Cars", icon: "Car", anim: "pulse" as const },
+  { value: "10,000+", label: "Trips Completed", icon: "Route", anim: "bounce" as const },
+  { value: "4.9 ★", label: "Google Review Rating", icon: "Star", anim: "spin" as const },
+  { value: "24/7", label: "RSA & Support", icon: "Headphones", anim: "heartbeat" as const },
 ];
 
 export default function AboutSection() {
@@ -40,10 +44,9 @@ export default function AboutSection() {
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    fontSize: "20px",
                   }}
                 >
-                  <i className="fa-solid fa-trophy"></i>
+                  <MotionIcon name="Sparkles" animation="pop" trigger="always" size={20} color="#ffffff" />
                 </div>
                 <div>
                   <h6 className="mb-0 fw-bold text-dark">10,000+ Happy Journeys</h6>
@@ -55,7 +58,7 @@ export default function AboutSection() {
 
           <div className="col-lg-6">
             <span className="section-subtitle-tag">
-              <i className="fa-solid fa-circle-info"></i> Delhi NCR Self-Drive Pioneer
+              <MotionIcon name="Sparkles" animation="pulse" trigger="hover" size={13} color="#c59b27" /> Delhi NCR Self-Drive Pioneer
             </span>
             <h2 className="section-title-large">
               Why Drivers Prefer <span>Primerides</span>
@@ -70,9 +73,15 @@ export default function AboutSection() {
                 <div key={idx} className="col-6">
                   <div
                     className="p-3 rounded-4 border bg-white text-center"
-                    style={{ borderColor: "rgba(197, 155, 39, 0.2) !important" }}
+                    style={{
+                      borderColor: "rgba(197, 155, 39, 0.2) !important",
+                      transition: "transform 0.3s ease",
+                    }}
                   >
-                    <h4 className="fw-bold mb-1" style={{ color: "var(--primary-color)" }}>
+                    <div className="mb-1 d-flex justify-content-center">
+                      <MotionIcon name={s.icon} animation={s.anim} trigger="hover" size={22} color="#c59b27" />
+                    </div>
+                    <h4 className="fw-bold mb-0" style={{ color: "var(--primary-color)" }}>
                       {s.value}
                     </h4>
                     <span className="text-muted small fw-medium">{s.label}</span>
@@ -82,11 +91,11 @@ export default function AboutSection() {
             </div>
 
             <div className="d-flex flex-wrap gap-3">
-              <a href="#categoriesSection" className="btn-prime">
+              <Link href="/cars" className="btn-prime">
                 Explore Our Fleet <i className="fa-solid fa-arrow-right"></i>
-              </a>
+              </Link>
               <a href="tel:+919045301702" className="btn-prime-outline">
-                <i className="fa-solid fa-phone"></i> +91 90453 01702
+                <MotionIcon name="PhoneCall" animation="shake" trigger="hover" size={14} color="#090e1a" /> +91 90453 01702
               </a>
             </div>
           </div>

@@ -1,23 +1,30 @@
+"use client";
+
 import React from "react";
+import { MotionIcon } from "motion-icons-react";
 
 const TRUST_ITEMS = [
   {
-    icon: "fa-solid fa-gauge-high",
+    iconName: "Gauge",
+    animation: "pulse" as const,
     title: "Unlimited Kilometers",
     desc: "No per-km limits or hidden penalties",
   },
   {
-    icon: "fa-solid fa-location-crosshairs",
+    iconName: "MapPin",
+    animation: "bounce" as const,
     title: "Doorstep Delivery",
     desc: "To any home, office, or airport terminal in NCR",
   },
   {
-    icon: "fa-solid fa-shield-halved",
+    iconName: "ShieldCheck",
+    animation: "wiggle" as const,
     title: "Zero Hidden Fees",
     desc: "100% transparent pricing & minimal security deposit",
   },
   {
-    icon: "fa-solid fa-headset",
+    iconName: "Headphones",
+    animation: "heartbeat" as const,
     title: "24/7 Roadside Assistance",
     desc: "Round-the-clock emergency support across India",
   },
@@ -30,22 +37,36 @@ export default function TrustBar() {
         <div className="row g-4">
           {TRUST_ITEMS.map((item, idx) => (
             <div key={idx} className="col-lg-3 col-md-6">
-              <div className="trust-item d-flex align-items-center gap-3">
+              <div
+                className="trust-item d-flex align-items-center gap-3 p-3 rounded-4"
+                style={{
+                  background: "#ffffff",
+                  border: "1px solid rgba(226, 232, 240, 0.8)",
+                  boxShadow: "0 4px 16px rgba(0,0,0,0.02)",
+                  transition: "all 0.3s ease",
+                  cursor: "default",
+                }}
+              >
                 <div
                   style={{
                     width: "48px",
                     height: "48px",
-                    borderRadius: "12px",
-                    background: "rgba(198, 159, 70, 0.12)",
+                    borderRadius: "14px",
+                    background: "rgba(197, 155, 39, 0.12)",
                     color: "var(--primary-color)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    fontSize: "20px",
                     flexShrink: 0,
                   }}
                 >
-                  <i className={item.icon}></i>
+                  <MotionIcon
+                    name={item.iconName}
+                    animation={item.animation}
+                    trigger="hover"
+                    size={24}
+                    color="#c59b27"
+                  />
                 </div>
                 <div>
                   <h6 className="mb-1 fw-bold" style={{ color: "var(--text-heading)", fontSize: "15px" }}>

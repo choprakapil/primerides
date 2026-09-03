@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { MotionIcon } from "motion-icons-react";
 
 const CARS_PRICING = [
   { name: "Hyundai Creta SX(O)", rate: 2999 },
@@ -47,7 +48,7 @@ export default function RentalCalculator() {
         {/* Section Header */}
         <div className="section-header-block">
           <span className="section-subtitle-tag">
-            <i className="fa-solid fa-calculator"></i> Transparent Fare Calculator
+            <MotionIcon name="Calculator" animation="nudge" trigger="hover" size={13} color="#c59b27" /> Transparent Fare Calculator
           </span>
           <h2 className="section-title-large">
             Instant Rental <span>Price Estimator</span>
@@ -59,8 +60,8 @@ export default function RentalCalculator() {
           <div className="row g-4 align-items-center">
             {/* Left Controls */}
             <div className="col-lg-7">
-              <h4 className="fw-bold mb-4" style={{ color: "var(--text-heading)" }}>
-                <i className="fa-solid fa-sliders me-2" style={{ color: "var(--primary-color)" }}></i> Configure Your Rental
+              <h4 className="fw-bold mb-4" style={{ color: "var(--text-heading)", display: "flex", alignItems: "center", gap: "8px" }}>
+                <MotionIcon name="Sliders" animation="wiggle" trigger="hover" size={18} color="#c59b27" /> Configure Your Rental
               </h4>
 
               {/* 1. Vehicle Selection */}
@@ -111,7 +112,7 @@ export default function RentalCalculator() {
               {/* 3. Insurance Coverage */}
               <div className="mb-3">
                 <label className="form-label fw-bold text-muted small mb-2">
-                  <i className="fa-solid fa-shield-halved me-1"></i> PROTECTION COVERAGE
+                  <MotionIcon name="ShieldCheck" animation="pulse" trigger="hover" size={13} color="#c59b27" /> PROTECTION COVERAGE
                 </label>
                 <div className="d-flex flex-column gap-2">
                   <label

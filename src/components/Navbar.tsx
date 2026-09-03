@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useModal } from "@/context/ModalContext";
+import { MotionIcon } from "motion-icons-react";
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -93,16 +94,17 @@ export default function Navbar() {
                 transition: "all 0.3s ease",
               }}
             >
-              <i className="fa-regular fa-user" style={{ color: "var(--primary-color)" }}></i>
+              <MotionIcon name="User" animation="pop" trigger="hover" size={15} color="#c59b27" />
               <span>Register / Login</span>
             </button>
 
             <a
               href="tel:+919045301702"
-              className="btn-prime d-none d-md-inline-flex"
+              className="btn-prime d-none d-md-inline-flex align-items-center gap-2"
               style={{ padding: "8px 20px", fontSize: "13px", borderRadius: "30px" }}
             >
-              <i className="fa-solid fa-phone"></i> +91 90453 01702
+              <MotionIcon name="PhoneCall" animation="shake" trigger="hover" size={14} color="#ffffff" />
+              <span>+91 90453 01702</span>
             </a>
           </div>
         </div>

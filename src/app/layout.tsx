@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "motion-icons-react/style.css";
 import { ModalProvider } from "@/context/ModalContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
