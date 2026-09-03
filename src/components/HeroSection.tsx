@@ -154,29 +154,33 @@ export default function HeroSection() {
                   <button
                     type="button"
                     onClick={() => openBookingModal(slide.carName!, slide.carPrice!, slide.carImg!)}
-                    className="btn-prime-outline"
+                    className="btn-prime-outline hero-btn-outline"
                     style={{
-                      background: "rgba(255,255,255,0.1)",
-                      borderColor: "rgba(255,255,255,0.3)",
-                      color: "#fff !important",
-                      border: "1.5px solid rgba(255,255,255,0.3)",
+                      background: "rgba(255, 255, 255, 0.12)",
+                      borderColor: "rgba(255, 255, 255, 0.4)",
+                      color: "#ffffff",
+                      border: "1.5px solid rgba(255, 255, 255, 0.4)",
                       cursor: "pointer",
+                      textShadow: "0 1px 4px rgba(0,0,0,0.5)",
                     }}
                   >
-                    {slide.btn2Text} <i className="fa-solid fa-car-side"></i>
+                    <span style={{ color: "#ffffff", fontWeight: 600 }}>{slide.btn2Text}</span>
+                    <i className="fa-solid fa-car-side ms-2" style={{ color: "#ffffff" }}></i>
                   </button>
                 ) : slide.btn2Href ? (
                   <a
                     href={slide.btn2Href}
-                    className="btn-prime-outline"
+                    className="btn-prime-outline hero-btn-outline"
                     style={{
-                      background: "rgba(255,255,255,0.1)",
-                      borderColor: "rgba(255,255,255,0.3)",
-                      color: "#fff !important",
-                      border: "1.5px solid rgba(255,255,255,0.3)",
+                      background: "rgba(255, 255, 255, 0.12)",
+                      borderColor: "rgba(255, 255, 255, 0.4)",
+                      color: "#ffffff",
+                      border: "1.5px solid rgba(255, 255, 255, 0.4)",
+                      textShadow: "0 1px 4px rgba(0,0,0,0.5)",
                     }}
                   >
-                    {slide.btn2Text} <i className={slide.btn2Icon}></i>
+                    <span style={{ color: "#ffffff", fontWeight: 600 }}>{slide.btn2Text}</span>
+                    <i className={`${slide.btn2Icon} ms-2`} style={{ color: "#ffffff" }}></i>
                   </a>
                 ) : null}
               </div>

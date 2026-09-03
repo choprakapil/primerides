@@ -22,6 +22,14 @@ export default function Navbar() {
 
   const isHome = pathname === "/";
 
+  const navLinks = [
+    { label: "HOME", href: "/" },
+    { label: "ABOUT US", href: "/about" },
+    { label: "OUR FLEET", href: "/cars" },
+    { label: "BLOGS", href: "/blogs" },
+    { label: "CONTACT", href: "/contact" },
+  ];
+
   return (
     <nav className={`navbar navbar-expand-lg ${isScrolled || !isHome ? "nav-scroll" : ""}`}>
       <div className="container">
@@ -32,7 +40,6 @@ export default function Navbar() {
             alt="Primerides"
             style={{
               height: "44px",
-              filter: (!isScrolled && isHome) ? "none" : "none",
             }}
           />
         </Link>
@@ -51,31 +58,26 @@ export default function Navbar() {
 
         <div className="collapse navbar-collapse" id="navbarMain">
           <ul className="navbar-nav mx-auto mb-2 mb-lg-0">
-            <li className="nav-item">
-              <Link className={`nav-link ${pathname === "/" ? "active" : ""}`} href="/">
-                HOME
-              </Link>
-            </li>
-            <li className="nav-item">
-              <Link className={`nav-link ${pathname === "/about" ? "active" : ""}`} href="/about">
-                ABOUT US
-              </Link>
-            </li>
-            <li className="nav-item">
-              <Link className={`nav-link ${pathname === "/cars" ? "active" : ""}`} href="/cars">
-                OUR FLEET
-              </Link>
-            </li>
-            <li className="nav-item">
-              <Link className={`nav-link ${pathname === "/blogs" ? "active" : ""}`} href="/blogs">
-                BLOGS
-              </Link>
-            </li>
-            <li className="nav-item">
-              <Link className={`nav-link ${pathname === "/contact" ? "active" : ""}`} href="/contact">
-                CONTACT
-              </Link>
-            </li>
+            {navLinks.map((item) => {
+              const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
+              return (
+                <li key={item.href} className="nav-item">
+                  <Link
+                    className={`nav-link ${isActive ? "active" : ""}`}
+                    href={item.href}
+                    style={{
+                      color: isActive
+                        ? "var(--primary-color)"
+                        : isScrolled || !isHome
+                        ? "var(--text-heading)"
+                        : "#ffffff",
+                    }}
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
 
           <div className="d-flex align-items-center gap-3">

@@ -1493,3 +1493,53 @@ a {
 .blog-card-prime:hover .blog-link {
   gap: 10px;
 }
+
+/* ===================================================================
+   HOMEPAGE CUSTOMIZATIONS & CAROUSEL POLISH
+   =================================================================== */
+
+/* Hero Outline Button Crisp White Text */
+.header.slider-fade .btn-prime-outline,
+.hero-btn-outline {
+  color: #ffffff !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.4) !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5) !important;
+}
+
+.header.slider-fade .btn-prime-outline *,
+.hero-btn-outline * {
+  color: #ffffff !important;
+}
+
+.header.slider-fade .btn-prime-outline:hover,
+.hero-btn-outline:hover {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #ffffff !important;
+  box-shadow: 0 8px 25px rgba(255, 255, 255, 0.25) !important;
+  transform: translateY(-2px);
+}
+
+.header.slider-fade .btn-prime-outline:hover *,
+.hero-btn-outline:hover * {
+  color: #0f172a !important;
+}
+
+/* Navbar Active Links Primary Color */
+.navbar .nav-link.active,
+.navbar .nav-link:hover,
+.navbar-nav .nav-link.active,
+.navbar-nav .nav-link:hover {
+  color: var(--primary-color) !important;
+}
+
+/* Carousel Arrow Button Hover */
+.carousel-arrow-btn:not(:disabled):hover {
+  transform: scale(1.08);
+  box-shadow: 0 6px 18px rgba(197, 155, 39, 0.4) !important;
+}
+
+.carousel-arrow-btn:not(:disabled):active {
+  transform: scale(0.95);
+}

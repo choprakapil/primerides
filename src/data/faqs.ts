@@ -1,31 +1,31 @@
-export interface FaqItem {
+export interface FAQItem {
   id: string;
-  category?: string;
+  category: string;
   question: string;
   answer: string;
 }
 
-export const FAQS_DATA: FaqItem[] = [
+export const FAQS_DATA: FAQItem[] = [
   {
     id: "faq1",
-    category: "Booking & Documentation",
-    question: "What documents are required to rent a self-drive car?",
+    category: "Booking & Eligibility",
+    question: "What documents are required to book a self-drive car with Primerides?",
     answer:
-      "You only need an original, valid Indian Driving License (minimum 1 year holding experience) and a Government-issued ID proof (Aadhaar Card or Passport). Verification is completed digitally via WhatsApp or email in less than 5 minutes before vehicle handover.",
+      "To rent a self-drive car, you must be at least 21 years old and hold a valid original Indian Driving License (minimum 1 year old) along with an Aadhaar Card or Passport for digital KYC verification. International travelers can present a valid Passport, Visa, and an International Driving Permit (IDP).",
   },
   {
     id: "faq2",
-    category: "Permits & Inter-state Travel",
-    question: "Can I take the car outstation to other states (Himachal, Uttarakhand, Rajasthan)?",
+    category: "Kilometer Limit & Fuel",
+    question: "Are kilometers really unlimited on all self-drive car bookings?",
     answer:
-      "Yes, absolutely! All Primerides vehicles carry valid All-India Tourist Commercial Permits and active FASTag. You can drive freely across Himachal Pradesh, Uttarakhand, Rajasthan, Punjab, Uttar Pradesh, and across the nation. State border taxes can be paid online or at designated border counters.",
+      "Yes! Primerides proudly offers truly unlimited kilometers across all our fleet categories. You can drive freely across Delhi NCR, Himachal Pradesh, Uttarakhand, Rajasthan, or pan-India without paying per-km penalties. Vehicles are delivered with fuel and must be returned at the same level.",
   },
   {
     id: "faq3",
-    category: "Kilometer Policy",
-    question: "Are unlimited kilometers really included?",
+    category: "Delivery & Pickup",
+    question: "Can I get doorstep delivery at Delhi IGI Airport or my home/hotel?",
     answer:
-      "Yes, Primerides offers dedicated unlimited kilometer packages so you can enjoy uninterrupted long-distance road trips without constantly monitoring the odometer or stressing over per-km penalty charges.",
+      "Absolutely. We provide prompt 24/7 doorstep vehicle delivery and pickup across Delhi NCR, including IGI Airport Terminal 1, 2 & 3, Gurgaon Cyber City, Noida, Greater Noida, Ghaziabad, and Faridabad. Our fleet executive meets you directly at your specified terminal or address.",
   },
   {
     id: "faq4",
@@ -56,10 +56,10 @@ export const TESTIMONIALS_DATA: TestimonialItem[] = [
   {
     name: "Rohit Malhotra",
     trip: "Trip to Spiti Valley (Gurgaon)",
-    car: "Mahindra Thar 4x4",
+    car: "Toyota Fortuner 4x4",
     img: "/assets/img/team/1.jpg",
     rating: 5,
-    text: "Rented the Thar 4x4 for a 9-day Spiti expedition. The vehicle was in immaculate mechanical health, pristine interior, and the unlimited km package gave us complete peace of mind across rugged mountain terrains.",
+    text: "Rented the Fortuner 4x4 for a 9-day Spiti expedition. The vehicle was in immaculate mechanical health, pristine interior, and the unlimited km package gave us complete peace of mind across rugged mountain terrains.",
   },
   {
     name: "Dr. Ananya Sen",
@@ -76,5 +76,29 @@ export const TESTIMONIALS_DATA: TestimonialItem[] = [
     img: "/assets/img/team/3.jpg",
     rating: 5,
     text: "Fastest digital KYC process I've seen in India. Within 10 minutes of submitting documents on WhatsApp, my booking was confirmed. The security deposit was returned within 24 hours of car drop. 10/10 recommendation.",
+  },
+  {
+    name: "Siddharth Oberoi",
+    trip: "Jaipur Highway Cruise (Delhi)",
+    car: "Mahindra Thar 4x4",
+    img: "/assets/img/team/1.jpg",
+    rating: 5,
+    text: "Took the Thar convertible for a long weekend trip to Neemrana and Jaipur. The open-top feel on the Delhi-Mumbai expressway was exhilarating. The car was spotless and fuel economy was surprisingly great.",
+  },
+  {
+    name: "Megha Kapoor",
+    trip: "IGI Airport Pickup (Faridabad)",
+    car: "Maruti Suzuki Brezza",
+    img: "/assets/img/team/2.jpg",
+    rating: 5,
+    text: "Booked a self-drive car right as I landed at Terminal 3. Handover took under 5 minutes right at the passenger pickup lane. Returning it was just as hassle-free. Will definitely book again for my next trip.",
+  },
+  {
+    name: "Vikramjit Singh",
+    trip: "Manali & Atal Tunnel Trip (Chandigarh)",
+    car: "Toyota Fortuner 4x4",
+    img: "/assets/img/team/3.jpg",
+    rating: 5,
+    text: "The 4x4 power was a lifesaver in the snowy patches near Sissu. Primerides team even provided snow chains and safety gear in the boot. Highly dependable vehicles and courteous support team!",
   },
 ];

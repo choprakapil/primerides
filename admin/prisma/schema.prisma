@@ -1,0 +1,258 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// -----------------------------------------------------------------------------
+// 1. ADMIN & USER MANAGEMENT (Web Admin & Mobile App Users)
+// -----------------------------------------------------------------------------
+model AdminUser {
+  id         Int       @id @default(autoincrement())
+  username   String    @unique @db.VarChar(100)
+  email      String    @unique @db.VarChar(255)
+  name       String    @db.VarChar(255)
+  password   String    @db.VarChar(255) // Hashed password
+  role       String    @default("admin") @db.VarChar(50)
+  is_active  Boolean   @default(true)
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  @@map("tbl_admin_users")
+}
+
+model CustomerUser {
+  id          Int       @id @default(autoincrement())
+  phone       String    @unique @db.VarChar(20)
+  email       String?   @unique @db.VarChar(255)
+  full_name   String    @db.VarChar(255)
+  password    String?   @db.VarChar(255)
+  avatar_url  String?   @db.VarChar(500)
+  device_type String?   @db.VarChar(20) // 'android', 'ios', 'web'
+  fcm_token   String?   @db.VarChar(500) // Firebase Cloud Messaging Token
+  is_verified Boolean   @default(false)
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+  deleted_at  DateTime?
+
+  bookings    Booking[]
+
+  @@map("tbl_customer_users")
+}
+
+// -----------------------------------------------------------------------------
+// 2. FLEET / CAR RENTAL MANAGEMENT
+// -----------------------------------------------------------------------------
+model CarCategory {
+  id          Int       @id @default(autoincrement())
+  name        String    @db.VarChar(100) // "Luxury Sedan", "Supercar", "SUV", "Convertible"
+  slug        String    @unique @db.VarChar(100)
+  description String?   @db.Text
+  image_url   String?   @db.VarChar(500)
+  sort_order  Int       @default(0)
+  is_active   Boolean   @default(true)
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+  deleted_at  DateTime?
+
+  cars        Car[]
+
+  @@map("tbl_car_categories")
+}
+
+model Car {
+  id               Int          @id @default(autoincrement())
+  name             String       @db.VarChar(255) // e.g. "Rolls Royce Ghost Series II"
+  slug             String       @unique @db.VarChar(255)
+  brand            String       @db.VarChar(100) // e.g. "Rolls Royce", "Mercedes-Benz", "BMW"
+  category_id      Int
+  category         CarCategory  @relation(fields: [category_id], references: [id])
+  
+  // Pricing
+  price_per_day    Decimal      @db.Decimal(10, 2)
+  price_per_hour   Decimal?     @db.Decimal(10, 2)
+  security_deposit Decimal?     @db.Decimal(10, 2)
+  
+  // Specifications
+  transmission     String       @default("Automatic") @db.VarChar(50) // Automatic / Manual
+  seats            Int          @default(4)
+  doors            Int          @default(4)
+  fuel_type        String       @default("Petrol") @db.VarChar(50)
+  engine_hp        Int?
+  acceleration     String?      @db.VarChar(50)
+  top_speed        Int?
+  
+  // Media & Badges
+  primary_image    String       @db.VarChar(500)
+  gallery_images   Json?
+  badge            String?      @db.VarChar(50)
+  
+  // Description & Features
+  description      String?      @db.Text
+  features         Json?
+  
+  // Availability & Ranking
+  is_available     Boolean      @default(true)
+  is_featured      Boolean      @default(false)
+  sort_order       Int          @default(0)
+  created_at       DateTime     @default(now())
+  updated_at       DateTime     @updatedAt
+  deleted_at       DateTime?
+
+  bookings         Booking[]
+
+  @@map("tbl_cars")
+}
+
+// -----------------------------------------------------------------------------
+// 3. BOOKINGS, LEADS & INQUIRIES
+// -----------------------------------------------------------------------------
+model Booking {
+  id              Int           @id @default(autoincrement())
+  booking_code    String        @unique @db.VarChar(30)
+  customer_id     Int?
+  customer        CustomerUser? @relation(fields: [customer_id], references: [id])
+  
+  full_name       String        @db.VarChar(255)
+  phone           String        @db.VarChar(20)
+  email           String?       @db.VarChar(255)
+  
+  car_id          Int?
+  car             Car?          @relation(fields: [car_id], references: [id])
+  car_name        String?       @db.VarChar(255)
+  
+  start_date      DateTime
+  end_date        DateTime
+  pickup_location String?       @db.VarChar(255)
+  drop_location   String?       @db.VarChar(255)
+  with_chauffeur  Boolean       @default(false)
+  
+  total_amount    Decimal?      @db.Decimal(10, 2)
+  status          String        @default("pending") @db.VarChar(50)
+  source          String        @default("web") @db.VarChar(50) // web, android, ios, rental_calculator
+  
+  notes           String?       @db.Text
+  admin_notes     String?       @db.Text
+  created_at      DateTime      @default(now())
+  updated_at      DateTime      @updatedAt
+  deleted_at      DateTime?
+
+  @@map("tbl_bookings")
+}
+
+model ContactLead {
+  id          Int       @id @default(autoincrement())
+  name        String    @db.VarChar(255)
+  phone       String    @db.VarChar(20)
+  email       String?   @db.VarChar(255)
+  subject     String?   @db.VarChar(255)
+  message     String    @db.Text
+  source      String    @default("contact_page") @db.VarChar(50)
+  status      String    @default("new") @db.VarChar(50)
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+  deleted_at  DateTime?
+
+  @@map("tbl_contact_leads")
+}
+
+// -----------------------------------------------------------------------------
+// 4. BLOGS & CONTENT
+// -----------------------------------------------------------------------------
+model BlogCategory {
+  id          Int       @id @default(autoincrement())
+  name        String    @db.VarChar(150)
+  slug        String    @unique @db.VarChar(150)
+  description String?   @db.Text
+  is_active   Boolean   @default(true)
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+  deleted_at  DateTime?
+
+  blogs       Blog[]
+
+  @@map("tbl_blog_categories")
+}
+
+model Blog {
+  id               Int          @id @default(autoincrement())
+  title            String       @db.VarChar(255)
+  slug             String       @unique @db.VarChar(255)
+  category_id      Int
+  category         BlogCategory @relation(fields: [category_id], references: [id])
+  featured_image   String?      @db.VarChar(500)
+  image_alt        String?      @db.VarChar(255)
+  summary          String?      @db.Text
+  content          String       @db.LongText
+  author_name      String       @default("PrimeRides Editorial") @db.VarChar(100)
+  read_time        String?      @db.VarChar(50)
+  
+  meta_title       String?      @db.VarChar(255)
+  meta_description String?      @db.Text
+  meta_keywords    String?      @db.Text
+  canonical_url    String?      @db.VarChar(500)
+  
+  is_published     Boolean      @default(true)
+  published_at     DateTime?    @default(now())
+  created_at       DateTime     @default(now())
+  updated_at       DateTime     @updatedAt
+  deleted_at       DateTime?
+
+  @@map("tbl_blogs")
+}
+
+// -----------------------------------------------------------------------------
+// 5. FAQS & TESTIMONIALS
+// -----------------------------------------------------------------------------
+model FAQ {
+  id         Int       @id @default(autoincrement())
+  category   String    @default("General") @db.VarChar(100)
+  question   String    @db.VarChar(500)
+  answer     String    @db.Text
+  sort_order Int       @default(0)
+  is_active  Boolean   @default(true)
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  @@map("tbl_faqs")
+}
+
+model Testimonial {
+  id          Int       @id @default(autoincrement())
+  client_name String    @db.VarChar(255)
+  role_title  String?   @db.VarChar(150)
+  rating      Int       @default(5)
+  comment     String    @db.Text
+  avatar_url  String?   @db.VarChar(500)
+  is_featured Boolean   @default(true)
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+  deleted_at  DateTime?
+
+  @@map("tbl_testimonials")
+}
+
+// -----------------------------------------------------------------------------
+// 6. DYNAMIC SEO & PAGE METADATA
+// -----------------------------------------------------------------------------
+model PageMeta {
+  id               Int       @id @default(autoincrement())
+  route_path       String    @unique @db.VarChar(255)
+  meta_title       String    @db.VarChar(255)
+  meta_description String?   @db.Text
+  meta_keywords    String?   @db.Text
+  og_title         String?   @db.VarChar(255)
+  og_description   String?   @db.Text
+  og_image         String?   @db.VarChar(500)
+  canonical_url    String?   @db.VarChar(500)
+  robots           String    @default("index, follow") @db.VarChar(100)
+  created_at       DateTime  @default(now())
+  updated_at       DateTime  @updatedAt
+
+  @@map("tbl_page_meta")
+}
