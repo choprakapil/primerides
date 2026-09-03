@@ -1,0 +1,50 @@
+/* Exact FAQ accordion styles from static site */
+.faq-accordion-item {
+  background: #ffffff;
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 14px !important;
+  margin-bottom: 14px;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.faq-accordion-item:hover {
+  border-color: rgba(197, 155, 39, 0.4);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.04);
+}
+.faq-accordion-button {
+  background: #ffffff;
+  color: var(--text-heading, #090e1a);
+  font-weight: 600;
+  font-size: 16px;
+  padding: 20px 24px;
+  border: none;
+  box-shadow: none !important;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+}
+.faq-accordion-button:not(.collapsed) {
+  color: var(--primary-color, #c59b27);
+  background: #fdfaf2;
+}
+.faq-accordion-button::after {
+  content: '\f078';
+  font-family: 'Font Awesome 6 Free';
+  font-weight: 900;
+  font-size: 13px;
+  transition: transform 0.3s ease;
+  color: var(--primary-color, #c59b27);
+}
+.faq-accordion-button:not(.collapsed)::after {
+  transform: rotate(180deg);
+}
+.faq-accordion-body {
+  padding: 18px 24px 24px 24px;
+  color: #64748b;
+  font-size: 15px;
+  line-height: 1.7;
+  background: #fdfaf2;
+}
