@@ -3,6 +3,7 @@ import "./globals.css";
 import { ModalProvider } from "@/context/ModalContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { Analytics } from "@vercel/analytics/next";
 
 export const metadata: Metadata = {
   title: "Primerides - Self Drive Car Rental Delhi NCR | Unlimited KMs & Doorstep Delivery",
@@ -45,6 +46,7 @@ export default function RootLayout({
           <main>{children}</main>
           <Footer />
         </ModalProvider>
+        <Analytics />
       </body>
     </html>
   );
