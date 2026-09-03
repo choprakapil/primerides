@@ -63,7 +63,7 @@ export default function TrustBar() {
                   <MotionIcon
                     name={item.iconName}
                     animation={item.animation}
-                    trigger="hover"
+                    trigger="always"
                     size={24}
                     color="#c59b27"
                   />
