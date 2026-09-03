@@ -1,8 +1,6 @@
 import React, { Suspense } from "react";
 import PageHeader from "@/components/PageHeader";
 import CarsCategory from "@/components/CarsCategory";
-import VehicleSpotlight from "@/components/VehicleSpotlight";
-import RentalCalculator from "@/components/RentalCalculator";
 import TrustBar from "@/components/TrustBar";
 
 export const metadata = {
@@ -23,8 +21,6 @@ export default function CarsPage() {
       <Suspense fallback={<div className="text-center py-5">Loading Fleet...</div>}>
         <CarsCategory />
       </Suspense>
-      <VehicleSpotlight />
-      <RentalCalculator />
       <TrustBar />
     </>
   );

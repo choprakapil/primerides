@@ -3,8 +3,6 @@ import HeroSection from "@/components/HeroSection";
 import SearchBar from "@/components/SearchBar";
 import TrustBar from "@/components/TrustBar";
 import CarsCategory from "@/components/CarsCategory";
-import VehicleSpotlight from "@/components/VehicleSpotlight";
-import RentalCalculator from "@/components/RentalCalculator";
 import AboutSection from "@/components/AboutSection";
 import VideoBanner from "@/components/VideoBanner";
 import Testimonials from "@/components/Testimonials";
@@ -18,8 +16,6 @@ export default function HomePage() {
       <SearchBar />
       <TrustBar />
       <CarsCategory />
-      <VehicleSpotlight />
-      <RentalCalculator />
       <AboutSection />
       <VideoBanner />
       <Testimonials />
