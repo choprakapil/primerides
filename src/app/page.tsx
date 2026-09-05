@@ -5,6 +5,7 @@ import ChooseLocation from "@/components/ChooseLocation";
 import CarsCategory from "@/components/CarsCategory";
 import OffersSection from "@/components/OffersSection";
 import AboutSection from "@/components/AboutSection";
+import CtaSection from "@/components/CtaSection";
 import VideoBanner from "@/components/VideoBanner";
 import Testimonials from "@/components/Testimonials";
 import BlogSection from "@/components/BlogSection";
@@ -19,6 +20,7 @@ export default function HomePage() {
       <CarsCategory />
       <OffersSection />
       <AboutSection />
+      <CtaSection />
       <VideoBanner />
       <Testimonials />
       <BlogSection />

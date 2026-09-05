@@ -2611,3 +2611,177 @@ a {
     animation: none;
   }
 }
+
+
+/* ===================================================================
+   BEAUTIFUL CTA SECTION (Placed below Why Choose Us)
+   =================================================================== */
+.cta-prime-section {
+  padding: 40px 0 85px;
+  background: #f8fafc;
+  position: relative;
+}
+
+.cta-prime-card {
+  background: linear-gradient(135deg, #090e1a 0%, #0f172a 45%, #1e293b 100%);
+  border-radius: 32px;
+  border: 1px solid rgba(197, 155, 39, 0.35);
+  box-shadow: 
+    0 25px 60px -15px rgba(9, 14, 26, 0.4),
+    0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+.cta-glow-blob {
+  width: 350px;
+  height: 350px;
+  background: radial-gradient(circle, rgba(197, 155, 39, 0.15) 0%, transparent 70%);
+  filter: blur(60px);
+  pointer-events: none;
+}
+
+.cta-glow-blob-gold {
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(197, 155, 39, 0.2) 0%, transparent 70%);
+  filter: blur(50px);
+  pointer-events: none;
+}
+
+.cta-pill-badge {
+  background: rgba(197, 155, 39, 0.18);
+  border: 1px solid rgba(197, 155, 39, 0.4);
+  border-radius: 30px;
+  padding: 6px 18px;
+  color: #f7d58b;
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+.cta-heading {
+  font-size: 38px;
+  font-weight: 850;
+  line-height: 1.2;
+  letter-spacing: -0.5px;
+}
+
+.cta-heading span {
+  background: linear-gradient(135deg, #c59b27 0%, #f7d58b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.cta-subtext {
+  font-size: 15.5px;
+  line-height: 1.7;
+  max-width: 620px;
+}
+
+.cta-perk-item {
+  font-size: 13px;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 20px;
+  padding: 5px 14px;
+  backdrop-filter: blur(8px);
+}
+
+.cta-btn-glow:hover {
+  box-shadow: 0 12px 30px -4px rgba(197, 155, 39, 0.6) !important;
+  transform: translateY(-2px);
+}
+
+.btn-cta-whatsapp {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  border-radius: 30px;
+  padding: 13px 24px;
+  font-size: 14.5px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(8px);
+}
+
+.btn-cta-whatsapp:hover {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.4);
+  color: #ffffff;
+  transform: translateY(-2px);
+}
+
+.btn-cta-phone {
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  padding: 10px 18px;
+  border-radius: 30px;
+  background: transparent;
+  border: 1.5px solid rgba(197, 155, 39, 0.35);
+  transition: all 0.3s ease;
+}
+
+.btn-cta-phone:hover {
+  border-color: #c59b27;
+  color: #f7d58b !important;
+  transform: translateY(-2px);
+}
+
+.cta-car-visual-box {
+  position: relative;
+  width: 100%;
+}
+
+.cta-car-img {
+  max-width: 110%;
+  filter: drop-shadow(0 25px 35px rgba(0, 0, 0, 0.4));
+  transform: scale(1.08);
+  transition: transform 0.4s ease;
+}
+
+.cta-prime-card:hover .cta-car-img {
+  transform: scale(1.12);
+}
+
+.cta-floating-guarantee {
+  position: absolute;
+  bottom: -15px;
+  left: 20px;
+  background: rgba(15, 23, 42, 0.92);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(197, 155, 39, 0.4);
+  border-radius: 16px;
+  padding: 8px 16px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+.cta-badge-check {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #10b981;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 991px) {
+  .cta-heading {
+    font-size: 28px;
+  }
+  .cta-car-img {
+    max-width: 100%;
+    transform: scale(1);
+    margin: 20px auto;
+  }
+  .cta-floating-guarantee {
+    position: static;
+    display: inline-flex;
+    margin-top: 15px;
+  }
+}
