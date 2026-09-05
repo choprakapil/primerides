@@ -11,12 +11,19 @@ interface CarsCategoryProps {
 export default function CarsCategory({ initialFilter = "all" }: CarsCategoryProps) {
   const [activeFilter, setActiveFilter] = useState(initialFilter);
   const [selectedKmMap, setSelectedKmMap] = useState<Record<string, string>>({});
+  const [showAllCards, setShowAllCards] = useState(false);
   const { openBookingModal } = useModal();
 
-  const filteredCars =
+  const allFilteredCars =
     activeFilter === "all"
       ? FLEET_CARS
       : FLEET_CARS.filter((c) => c.category === activeFilter);
+
+  // On "all" tab, limit to 4 cards initially unless "View All" is toggled
+  const displayedCars =
+    activeFilter === "all" && !showAllCards
+      ? allFilteredCars.slice(0, 4)
+      : allFilteredCars;
 
   const categories = [
     { id: "all", label: "All Categories", icon: "fa-solid fa-border-all" },
@@ -31,6 +38,11 @@ export default function CarsCategory({ initialFilter = "all" }: CarsCategoryProp
 
   const handleKmSelect = (carId: string, km: string) => {
     setSelectedKmMap((prev) => ({ ...prev, [carId]: km }));
+  };
+
+  const handleCategoryChange = (catId: string) => {
+    setActiveFilter(catId);
+    setShowAllCards(false);
   };
 
   return (
@@ -56,7 +68,7 @@ export default function CarsCategory({ initialFilter = "all" }: CarsCategoryProp
               key={cat.id}
               type="button"
               className={`category-filter-btn ${activeFilter === cat.id ? "active" : ""}`}
-              onClick={() => setActiveFilter(cat.id)}
+              onClick={() => handleCategoryChange(cat.id)}
             >
               <i className={`${cat.icon} me-1`}></i> {cat.label}
             </button>
@@ -65,7 +77,7 @@ export default function CarsCategory({ initialFilter = "all" }: CarsCategoryProp
 
         {/* 4-Column Grid of Beautiful Clean Cards */}
         <div className="row g-4" id="categoriesCardGrid">
-          {filteredCars.map((car) => {
+          {displayedCars.map((car) => {
             const selectedKm = selectedKmMap[car.id] || "250 KM";
             return (
               <div key={car.id} className="col-xl-3 col-lg-4 col-md-6 col-sm-12">
@@ -144,6 +156,20 @@ export default function CarsCategory({ initialFilter = "all" }: CarsCategoryProp
             );
           })}
         </div>
+
+        {/* View All / Show Less Button on All Categories Tab */}
+        {activeFilter === "all" && allFilteredCars.length > 4 && (
+          <div className="text-center mt-5">
+            <button
+              type="button"
+              onClick={() => setShowAllCards(!showAllCards)}
+              className="btn-view-all-fleet d-inline-flex align-items-center gap-2"
+            >
+              <span>{showAllCards ? "Show Less" : `View All Cars (${allFilteredCars.length})`}</span>
+              <i className={`fa-solid ${showAllCards ? "fa-chevron-up" : "fa-arrow-right"}`}></i>
+            </button>
+          </div>
+        )}
       </div>
     </section>
   );

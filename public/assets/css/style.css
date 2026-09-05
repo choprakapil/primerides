@@ -2235,3 +2235,38 @@ a {
     font-size: 30px;
   }
 }
+
+
+/* ===================================================================
+   VIEW ALL CARS BUTTON (All Categories Tab)
+   =================================================================== */
+.btn-view-all-fleet {
+  background: #ffffff;
+  color: #111827;
+  border: 1.5px solid #111827;
+  border-radius: 50px;
+  padding: 14px 34px;
+  font-size: 14.5px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-view-all-fleet i {
+  transition: transform 0.25s ease;
+  color: #c59b27;
+}
+
+.btn-view-all-fleet:hover {
+  background: #111827;
+  color: #ffffff;
+  border-color: #111827;
+  box-shadow: 0 12px 28px rgba(17, 24, 39, 0.18);
+  transform: translateY(-2px);
+}
+
+.btn-view-all-fleet:hover i {
+  transform: translateX(4px);
+  color: #ffffff;
+}
