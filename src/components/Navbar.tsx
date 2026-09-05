@@ -92,7 +92,7 @@ export default function Navbar() {
                 transition: "all 0.3s ease",
               }}
             >
-              <MotionIcon name="User" animation="pop" trigger="always" size={15} color="#c59b27" />
+              <MotionIcon name="User" animation="pulse" trigger="always" size={15} color="#c59b27" />
               <span>Register / Login</span>
             </button>
 
@@ -101,7 +101,7 @@ export default function Navbar() {
               className="btn-prime d-none d-md-inline-flex align-items-center gap-2"
               style={{ padding: "8px 20px", fontSize: "13px", borderRadius: "30px" }}
             >
-              <MotionIcon name="PhoneCall" animation="shake" trigger="always" size={14} color="#ffffff" />
+              <MotionIcon name="PhoneCall" animation="pulse" trigger="always" size={14} color="#ffffff" />
               <span>+91 90453 01702</span>
             </a>
           </div>
