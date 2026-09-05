@@ -228,14 +228,14 @@ export default function CarsCategory() {
                         ))}
                       </div>
 
-                      {/* View Details / Book Button - styled with header call style */}
+                      {/* View Car Details / Book Button - styled with header call style */}
                       <div className="mt-auto pt-2">
                         <button
                           type="button"
                           onClick={() => openBookingModal(car.name, car.priceRaw, car.img)}
                           className="modern-card-btn w-100 d-flex align-items-center justify-content-center gap-2"
                         >
-                          <span>View Details</span>
+                          <span>View Car Details</span>
                           <i className="fa-solid fa-arrow-right arrow-icon"></i>
                         </button>
                       </div>
