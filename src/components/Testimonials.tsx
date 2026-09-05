@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { TESTIMONIALS_DATA } from "@/data/faqs";
+import { REVIEWS_DATA as TESTIMONIALS_DATA } from "@/data";
 
 export default function Testimonials() {
   const [currentIndex, setCurrentIndex] = useState(0);

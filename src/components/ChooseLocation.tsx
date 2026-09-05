@@ -2,7 +2,8 @@
 
 import React from "react";
 import { MotionIcon } from "motion-icons-react";
-
+import { useModal } from "@/context/ModalContext";
+import { LOCATIONS_DATA } from "@/data";
 export default function ChooseLocation() {
   const LOCATIONS = [
     {

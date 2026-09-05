@@ -3,26 +3,11 @@
 import React, { useState } from "react";
 import { MotionIcon } from "motion-icons-react";
 import Link from "next/link";
-
+import { POPULAR_SEARCHES, ROAD_TRIP_ROUTES, TARIFF_TABLE_DATA } from "@/data";
 export default function SeoContentSection() {
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const POPULAR_SEARCHES = [
-    "Self Drive Car Rental Delhi",
-    "Car Rental IGI Airport Terminal 3",
-    "Toyota Fortuner 4x4 on Rent",
-    "Mahindra Thar Self Drive Delhi NCR",
-    "Innova Crysta Rental Gurgaon",
-    "Self Drive Car Rental Lucknow",
-    "Car Rental Noida Sector 18",
-    "Unlimited KMs Car Hire Delhi",
-    "Delhi to Manali 4x4 Self Drive",
-    "Luxury Car Rental Delhi NCR",
-    "Zero Deposit Self Drive Cars",
-    "Airport Terminal 1 & 2 Car Pickup",
-    "Delhi to Leh Ladakh Road Trip SUV",
-    "Monthly Car Rental Delhi NCR",
-  ];
+  // Loaded from microservice / data layer (seo.ts)
 
   return (
     <section className="seo-content-section position-relative overflow-hidden" id="seoContentSection">
@@ -107,26 +92,18 @@ export default function SeoContentSection() {
                 PrimeRides is the preferred rental partner for adventurous road trips across North India:
               </p>
               <div className="row g-3">
-                <div className="col-md-6 col-12">
-                  <div className="p-3 bg-light rounded-3 border">
-                    <h5 className="fw-bold mb-1" style={{ fontSize: "14.5px", color: "#111827" }}>
-                      ⛰️ Mountain &amp; Adventure Expeditions
-                    </h5>
-                    <p className="text-muted mb-0" style={{ fontSize: "13px" }}>
-                      Delhi to Manali, Leh Ladakh, Spiti Valley, Shimla, Rishikesh, Mussoorie, Nainital, and Auli. Recommended: <em>Toyota Fortuner 4x4, Mahindra Thar 4x4, Scorpio-N</em>.
-                    </p>
+                {ROAD_TRIP_ROUTES.map((item) => (
+                  <div key={item.id} className="col-md-6 col-12">
+                    <div className="p-3 bg-light rounded-3 border h-100">
+                      <h5 className="fw-bold mb-1" style={{ fontSize: "14.5px", color: "#111827" }}>
+                        {item.title}
+                      </h5>
+                      <p className="text-muted mb-0" style={{ fontSize: "13px" }}>
+                        {item.route} Recommended: <em>{item.recommendedCars}</em>.
+                      </p>
+                    </div>
                   </div>
-                </div>
-                <div className="col-md-6 col-12">
-                  <div className="p-3 bg-light rounded-3 border">
-                    <h5 className="fw-bold mb-1" style={{ fontSize: "14.5px", color: "#111827" }}>
-                      🏰 Heritage &amp; Expressway Circuits
-                    </h5>
-                    <p className="text-muted mb-0" style={{ fontSize: "13px" }}>
-                      Delhi to Jaipur (via Delhi-Mumbai Expressway), Agra (via Yamuna Expressway), Udaipur, Jodhpur, and Lucknow (via Agra-Lucknow Expressway). Recommended: <em>Toyota Innova Crysta, Hyundai Creta</em>.
-                    </p>
-                  </div>
-                </div>
+                ))}
               </div>
             </div>
 
@@ -145,41 +122,15 @@ export default function SeoContentSection() {
                     </tr>
                   </thead>
                   <tbody>
-                    <tr>
-                      <td><strong>Hatchback</strong></td>
-                      <td>Maruti Swift, Baleno, Hyundai i20</td>
-                      <td>5 Seater</td>
-                      <td>₹1,499 / day</td>
-                      <td>Daily City Commute, Fuel Efficiency</td>
-                    </tr>
-                    <tr>
-                      <td><strong>Compact SUV</strong></td>
-                      <td>Hyundai Creta, Kia Seltos, Brezza</td>
-                      <td>5 Seater</td>
-                      <td>₹2,199 / day</td>
-                      <td>Weekend Getaways, Highway Comfort</td>
-                    </tr>
-                    <tr>
-                      <td><strong>Adventure 4x4</strong></td>
-                      <td>Mahindra Thar 4x4, Jimny 4x4, Fortuner 4x4</td>
-                      <td>4-7 Seater</td>
-                      <td>₹2,499 / day</td>
-                      <td>Himachal, Ladakh, Off-Road Expeditions</td>
-                    </tr>
-                    <tr>
-                      <td><strong>7-Seater Executive</strong></td>
-                      <td>Toyota Innova Crysta, Mahindra Scorpio-N</td>
-                      <td>7-8 Seater</td>
-                      <td>₹3,499 / day</td>
-                      <td>Family Road Trips, Group Travel</td>
-                    </tr>
-                    <tr>
-                      <td><strong>Super Luxury</strong></td>
-                      <td>Rolls Royce, Lamborghini Urus, Audi RS7</td>
-                      <td>4-5 Seater</td>
-                      <td>₹14,999 / day</td>
-                      <td>Weddings, VIP Events, Luxury Experience</td>
-                    </tr>
+                    {TARIFF_TABLE_DATA.map((t, idx) => (
+                      <tr key={idx}>
+                        <td><strong>{t.category}</strong></td>
+                        <td>{t.popularModels}</td>
+                        <td>{t.seating}</td>
+                        <td>{t.startingTariff}</td>
+                        <td>{t.bestSuitedFor}</td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>
