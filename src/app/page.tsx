@@ -1,6 +1,7 @@
 import React from "react";
 import HeroSection from "@/components/HeroSection";
 import TrustBar from "@/components/TrustBar";
+import ChooseLocation from "@/components/ChooseLocation";
 import CarsCategory from "@/components/CarsCategory";
 import AboutSection from "@/components/AboutSection";
 import VideoBanner from "@/components/VideoBanner";
@@ -13,6 +14,7 @@ export default function HomePage() {
     <>
       <HeroSection />
       <TrustBar />
+      <ChooseLocation />
       <CarsCategory />
       <AboutSection />
       <VideoBanner />
