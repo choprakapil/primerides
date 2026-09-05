@@ -1,6 +1,5 @@
 import React from "react";
 import HeroSection from "@/components/HeroSection";
-import SearchBar from "@/components/SearchBar";
 import TrustBar from "@/components/TrustBar";
 import CarsCategory from "@/components/CarsCategory";
 import AboutSection from "@/components/AboutSection";
@@ -13,7 +12,6 @@ export default function HomePage() {
   return (
     <>
       <HeroSection />
-      <SearchBar />
       <TrustBar />
       <CarsCategory />
       <AboutSection />

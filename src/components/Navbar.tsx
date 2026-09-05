@@ -13,7 +13,7 @@ export default function Navbar() {
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 40);
+      setIsScrolled(window.scrollY > 30);
     };
     window.addEventListener("scroll", handleScroll, { passive: true });
     handleScroll();
@@ -31,7 +31,7 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className={`navbar navbar-expand-lg ${isScrolled || !isHome ? "nav-scroll" : ""}`}>
+    <nav className={`navbar navbar-expand-lg ${isScrolled || !isHome ? "nav-scroll" : "nav-light-top"}`}>
       <div className="container">
         {/* Brand Logo */}
         <Link className="navbar-brand" href="/">
@@ -66,11 +66,7 @@ export default function Navbar() {
                     className={`nav-link ${isActive ? "active" : ""}`}
                     href={item.href}
                     style={{
-                      color: isActive
-                        ? "var(--primary-color)"
-                        : isScrolled || !isHome
-                        ? "var(--text-heading)"
-                        : "#ffffff",
+                      color: isActive ? "var(--primary-color)" : "var(--text-heading)",
                     }}
                   >
                     {item.label}
@@ -86,9 +82,9 @@ export default function Navbar() {
               onClick={() => openAuthModal("login")}
               className="btn d-flex align-items-center gap-2 fw-bold"
               style={{
-                background: "transparent",
+                background: "rgba(255, 255, 255, 0.8)",
                 border: "1.5px solid rgba(198, 159, 70, 0.4)",
-                color: (isScrolled || !isHome) ? "var(--text-heading)" : "#ffffff",
+                color: "var(--text-heading)",
                 padding: "8px 18px",
                 borderRadius: "30px",
                 fontSize: "13px",

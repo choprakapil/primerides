@@ -1543,3 +1543,220 @@ a {
 .carousel-arrow-btn:not(:disabled):active {
   transform: scale(0.95);
 }
+
+/* ===================================================================
+   TURBO LUXURY HERO SECTION (Reference: turbo.redq.io/luxury/)
+   =================================================================== */
+.turbo-hero-wrapper {
+  position: relative;
+  min-height: 740px;
+  background-color: #f6f8fa;
+  display: flex;
+  align-items: center;
+}
+
+.turbo-hero-bg {
+  background-size: cover;
+  background-position: center right;
+  background-repeat: no-repeat;
+  transition: all 0.5s ease;
+}
+
+.turbo-hero-badge {
+  background: rgba(197, 155, 39, 0.12);
+  border: 1px solid rgba(197, 155, 39, 0.35);
+  border-radius: 30px;
+  padding: 6px 16px;
+  color: #a87e14;
+  font-size: 11.5px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+.turbo-badge-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #c59b27;
+  box-shadow: 0 0 8px #c59b27;
+}
+
+.turbo-hero-title {
+  font-size: 52px;
+  font-weight: 850;
+  line-height: 1.15;
+  color: #111827;
+  letter-spacing: -0.5px;
+}
+
+.turbo-hero-title span {
+  background: linear-gradient(135deg, #c59b27 0%, #dfb743 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.turbo-hero-subtext {
+  font-size: 16px;
+  color: #4b5563;
+  line-height: 1.65;
+  max-width: 580px;
+}
+
+.turbo-search-card {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 24px 28px;
+  box-shadow: 
+    0 20px 45px -12px rgba(15, 23, 42, 0.1),
+    0 0 0 1px rgba(226, 232, 240, 0.9);
+  transition: all 0.3s ease;
+}
+
+.turbo-search-card:hover {
+  box-shadow: 
+    0 25px 50px -12px rgba(15, 23, 42, 0.14),
+    0 0 0 1px rgba(197, 155, 39, 0.35);
+}
+
+.turbo-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.turbo-input-label {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 0;
+}
+
+.turbo-select,
+.turbo-input {
+  width: 100%;
+  height: 48px;
+  border-radius: 12px;
+  border: 1.5px solid #e2e8f0;
+  background: #f8fafc;
+  padding: 0 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e293b;
+  outline: none;
+  transition: all 0.25s ease;
+}
+
+.turbo-select:focus,
+.turbo-input:focus {
+  border-color: #c59b27;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(197, 155, 39, 0.15);
+}
+
+.turbo-search-btn {
+  height: 48px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #c59b27 0%, #b08518 100%);
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 14px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-shadow: 0 8px 20px -4px rgba(197, 155, 39, 0.4);
+  transition: all 0.25s ease;
+}
+
+.turbo-search-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 25px -4px rgba(197, 155, 39, 0.55);
+}
+
+.turbo-pill-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #334155;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 6px 14px;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+}
+
+.turbo-car-showcase {
+  position: relative;
+  width: 100%;
+}
+
+.turbo-floating-tag {
+  position: absolute;
+  top: -10px;
+  right: 15px;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  border-radius: 16px;
+  padding: 10px 16px;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+  z-index: 5;
+  text-align: left;
+  animation: floatTag 4s ease-in-out infinite;
+}
+
+.badge-star {
+  color: #f59e0b;
+  font-size: 18px;
+}
+
+@keyframes floatCar {
+  0%, 100% {
+    transform: translateY(0px) scale(1.05);
+  }
+  50% {
+    transform: translateY(-8px) scale(1.05);
+  }
+}
+
+@keyframes floatTag {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+.turbo-car-img {
+  animation: floatCar 5s ease-in-out infinite;
+}
+
+@media (max-width: 991px) {
+  .turbo-hero-title {
+    font-size: 38px;
+  }
+  .turbo-hero-wrapper {
+    padding-top: 100px;
+    min-height: auto;
+  }
+  .turbo-floating-tag {
+    position: static;
+    display: inline-block;
+    margin-bottom: 12px;
+  }
+  .turbo-car-img {
+    animation: none;
+    transform: scale(1) !important;
+  }
+}
