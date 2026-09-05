@@ -2270,3 +2270,134 @@ a {
   transform: translateX(4px);
   color: #ffffff;
 }
+
+
+/* ===================================================================
+   EXCLUSIVE OFFERS & PROMO CODES SECTION
+   =================================================================== */
+.offers-section {
+  padding: 60px 0 75px;
+  background: #ffffff;
+  position: relative;
+}
+
+.offers-pill-badge {
+  background: rgba(197, 155, 39, 0.12);
+  border: 1px solid rgba(197, 155, 39, 0.35);
+  border-radius: 30px;
+  padding: 5px 16px;
+  color: #a87e14;
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+.offers-section-title {
+  font-size: 36px;
+  font-weight: 850;
+  color: #111827;
+  letter-spacing: -0.5px;
+}
+
+.offers-section-title span {
+  background: linear-gradient(135deg, #c59b27 0%, #dfb743 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.offers-section-subtext {
+  font-size: 15px;
+  color: #64748b;
+}
+
+.view-all-offers-link {
+  font-size: 14px;
+  font-weight: 700;
+  color: #111827;
+  text-decoration: none;
+  transition: all 0.25s ease;
+}
+
+.view-all-offers-link:hover {
+  color: var(--primary-color);
+  transform: translateX(4px);
+}
+
+.offer-banner-card {
+  min-height: 200px;
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.offer-banner-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 40px -10px rgba(15, 23, 42, 0.25) !important;
+}
+
+.offer-car-backdrop {
+  width: 52%;
+  height: 95%;
+  opacity: 0.95;
+  pointer-events: none;
+  transition: transform 0.4s ease;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+}
+
+.offer-car-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0 0 20px 0;
+  mask-image: linear-gradient(to left, rgba(0,0,0,1) 60%, rgba(0,0,0,0) 100%);
+  -webkit-mask-image: linear-gradient(to left, rgba(0,0,0,1) 60%, rgba(0,0,0,0) 100%);
+}
+
+.offer-banner-card:hover .offer-car-backdrop {
+  transform: scale(1.06) translateX(-4px);
+}
+
+.offer-tag-badge {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(8px);
+  color: #ffffff;
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+
+.offer-card-title {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+}
+
+.offer-card-discount {
+  font-size: 23px;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+}
+
+.offer-card-subtext {
+  font-size: 12px;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.promo-code-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.2) !important;
+}
+
+.copied-toast {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
