@@ -2941,3 +2941,143 @@ a {
     font-size: 17px;
   }
 }
+
+
+/* ===================================================================
+   EASY & CLEAN "WHY DRIVERS PREFER PRIMERIDES" & "CTA" SECTIONS
+   =================================================================== */
+.easy-about-section {
+  padding: 85px 0;
+  background: #ffffff;
+  border-top: 1px solid rgba(226, 232, 240, 0.8);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+.easy-about-img-wrap {
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 15px 35px -10px rgba(15, 23, 42, 0.1);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  height: 380px;
+}
+
+.easy-about-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.easy-about-img-wrap:hover .easy-about-img {
+  transform: scale(1.03);
+}
+
+.easy-about-badge {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  border-radius: 30px;
+  padding: 8px 18px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+}
+
+.star-gold {
+  color: #f59e0b;
+  font-size: 16px;
+}
+
+.easy-about-title {
+  font-size: 36px;
+  font-weight: 850;
+  color: #111827;
+  letter-spacing: -0.5px;
+}
+
+.easy-about-title span {
+  background: linear-gradient(135deg, #c59b27 0%, #dfb743 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.easy-about-desc {
+  font-size: 15.5px;
+  color: #64748b;
+  line-height: 1.65;
+}
+
+.easy-benefit-item {
+  padding: 8px 0;
+}
+
+.easy-benefit-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: rgba(197, 155, 39, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.easy-benefit-title {
+  font-size: 15px;
+  font-weight: 750;
+  color: #111827;
+}
+
+.easy-benefit-desc {
+  font-size: 13px;
+  color: #64748b;
+  line-height: 1.4;
+}
+
+/* Easy Clean CTA Section */
+.easy-cta-section {
+  padding: 80px 0;
+  background: linear-gradient(135deg, #090e1a 0%, #0f172a 50%, #1e293b 100%);
+  border-top: 1px solid rgba(197, 155, 39, 0.3);
+  border-bottom: 1px solid rgba(197, 155, 39, 0.3);
+}
+
+.easy-cta-title {
+  font-size: 38px;
+  font-weight: 850;
+  line-height: 1.2;
+  letter-spacing: -0.5px;
+}
+
+.easy-cta-title span {
+  background: linear-gradient(135deg, #c59b27 0%, #f7d58b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.easy-cta-subtext {
+  font-size: 15.5px;
+  line-height: 1.65;
+  max-width: 560px;
+}
+
+.easy-cta-car {
+  max-width: 110%;
+  filter: drop-shadow(0 20px 30px rgba(0, 0, 0, 0.4));
+  transition: transform 0.4s ease;
+}
+
+.easy-cta-section:hover .easy-cta-car {
+  transform: scale(1.04);
+}
+
+@media (max-width: 991px) {
+  .easy-about-img-wrap {
+    height: 280px;
+  }
+  .easy-about-title,
+  .easy-cta-title {
+    font-size: 28px;
+  }
+  .easy-cta-car {
+    max-width: 100%;
+    margin-top: 20px;
+  }
+}
