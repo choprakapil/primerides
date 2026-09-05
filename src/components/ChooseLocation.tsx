@@ -36,7 +36,7 @@ export default function ChooseLocation() {
 
   return (
     <section className="choose-location-section position-relative overflow-hidden">
-      {/* Decorative Dashed Road Journey SVG with Moving Car on the right (as seen in reference) */}
+      {/* Decorative Dashed Road Journey SVG with Moving Car */}
       <div className="location-decor-path d-none d-xl-block position-absolute end-0 top-50 translate-middle-y">
         <svg width="220" height="260" viewBox="0 0 220 260" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path
@@ -101,15 +101,16 @@ export default function ChooseLocation() {
                     </p>
                   </div>
 
-                  {/* Explore Cars Button */}
+                  {/* Explore Cars Button - styled exactly like the header call button */}
                   <div>
                     <button
                       type="button"
                       onClick={() => handleCityClick(loc.id)}
-                      className="location-explore-btn d-inline-flex align-items-center gap-2"
+                      className="btn-prime d-inline-flex align-items-center gap-2"
+                      style={{ padding: "8px 24px", fontSize: "13px", borderRadius: "30px", border: "none", cursor: "pointer" }}
                     >
                       <span>Explore Cars</span>
-                      <i className="fa-solid fa-arrow-right location-btn-arrow"></i>
+                      <i className="fa-solid fa-arrow-right ms-1"></i>
                     </button>
                   </div>
                 </div>

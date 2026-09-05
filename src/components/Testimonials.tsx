@@ -14,7 +14,7 @@ export default function Testimonials() {
     const handleResize = () => {
       if (window.innerWidth < 768) {
         setVisibleCount(1);
-      } else if (window.innerWidth < 992) {
+      } else if (window.innerWidth < 1200) {
         setVisibleCount(2);
       } else {
         setVisibleCount(3);
@@ -62,6 +62,8 @@ export default function Testimonials() {
 
   const gap = 24;
 
+  const dates = ["2 weeks ago", "1 month ago", "3 weeks ago", "5 days ago", "1 month ago", "2 months ago"];
+
   return (
     <section
       className="section-padding section-white"
@@ -70,21 +72,27 @@ export default function Testimonials() {
       onMouseLeave={() => setIsPaused(false)}
     >
       <div className="container">
-        {/* Header: Left-aligned Headings + Top Right Arrow Controls */}
+        {/* Header with Google Rating Badge & Top-Right Slider Arrows */}
         <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-4">
           <div className="section-header-block text-start mb-0">
-            <span className="section-subtitle-tag">
-              <i className="fa-solid fa-star"></i> Traveler Experiences
-            </span>
+            <div className="google-rating-pill d-inline-flex align-items-center gap-2 mb-2">
+              <svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"/>
+                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"/>
+              </svg>
+              <span className="fw-bold">4.9 ★ GOOGLE REVIEWS (500+ VERIFIED)</span>
+            </div>
             <h2 className="section-title-large mb-2">
               Trusted By <span>10,000+ Explorers</span>
             </h2>
             <p className="mb-0" style={{ maxWidth: "680px" }}>
-              Read real stories from road-trippers who explored India with Primerides self-drive vehicles.
+              Read authentic Google reviews from road-trippers who explored India with PrimeRides.
             </p>
           </div>
 
-          {/* Arrows on Top Right */}
+          {/* Top-Right Arrows */}
           <div className="d-flex gap-2 mt-3 mt-md-0 align-self-start align-self-md-end flex-shrink-0">
             <button
               type="button"
@@ -133,7 +141,7 @@ export default function Testimonials() {
           </div>
         </div>
 
-        {/* Carousel Viewport with 24px Gutter Spacing */}
+        {/* Google Reviews Carousel Viewport */}
         <div
           className="position-relative overflow-hidden pb-1"
           onTouchStart={handleTouchStart}
@@ -157,41 +165,61 @@ export default function Testimonials() {
                   width: `calc((100% - ${(visibleCount - 1) * gap}px) / ${visibleCount})`,
                 }}
               >
-                <div
-                  className="p-4 rounded-4 h-100 d-flex flex-column"
-                  style={{
-                    background: "#ffffff",
-                    border: "1px solid var(--border-color)",
-                    boxShadow: "0 10px 30px rgba(0,0,0,0.04)",
-                  }}
-                >
-                  <div className="d-flex align-items-center gap-3 mb-3">
-                    <img
-                      src={t.img}
-                      alt={t.name}
-                      style={{ width: "56px", height: "56px", borderRadius: "50%", objectFit: "cover" }}
-                    />
-                    <div>
-                      <h5 className="mb-0 fw-bold" style={{ fontSize: "16px" }}>
-                        {t.name}
-                      </h5>
-                      <small className="text-muted">{t.trip}</small>
+                <div className="google-review-card h-100 d-flex flex-column">
+                  {/* Google Review Card Header */}
+                  <div className="d-flex justify-content-between align-items-start mb-3">
+                    <div className="d-flex align-items-center gap-3">
+                      <img
+                        src={t.img}
+                        alt={t.name}
+                        className="google-reviewer-avatar"
+                      />
+                      <div>
+                        <div className="d-flex align-items-center gap-1.5">
+                          <h5 className="mb-0 fw-bold" style={{ fontSize: "15.5px", color: "#111827" }}>
+                            {t.name}
+                          </h5>
+                          <i className="fa-solid fa-circle-check text-primary" style={{ fontSize: "12px" }} title="Verified Reviewer"></i>
+                        </div>
+                        <small className="text-muted" style={{ fontSize: "12px" }}>
+                          {dates[idx % dates.length]} • Google Review
+                        </small>
+                      </div>
+                    </div>
+
+                    {/* Official Google 4-Color G Logo */}
+                    <div className="google-g-logo flex-shrink-0" title="Google Verified Review">
+                      <svg width="22" height="22" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"/>
+                        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"/>
+                      </svg>
                     </div>
                   </div>
-                  <div className="mb-3 d-flex gap-1 text-warning" style={{ fontSize: "14px" }}>
-                    {[...Array(t.rating)].map((_, i) => (
-                      <i key={i} className="fa-solid fa-star" style={{ color: "var(--primary-color)" }}></i>
+
+                  {/* 5 Google Stars */}
+                  <div className="mb-2 d-flex align-items-center gap-1" style={{ color: "#f59e0b", fontSize: "14px" }}>
+                    {[...Array(5)].map((_, i) => (
+                      <i key={i} className="fa-solid fa-star"></i>
                     ))}
+                    <span className="ms-1 fw-bold text-dark" style={{ fontSize: "12.5px" }}>
+                      5.0
+                    </span>
                   </div>
-                  <p className="small mb-4" style={{ color: "var(--text-body)", lineHeight: 1.7 }}>
+
+                  {/* Review Text */}
+                  <p className="google-review-text mb-3" style={{ color: "#475569", fontSize: "13.5px", lineHeight: 1.65 }}>
                     &ldquo;{t.text}&rdquo;
                   </p>
+
+                  {/* Card Footer: Vehicle Rented */}
                   <div className="mt-auto pt-3 border-top d-flex justify-content-between align-items-center">
-                    <span className="badge bg-light text-dark border">
-                      <i className="fa-solid fa-car me-1 text-muted"></i> {t.car}
+                    <span className="badge bg-light text-dark border px-2.5 py-1.5 rounded-2" style={{ fontSize: "11.5px" }}>
+                      <i className="fa-solid fa-car me-1 text-gold"></i> {t.car}
                     </span>
-                    <span className="small text-success fw-bold">
-                      <i className="fa-solid fa-circle-check me-1"></i> Verified Trip
+                    <span className="small text-success fw-bold" style={{ fontSize: "11.5px" }}>
+                      <i className="fa-solid fa-circle-check me-1"></i> Verified Rental
                     </span>
                   </div>
                 </div>

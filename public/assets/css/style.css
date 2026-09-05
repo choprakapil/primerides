@@ -3081,3 +3081,63 @@ a {
     margin-top: 20px;
   }
 }
+
+
+/* ===================================================================
+   GOOGLE REVIEWS & OFFERS CAR FIT STYLING
+   =================================================================== */
+.google-rating-pill {
+  background: #ffffff;
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  border-radius: 30px;
+  padding: 6px 16px;
+  color: #1e293b;
+  font-size: 11px;
+  letter-spacing: 0.8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.google-review-card {
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1px solid rgba(226, 232, 240, 0.85);
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04);
+  padding: 24px;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.google-review-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 16px 32px -8px rgba(15, 23, 42, 0.1), 0 0 0 1px rgba(197, 155, 39, 0.3);
+}
+
+.google-reviewer-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.offer-car-fit-box {
+  width: 46%;
+  height: 80%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  pointer-events: none;
+}
+
+.offer-car-fit-img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  border-radius: 12px;
+  filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.25));
+  transition: transform 0.4s ease;
+}
+
+.offer-banner-card:hover .offer-car-fit-img {
+  transform: scale(1.06);
+}

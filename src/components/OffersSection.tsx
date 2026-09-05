@@ -111,20 +111,21 @@ export default function OffersSection() {
                   background: offer.bgGradient,
                   borderRadius: "22px",
                   padding: "24px 22px",
+                  minHeight: "220px",
                   boxShadow: "0 12px 30px -8px rgba(15, 23, 42, 0.15)",
                 }}
               >
-                {/* Background Car Accent Silhouette / Image on the right */}
-                <div className="offer-car-backdrop position-absolute end-0 bottom-0">
+                {/* Properly Fitted Car Image on the right */}
+                <div className="offer-car-fit-box position-absolute end-0 bottom-0 p-2">
                   <img
                     src={offer.carImg}
                     alt={offer.title}
-                    className="offer-car-thumb"
+                    className="offer-car-fit-img"
                   />
                 </div>
 
                 {/* Offer Content */}
-                <div className="position-relative" style={{ zIndex: 3, maxWidth: "68%" }}>
+                <div className="position-relative" style={{ zIndex: 3, maxWidth: "60%" }}>
                   <div className="offer-tag-badge mb-2 d-inline-block">
                     {offer.tag}
                   </div>
@@ -134,7 +135,7 @@ export default function OffersSection() {
                   <div className="offer-card-discount mb-2" style={{ color: offer.accentColor }}>
                     {offer.discount}
                   </div>
-                  <p className="offer-card-subtext mb-3" style={{ color: "rgba(255, 255, 255, 0.85)" }}>
+                  <p className="offer-card-subtext mb-3" style={{ color: "rgba(255, 255, 255, 0.9)" }}>
                     {offer.subtext}
                   </p>
                 </div>
@@ -149,12 +150,12 @@ export default function OffersSection() {
                       background: offer.pillBg,
                       color: "#111827",
                       border: "none",
-                      borderRadius: "10px",
-                      padding: "8px 14px",
+                      borderRadius: "30px",
+                      padding: "8px 16px",
                       fontSize: "12.5px",
                       fontWeight: 700,
                       cursor: "pointer",
-                      boxShadow: "0 4px 12px rgba(0, 0, 0, 0.12)",
+                      boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
                       transition: "all 0.25s ease",
                     }}
                     title="Click to copy coupon code"
@@ -169,7 +170,7 @@ export default function OffersSection() {
                   </button>
 
                   {copiedCode === offer.code && (
-                    <span className="copied-toast ms-2 text-white fw-bold" style={{ fontSize: "11px" }}>
+                    <span className="copied-toast ms-2 text-white fw-bold" style={{ fontSize: "11.5px" }}>
                       Copied! 🎉
                     </span>
                   )}
