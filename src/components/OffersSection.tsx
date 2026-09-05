@@ -26,7 +26,7 @@ export default function OffersSection() {
         <div className="d-flex flex-column flex-md-row align-items-md-end justify-content-between mb-4">
           <div>
             <div className="offers-pill-badge d-inline-flex align-items-center gap-2 mb-2">
-              <MotionIcon name="Sparkles" animation="spin" trigger="hover" size={13} color="#c59b27" />
+              <MotionIcon name="Sparkles" animation="spin" trigger="always" size={13} color="#c59b27" />
               <span className="fw-bold">PROMO DEALS &amp; COUPONS</span>
             </div>
             <h2 className="offers-section-title mb-1">

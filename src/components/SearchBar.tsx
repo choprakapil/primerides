@@ -24,7 +24,7 @@ export default function SearchBar() {
             <div className="col-lg-5 col-md-6">
               <div className="booking-input-group">
                 <label className="booking-input-label">
-                  <MotionIcon name="MapPin" animation="pulse" trigger="hover" size={13} color="#c59b27" /> From
+                  <MotionIcon name="MapPin" animation="pulse" trigger="always" size={13} color="#c59b27" /> From
                 </label>
                 <select
                   className="custom-lux-select"
@@ -54,7 +54,7 @@ export default function SearchBar() {
             <div className="col-lg-2 col-md-3">
               <div className="booking-input-group">
                 <label className="booking-input-label">
-                  <MotionIcon name="Calendar" animation="nudge" trigger="hover" size={13} color="#c59b27" /> Pick-up Date
+                  <MotionIcon name="Calendar" animation="nudge" trigger="always" size={13} color="#c59b27" /> Pick-up Date
                 </label>
                 <input
                   type="date"
@@ -67,7 +67,7 @@ export default function SearchBar() {
             <div className="col-lg-2 col-md-3">
               <div className="booking-input-group">
                 <label className="booking-input-label">
-                  <MotionIcon name="CalendarCheck" animation="nudge" trigger="hover" size={13} color="#c59b27" /> Return Date
+                  <MotionIcon name="CalendarCheck" animation="nudge" trigger="always" size={13} color="#c59b27" /> Return Date
                 </label>
                 <input
                   type="date"
@@ -79,7 +79,7 @@ export default function SearchBar() {
             </div>
             <div className="col-lg-3 col-md-12">
               <button type="submit" className="btn-search-3d w-100">
-                <MotionIcon name="Sparkles" animation="spin" trigger="hover" size={16} color="#ffffff" /> Check Fleet
+                <MotionIcon name="Sparkles" animation="spin" trigger="always" size={16} color="#ffffff" /> Check Fleet
               </button>
             </div>
           </div>

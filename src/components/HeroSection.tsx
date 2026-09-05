@@ -107,7 +107,7 @@ export default function HeroSection() {
                   <div className="col-lg-3 col-md-6 col-12">
                     <div className="turbo-input-group">
                       <label className="turbo-input-label">
-                        <MotionIcon name="MapPin" animation="pulse" trigger="hover" size={13} color="#c59b27" />
+                        <MotionIcon name="MapPin" animation="pulse" trigger="always" size={13} color="#c59b27" />
                         <span>Where you from</span>
                       </label>
                       <select
@@ -132,7 +132,7 @@ export default function HeroSection() {
                   <div className="col-lg-3 col-md-6 col-12">
                     <div className="turbo-input-group">
                       <label className="turbo-input-label">
-                        <MotionIcon name="Navigation" animation="nudge" trigger="hover" size={13} color="#c59b27" />
+                        <MotionIcon name="Navigation" animation="nudge" trigger="always" size={13} color="#c59b27" />
                         <span>Where you go</span>
                       </label>
                       <select
@@ -154,7 +154,7 @@ export default function HeroSection() {
                   <div className="col-lg-4 col-md-6 col-12">
                     <div className="turbo-input-group">
                       <label className="turbo-input-label">
-                        <MotionIcon name="Calendar" animation="pulse" trigger="hover" size={13} color="#c59b27" />
+                        <MotionIcon name="Calendar" animation="pulse" trigger="always" size={13} color="#c59b27" />
                         <span>Choose Dates</span>
                       </label>
                       <input

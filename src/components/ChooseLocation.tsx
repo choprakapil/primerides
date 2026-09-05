@@ -59,7 +59,7 @@ export default function ChooseLocation() {
         {/* Section Heading */}
         <div className="text-center mb-5">
           <div className="location-pill-badge d-inline-flex align-items-center gap-2 mb-2">
-            <MotionIcon name="MapPin" animation="bounce" trigger="hover" size={13} color="#c59b27" />
+            <MotionIcon name="MapPin" animation="bounce" trigger="always" size={13} color="#c59b27" />
             <span className="fw-bold">EXPLORE BY DESTINATION</span>
           </div>
           <h2 className="choose-location-title mb-2">

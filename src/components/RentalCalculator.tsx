@@ -48,7 +48,7 @@ export default function RentalCalculator() {
         {/* Section Header */}
         <div className="section-header-block">
           <span className="section-subtitle-tag">
-            <MotionIcon name="Calculator" animation="nudge" trigger="hover" size={13} color="#c59b27" /> Transparent Fare Calculator
+            <MotionIcon name="Calculator" animation="nudge" trigger="always" size={13} color="#c59b27" /> Transparent Fare Calculator
           </span>
           <h2 className="section-title-large">
             Instant Rental <span>Price Estimator</span>
@@ -61,7 +61,7 @@ export default function RentalCalculator() {
             {/* Left Controls */}
             <div className="col-lg-7">
               <h4 className="fw-bold mb-4" style={{ color: "var(--text-heading)", display: "flex", alignItems: "center", gap: "8px" }}>
-                <MotionIcon name="Sliders" animation="wiggle" trigger="hover" size={18} color="#c59b27" /> Configure Your Rental
+                <MotionIcon name="Sliders" animation="wiggle" trigger="always" size={18} color="#c59b27" /> Configure Your Rental
               </h4>
 
               {/* 1. Vehicle Selection */}
@@ -112,7 +112,7 @@ export default function RentalCalculator() {
               {/* 3. Insurance Coverage */}
               <div className="mb-3">
                 <label className="form-label fw-bold text-muted small mb-2">
-                  <MotionIcon name="ShieldCheck" animation="pulse" trigger="hover" size={13} color="#c59b27" /> PROTECTION COVERAGE
+                  <MotionIcon name="ShieldCheck" animation="pulse" trigger="always" size={13} color="#c59b27" /> PROTECTION COVERAGE
                 </label>
                 <div className="d-flex flex-column gap-2">
                   <label

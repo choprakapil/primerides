@@ -23,7 +23,7 @@ export default function CtaSection() {
                   color: "#f7d58b",
                 }}
               >
-                <MotionIcon name="Zap" animation="pulse" trigger="hover" size={13} color="#c59b27" />
+                <MotionIcon name="Zap" animation="pulse" trigger="always" size={13} color="#c59b27" />
                 <span className="fw-bold">⚡ INSTANT 5-MIN DIGITAL BOOKING</span>
               </div>
 

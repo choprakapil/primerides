@@ -53,7 +53,7 @@ export default function AboutSection() {
           <div className="col-lg-6 col-md-12">
             <div className="easy-about-content">
               <span className="section-subtitle-tag mb-2">
-                <MotionIcon name="Sparkles" animation="pulse" trigger="hover" size={13} color="#c59b27" />
+                <MotionIcon name="Sparkles" animation="pulse" trigger="always" size={13} color="#c59b27" />
                 The PrimeRides Advantage
               </span>
               <h2 className="easy-about-title mb-3">
@@ -69,7 +69,7 @@ export default function AboutSection() {
                   <div key={idx} className="col-sm-6 col-12">
                     <div className="easy-benefit-item d-flex align-items-start gap-3">
                       <div className="easy-benefit-icon flex-shrink-0">
-                        <MotionIcon name={item.icon} animation="pop" trigger="hover" size={20} color="#c59b27" />
+                        <MotionIcon name={item.icon} animation="pop" trigger="always" size={20} color="#c59b27" />
                       </div>
                       <div>
                         <h4 className="easy-benefit-title mb-1">{item.title}</h4>

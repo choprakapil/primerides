@@ -3270,23 +3270,37 @@ a {
   padding-bottom: 55px !important;
 }
 
+
 /* ===================================================================
-   ELEGANT LIGHT ICON MICRO-ANIMATIONS (Global across entire website)
+   UNIVERSAL AUTO-ANIMATING ICONS (Continuous, Light, Elegant Micro-Animations)
    =================================================================== */
 
-/* 1. Global Light Float / Smooth Physics for FontAwesome Icons & SVGs */
+/* 1. Universal Gentle Ambient Float / Pulse for ALL icons */
 i.fa-solid,
 i.fa-regular,
 i.fa-brands,
+.motion-icon,
 .motion-icon svg,
 svg.lucide {
   display: inline-block;
   vertical-align: middle;
-  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.25s ease, filter 0.25s ease;
+  animation: iconAutoGentleFloat 3.8s ease-in-out infinite alternate;
   will-change: transform;
 }
 
-/* 2. Ambient Light Breathing for Highlight & Gold Icons */
+@keyframes iconAutoGentleFloat {
+  0% {
+    transform: translateY(0px) scale(1);
+  }
+  50% {
+    transform: translateY(-2px) scale(1.05);
+  }
+  100% {
+    transform: translateY(0px) scale(1);
+  }
+}
+
+/* 2. Highlight Gold Icons & Badges - Auto Breathing Glow */
 .text-gold,
 .location-pill-badge i,
 .offers-pill-badge i,
@@ -3294,18 +3308,20 @@ svg.lucide {
 .why-badge i,
 .seo-icon-pill i,
 .turbo-hero-badge i,
-.turbo-badge-dot {
-  animation: iconSoftGlow 3.5s ease-in-out infinite alternate;
+.turbo-badge-dot,
+.why-pillar-icon i,
+.why-airport-icon-wrap i {
+  animation: iconAutoGlow 3s ease-in-out infinite alternate !important;
 }
 
-@keyframes iconSoftGlow {
+@keyframes iconAutoGlow {
   0% {
     transform: scale(1);
     filter: drop-shadow(0 0 0px rgba(197, 155, 39, 0));
   }
   50% {
-    transform: scale(1.08);
-    filter: drop-shadow(0 0 4px rgba(197, 155, 39, 0.45));
+    transform: scale(1.12);
+    filter: drop-shadow(0 0 5px rgba(197, 155, 39, 0.5));
   }
   100% {
     transform: scale(1);
@@ -3313,134 +3329,147 @@ svg.lucide {
   }
 }
 
-/* 3. Action / Arrow Micro-Nudge on Hover */
+/* 3. Action Arrows - Auto Subtle Forward Nudge */
 .arrow-icon,
 .btn-prime i.fa-arrow-right,
 .location-explore-btn i.fa-arrow-right,
 .modern-card-btn i.fa-arrow-right,
 .btn-view-all-fleet i,
-.view-all-offers-link i {
-  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
+.view-all-offers-link i,
+.btn-prime-outline i {
+  animation: arrowAutoNudge 2.4s ease-in-out infinite !important;
 }
 
-button:hover .arrow-icon,
-a:hover .arrow-icon,
-.btn-prime:hover i.fa-arrow-right,
-.location-explore-btn:hover i.fa-arrow-right,
-.modern-card-btn:hover i.fa-arrow-right,
-.btn-view-all-fleet:hover i,
-.view-all-offers-link:hover i {
-  transform: translateX(4px) scale(1.1) !important;
+@keyframes arrowAutoNudge {
+  0%, 100% {
+    transform: translateX(0px);
+  }
+  50% {
+    transform: translateX(3.5px);
+  }
 }
 
-/* 4. WhatsApp Pulse & Bob on Hover / Ambient */
+/* 4. WhatsApp Icons - Auto Friendly Pulse Cycle */
 .btn-cta-whatsapp i,
 .fa-whatsapp {
-  animation: waIconPulse 3.5s ease-in-out infinite;
+  animation: waAutoPulse 3.2s ease-in-out infinite !important;
 }
 
-@keyframes waIconPulse {
+@keyframes waAutoPulse {
   0%, 100% {
     transform: scale(1) rotate(0deg);
   }
-  15% {
-    transform: scale(1.14) rotate(-8deg);
+  12% {
+    transform: scale(1.15) rotate(-9deg);
   }
-  30% {
-    transform: scale(1.1) rotate(8deg);
+  24% {
+    transform: scale(1.12) rotate(9deg);
   }
-  45% {
-    transform: scale(1.05) rotate(-4deg);
+  36% {
+    transform: scale(1.06) rotate(-4deg);
   }
-  60% {
+  48% {
     transform: scale(1) rotate(0deg);
   }
 }
 
-/* 5. Star Rating Gentle Shimmer */
+/* 5. Review & Rating Stars - Auto Gentle Twinkle */
 .fa-star {
-  transition: transform 0.25s ease, color 0.25s ease;
+  animation: starAutoTwinkle 2.6s ease-in-out infinite !important;
 }
 
-.google-review-card:hover .fa-star,
-.easy-about-badge:hover .fa-star {
-  animation: starTwinkle 2s ease-in-out infinite;
-}
-
-@keyframes starTwinkle {
+@keyframes starAutoTwinkle {
   0%, 100% {
     transform: scale(1);
     filter: brightness(1);
   }
   50% {
-    transform: scale(1.15) rotate(4deg);
-    filter: brightness(1.2);
+    transform: scale(1.14) rotate(4deg);
+    filter: brightness(1.22);
   }
 }
 
-/* 6. Carousel Arrow Buttons Hover Bounce */
-.carousel-arrow-btn:hover i.fa-chevron-left {
-  transform: translateX(-3px) scale(1.12);
+/* 6. Car Spec Icons - Auto Light Subtle Interaction */
+.modern-car-specs .spec-item i.fa-gear {
+  animation: gearAutoRotate 8s linear infinite !important;
 }
 
-.carousel-arrow-btn:hover i.fa-chevron-right {
-  transform: translateX(3px) scale(1.12);
+@keyframes gearAutoRotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
-/* 7. Feature Pills Icons Light Floating */
-.turbo-pill-item i {
-  animation: pillIconFloat 3s ease-in-out infinite alternate;
+.modern-car-specs .spec-item i.fa-gas-pump {
+  animation: pumpAutoBob 3s ease-in-out infinite !important;
 }
 
-@keyframes pillIconFloat {
-  0% {
-    transform: translateY(0) scale(1);
-  }
-  100% {
-    transform: translateY(-2px) scale(1.08);
-  }
+@keyframes pumpAutoBob {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15) translateY(-1.5px); color: #c59b27; }
 }
 
-/* 8. Spec Icons (Gear, Gas Pump, User Group) Hover Interaction */
-.modern-car-specs .spec-item i {
-  transition: transform 0.25s ease, color 0.25s ease;
+.modern-car-specs .spec-item i.fa-user-group {
+  animation: userAutoPulse 3.5s ease-in-out infinite !important;
 }
 
-.modern-car-card:hover .spec-item i.fa-gear {
-  transform: rotate(45deg);
-  color: var(--primary-color) !important;
+@keyframes userAutoPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.12); color: #c59b27; }
 }
 
-.modern-car-card:hover .spec-item i.fa-gas-pump {
-  transform: scale(1.14);
-  color: var(--primary-color) !important;
-}
-
-.modern-car-card:hover .spec-item i.fa-user-group {
-  transform: scale(1.12);
-  color: var(--primary-color) !important;
-}
-
-/* 9. Verified Checkmark Gentle Pulse */
+/* 7. Verified Circle Checkmarks - Auto Heartbeat Pulse */
 .fa-circle-check {
-  animation: checkmarkPulse 3.5s ease-in-out infinite;
+  animation: checkmarkAutoPulse 2.8s ease-in-out infinite !important;
 }
 
-@keyframes checkmarkPulse {
+@keyframes checkmarkAutoPulse {
   0%, 100% {
     transform: scale(1);
   }
   50% {
-    transform: scale(1.1);
+    transform: scale(1.14);
   }
 }
 
-/* 10. Footer Social Icons Spin on Hover */
-.footer-social-link i {
-  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
+/* 8. Feature Hero Pill Icons - Auto Float */
+.turbo-pill-item i {
+  animation: pillIconAutoFloat 3s ease-in-out infinite alternate !important;
 }
 
-.footer-social-link:hover i {
-  transform: scale(1.22) rotate(8deg);
-  color: var(--primary-color) !important;
+@keyframes pillIconAutoFloat {
+  0% {
+    transform: translateY(0px) scale(1);
+  }
+  100% {
+    transform: translateY(-2.5px) scale(1.1);
+  }
+}
+
+/* 9. Carousel Chevron Arrows - Auto Wave */
+.carousel-arrow-btn i.fa-chevron-left {
+  animation: chevronLeftAuto 2.6s ease-in-out infinite !important;
+}
+
+@keyframes chevronLeftAuto {
+  0%, 100% { transform: translateX(0px); }
+  50% { transform: translateX(-2.5px); }
+}
+
+.carousel-arrow-btn i.fa-chevron-right {
+  animation: chevronRightAuto 2.6s ease-in-out infinite !important;
+}
+
+@keyframes chevronRightAuto {
+  0%, 100% { transform: translateX(0px); }
+  50% { transform: translateX(2.5px); }
+}
+
+/* 10. Footer Social Icons - Auto Ambient Hover Wave */
+.footer-social-link i {
+  animation: socialAutoFloat 3.6s ease-in-out infinite alternate;
+}
+
+@keyframes socialAutoFloat {
+  0% { transform: scale(1) translateY(0); }
+  100% { transform: scale(1.1) translateY(-2px); }
 }
