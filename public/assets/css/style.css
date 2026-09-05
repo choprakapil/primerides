@@ -213,7 +213,7 @@ a {
   text-transform: uppercase;
   letter-spacing: 1px;
   transition: color 0.25s ease;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+  text-shadow: none;
   position: relative;
 }
 
@@ -1504,7 +1504,7 @@ a {
   color: #ffffff !important;
   border: 1.5px solid rgba(255, 255, 255, 0.4) !important;
   background: rgba(255, 255, 255, 0.12) !important;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5) !important;
+  text-shadow: none !important;
 }
 
 .header.slider-fade .btn-prime-outline *,
@@ -1758,5 +1758,79 @@ a {
   .turbo-car-img {
     animation: none;
     transform: scale(1) !important;
+  }
+}
+
+
+/* ===================================================================
+   CLEAN MENU BAR (NO SHADOWS) & ENLARGED OVERLAPPING CAR
+   =================================================================== */
+.navbar,
+.navbar.nav-light-top {
+  box-shadow: none !important;
+  text-shadow: none !important;
+  background: transparent !important;
+}
+
+.navbar .nav-link,
+.navbar-nav .nav-link {
+  text-shadow: none !important;
+}
+
+.navbar.nav-scroll {
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03) !important;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.8) !important;
+}
+
+.turbo-car-showcase {
+  position: relative;
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.turbo-car-img-box {
+  position: relative;
+  width: 135%;
+  max-width: 850px;
+  margin-left: -35%;
+  z-index: 5;
+}
+
+.turbo-car-img {
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 25px 30px rgba(0, 0, 0, 0.22));
+  transform: scale(1.16);
+  transform-origin: center right;
+  animation: floatCar 5s ease-in-out infinite;
+}
+
+@keyframes floatCar {
+  0%, 100% {
+    transform: translateY(0px) scale(1.16);
+  }
+  50% {
+    transform: translateY(-8px) scale(1.16);
+  }
+}
+
+@media (max-width: 1199px) {
+  .turbo-car-img-box {
+    width: 120%;
+    margin-left: -20%;
+  }
+}
+
+@media (max-width: 991px) {
+  .turbo-car-img-box {
+    width: 100%;
+    margin-left: 0;
+    max-width: 520px;
+    margin: 20px auto 0;
+  }
+  .turbo-car-img {
+    transform: scale(1) !important;
+    animation: none;
   }
 }

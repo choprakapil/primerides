@@ -1,15 +1,12 @@
 "use client";
 
 import React, { useState } from "react";
-import Link from "next/link";
-import { useModal } from "@/context/ModalContext";
 import { MotionIcon } from "motion-icons-react";
 
 export default function HeroSection() {
   const [pickupLoc, setPickupLoc] = useState("Delhi - IGI Airport Terminal 3 (Arrivals Gate)");
   const [dropoffLoc, setDropoffLoc] = useState("Delhi - IGI Airport Terminal 3");
   const [pickupDate, setPickupDate] = useState("2026-09-06");
-  const { openBookingModal } = useModal();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,8 +41,8 @@ export default function HeroSection() {
 
       <div className="container position-relative" style={{ zIndex: 10, paddingTop: "140px", paddingBottom: "70px" }}>
         <div className="row align-items-center g-4">
-          {/* Left Column: Heading, Subtitle & Turbo Horizontal Search Card */}
-          <div className="col-xl-7 col-lg-7 col-md-12">
+          {/* Left Column: Heading, Subtitle & Turbo Horizontal Search Card (Higher z-index so it sits in front of car) */}
+          <div className="col-xl-7 col-lg-7 col-md-12" style={{ position: "relative", zIndex: 20 }}>
             <div className="turbo-hero-content pe-xl-3">
               {/* Pill / Tagline */}
               <div className="turbo-hero-badge d-inline-flex align-items-center gap-2 mb-3">
@@ -160,64 +157,16 @@ export default function HeroSection() {
             </div>
           </div>
 
-          {/* Right Column: Dynamic Floating Car on Road Sketch */}
-          <div className="col-xl-5 col-lg-5 col-md-12 text-center text-lg-end position-relative">
+          {/* Right Column: Prominent Large Car positioned slightly behind the search bar */}
+          <div className="col-xl-5 col-lg-5 col-md-12 text-center text-lg-end" style={{ position: "relative", zIndex: 5 }}>
             <div className="turbo-car-showcase position-relative">
-              {/* Floating Featured Badge */}
-              <div className="turbo-floating-tag">
-                <div className="d-flex align-items-center gap-2">
-                  <span className="badge-star">★</span>
-                  <div>
-                    <div className="fw-bold" style={{ fontSize: "13px", color: "#111827" }}>
-                      Toyota Fortuner 4x4
-                    </div>
-                    <div className="text-muted" style={{ fontSize: "11px" }}>
-                      Starts ₹5,999/day • Automatic
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Foreground Car Image */}
+              {/* Foreground Car Image - Enlarged & overlapping slightly behind search card */}
               <div className="turbo-car-img-box">
                 <img
                   src="/assets/img/car.png"
                   alt="PrimeRides Luxury Car"
                   className="img-fluid turbo-car-img"
-                  style={{
-                    filter: "drop-shadow(0 20px 25px rgba(0, 0, 0, 0.22))",
-                    maxWidth: "100%",
-                    height: "auto",
-                    transform: "scale(1.05)",
-                    transition: "transform 0.4s ease",
-                  }}
                 />
-              </div>
-
-              {/* Action Buttons Below Car for Mobile / Direct Booking */}
-              <div className="d-flex justify-content-center justify-content-lg-end gap-2 mt-3">
-                <button
-                  type="button"
-                  onClick={() => openBookingModal("Toyota Fortuner 4x4", "5999", "/assets/img/cars/1.jpg")}
-                  className="btn-prime"
-                  style={{ padding: "8px 20px", fontSize: "13px", borderRadius: "25px", border: "none" }}
-                >
-                  <i className="fa-solid fa-bolt me-1"></i> Quick Book 4x4
-                </button>
-                <Link
-                  href="/cars"
-                  className="btn-prime-outline"
-                  style={{
-                    padding: "8px 18px",
-                    fontSize: "13px",
-                    borderRadius: "25px",
-                    borderColor: "rgba(17, 24, 39, 0.2)",
-                    color: "#111827",
-                    background: "#ffffff",
-                  }}
-                >
-                  Explore All <i className="fa-solid fa-arrow-right ms-1"></i>
-                </Link>
               </div>
             </div>
           </div>
