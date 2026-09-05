@@ -2785,3 +2785,17 @@ a {
     margin-top: 15px;
   }
 }
+
+
+/* ===================================================================
+   100% FULLWIDTH LUXURY CTA SECTION (Edge to Edge)
+   =================================================================== */
+.cta-fullwidth-section {
+  width: 100%;
+  padding: 100px 0;
+  background: linear-gradient(135deg, #090e1a 0%, #0f172a 45%, #1e293b 100%);
+  position: relative;
+  border-top: 1px solid rgba(197, 155, 39, 0.35);
+  border-bottom: 1px solid rgba(197, 155, 39, 0.35);
+  box-shadow: 0 25px 60px -15px rgba(9, 14, 26, 0.4);
+}
