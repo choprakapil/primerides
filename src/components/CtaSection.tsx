@@ -14,22 +14,25 @@ export default function CtaSection() {
           {/* Left: Heading, Clean Subtitle & 2 Buttons */}
           <div className="col-lg-7 col-md-12">
             <div className="easy-cta-content">
+              {/* Top Short Heading Pill */}
               <div
-                className="d-inline-flex align-items-center gap-2 mb-3 px-3 py-1.5 rounded-pill"
+                className="offers-pill-badge d-inline-flex align-items-center gap-2 mb-3"
                 style={{
-                  background: "linear-gradient(135deg, #c59b27 0%, #dfb743 100%)",
-                  color: "#090e1a",
-                  fontWeight: 800,
-                  fontSize: "12px",
-                  letterSpacing: "1px",
-                  boxShadow: "0 4px 15px rgba(197, 155, 39, 0.45)",
+                  background: "rgba(197, 155, 39, 0.15)",
+                  border: "1px solid rgba(197, 155, 39, 0.4)",
+                  color: "#f7d58b",
                 }}
               >
-                <span>⚡ INSTANT 5-MIN DIGITAL BOOKING</span>
+                <MotionIcon name="Zap" animation="pulse" trigger="hover" size={13} color="#c59b27" />
+                <span className="fw-bold">⚡ INSTANT 5-MIN DIGITAL BOOKING</span>
               </div>
+
+              {/* Main Section Heading */}
               <h2 className="easy-cta-title mb-3 text-white">
                 Ready to Experience the <span>Ultimate Road Trip?</span>
               </h2>
+
+              {/* Subtitle */}
               <p className="easy-cta-subtext mb-4 text-white-50">
                 Book Fortuner 4x4, Thar, Innova Crysta, or luxury sedans with zero security deposit, unlimited kilometers, and doorstep delivery across Delhi NCR.
               </p>
@@ -52,7 +55,7 @@ export default function CtaSection() {
                   rel="noopener noreferrer"
                   className="btn-cta-whatsapp d-inline-flex align-items-center gap-2"
                 >
-                  <i className="fa-brands fa-whatsapp text-success fs-5"></i>
+                  <i className="fa-brands fa-whatsapp fs-5 text-white"></i>
                   <span>WhatsApp Us</span>
                 </a>
               </div>

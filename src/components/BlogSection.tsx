@@ -194,19 +194,14 @@ export default function BlogSection() {
                         {b.title}
                       </Link>
                     </h5>
-                    <p className="small text-muted mb-4" style={{ lineHeight: 1.6 }}>
-                      {b.excerpt}
-                    </p>
-                    <div className="mt-auto pt-3 border-top d-flex justify-content-between align-items-center">
-                      <span className="small text-muted">
-                        By <strong className="text-dark">{b.author}</strong>
-                      </span>
+                    <div className="mt-auto pt-3 border-top d-flex justify-content-end align-items-center">
                       <Link
-                        href={`/blogs/${b.slug}`}
-                        className="small fw-bold text-decoration-none"
+                        href={"/blogs/" + b.slug}
+                        className="small fw-bold text-decoration-none d-inline-flex align-items-center gap-1.5"
                         style={{ color: "var(--primary-color)" }}
                       >
-                        Read Article <i className="fa-solid fa-arrow-right ms-1"></i>
+                        <span>Read Article</span>
+                        <i className="fa-solid fa-arrow-right ms-1"></i>
                       </Link>
                     </div>
                   </div>

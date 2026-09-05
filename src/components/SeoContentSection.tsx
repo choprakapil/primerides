@@ -27,14 +27,7 @@ export default function SeoContentSection() {
               </div>
             </div>
 
-            <button
-              type="button"
-              onClick={() => setIsExpanded(!isExpanded)}
-              className="seo-toggle-btn d-none d-md-inline-flex align-items-center gap-1.5"
-            >
-              <span>{isExpanded ? "Collapse Content" : "Read Full Guide"}</span>
-              <i className={`fa-solid ${isExpanded ? "fa-chevron-up" : "fa-chevron-down"}`}></i>
-            </button>
+            
           </div>
 
           {/* CKEditor-Rendered Rich SEO Content Container */}
