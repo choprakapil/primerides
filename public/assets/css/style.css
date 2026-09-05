@@ -3141,3 +3141,65 @@ a {
 .offer-banner-card:hover .offer-car-fit-img {
   transform: scale(1.06);
 }
+
+
+/* ===================================================================
+   THEME PILL BUTTON FOR MOST BOOKED CARS (View Details) & OFFERS FIT
+   =================================================================== */
+.modern-card-btn {
+  background: linear-gradient(135deg, #c59b27 0%, #dfb743 100%) !important;
+  color: #ffffff !important;
+  border: none !important;
+  border-radius: 30px !important;
+  padding: 10px 20px !important;
+  font-size: 13.5px !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  box-shadow: 0 4px 14px rgba(197, 155, 39, 0.35) !important;
+  transition: all 0.25s ease !important;
+}
+
+.modern-card-btn:hover {
+  background: linear-gradient(135deg, #b08518 0%, #c59b27 100%) !important;
+  box-shadow: 0 8px 22px rgba(197, 155, 39, 0.5) !important;
+  transform: translateY(-2px) !important;
+  color: #ffffff !important;
+}
+
+.modern-card-btn .arrow-icon {
+  transition: transform 0.25s ease;
+}
+
+.modern-card-btn:hover .arrow-icon {
+  transform: translateX(4px);
+}
+
+.offer-car-backdrop {
+  width: 50% !important;
+  height: 100% !important;
+  position: absolute !important;
+  right: 0 !important;
+  top: 0 !important;
+  bottom: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  padding: 12px 14px 12px 0 !important;
+  pointer-events: none !important;
+  z-index: 2 !important;
+}
+
+.offer-car-thumb {
+  max-width: 100% !important;
+  max-height: 100% !important;
+  width: auto !important;
+  height: auto !important;
+  object-fit: contain !important;
+  filter: drop-shadow(0 15px 22px rgba(0, 0, 0, 0.35)) !important;
+  transition: transform 0.4s ease !important;
+  border-radius: 12px !important;
+}
+
+.offer-banner-card:hover .offer-car-thumb {
+  transform: scale(1.05) !important;
+}

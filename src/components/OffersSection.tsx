@@ -115,17 +115,17 @@ export default function OffersSection() {
                   boxShadow: "0 12px 30px -8px rgba(15, 23, 42, 0.15)",
                 }}
               >
-                {/* Properly Fitted Car Image on the right */}
-                <div className="offer-car-fit-box position-absolute end-0 bottom-0 p-2">
+                {/* Previous Design: Backdrop Car Graphic on the right - fitted top to bottom */}
+                <div className="offer-car-backdrop position-absolute end-0 top-0 bottom-0">
                   <img
                     src={offer.carImg}
                     alt={offer.title}
-                    className="offer-car-fit-img"
+                    className="offer-car-thumb"
                   />
                 </div>
 
                 {/* Offer Content */}
-                <div className="position-relative" style={{ zIndex: 3, maxWidth: "60%" }}>
+                <div className="position-relative" style={{ zIndex: 3, maxWidth: "58%" }}>
                   <div className="offer-tag-badge mb-2 d-inline-block">
                     {offer.tag}
                   </div>
