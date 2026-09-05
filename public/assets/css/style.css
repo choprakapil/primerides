@@ -2335,27 +2335,36 @@ a {
 }
 
 .offer-car-backdrop {
-  width: 52%;
-  height: 95%;
-  opacity: 0.95;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: 55%;
+  height: 100%;
+  overflow: hidden;
+  padding: 0;
+  margin: 0;
+  display: block;
   pointer-events: none;
-  transition: transform 0.4s ease;
-  display: flex;
-  align-items: flex-end;
-  justify-content: flex-end;
+  z-index: 1;
+  border-radius: 0 22px 22px 0;
 }
 
 .offer-car-thumb {
   width: 100%;
   height: 100%;
+  min-height: 100%;
   object-fit: cover;
-  border-radius: 0 0 20px 0;
-  mask-image: linear-gradient(to left, rgba(0,0,0,1) 60%, rgba(0,0,0,0) 100%);
-  -webkit-mask-image: linear-gradient(to left, rgba(0,0,0,1) 60%, rgba(0,0,0,0) 100%);
+  object-position: center right;
+  display: block;
+  border-radius: 0 22px 22px 0;
+  mask-image: linear-gradient(to left, rgba(0, 0, 0, 1) 50%, rgba(0, 0, 0, 0) 100%);
+  -webkit-mask-image: linear-gradient(to left, rgba(0, 0, 0, 1) 50%, rgba(0, 0, 0, 0) 100%);
+  transition: transform 0.5s ease;
 }
 
-.offer-banner-card:hover .offer-car-backdrop {
-  transform: scale(1.06) translateX(-4px);
+.offer-banner-card:hover .offer-car-thumb {
+  transform: scale(1.06);
 }
 
 .offer-tag-badge {
@@ -3120,28 +3129,6 @@ a {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.offer-car-fit-box {
-  width: 46%;
-  height: 80%;
-  display: flex;
-  align-items: flex-end;
-  justify-content: flex-end;
-  pointer-events: none;
-}
-
-.offer-car-fit-img {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
-  border-radius: 12px;
-  filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.25));
-  transition: transform 0.4s ease;
-}
-
-.offer-banner-card:hover .offer-car-fit-img {
-  transform: scale(1.06);
-}
-
 
 /* ===================================================================
    THEME PILL BUTTON FOR MOST BOOKED CARS (View Details) & OFFERS FIT
@@ -3174,35 +3161,7 @@ a {
   transform: translateX(4px);
 }
 
-.offer-car-backdrop {
-  width: 50% !important;
-  height: 100% !important;
-  position: absolute !important;
-  right: 0 !important;
-  top: 0 !important;
-  bottom: 0 !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: flex-end !important;
-  padding: 12px 14px 12px 0 !important;
-  pointer-events: none !important;
-  z-index: 2 !important;
-}
 
-.offer-car-thumb {
-  max-width: 100% !important;
-  max-height: 100% !important;
-  width: auto !important;
-  height: auto !important;
-  object-fit: contain !important;
-  filter: drop-shadow(0 15px 22px rgba(0, 0, 0, 0.35)) !important;
-  transition: transform 0.4s ease !important;
-  border-radius: 12px !important;
-}
-
-.offer-banner-card:hover .offer-car-thumb {
-  transform: scale(1.05) !important;
-}
 
 
 /* ===================================================================

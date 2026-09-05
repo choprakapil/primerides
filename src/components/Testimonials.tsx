@@ -175,11 +175,11 @@ export default function Testimonials() {
                         className="google-reviewer-avatar"
                       />
                       <div>
-                        <div className="d-flex align-items-center gap-1.5">
+                        <div className="d-flex align-items-center" style={{ gap: "8px" }}>
                           <h5 className="mb-0 fw-bold" style={{ fontSize: "15.5px", color: "#111827" }}>
                             {t.name}
                           </h5>
-                          <i className="fa-solid fa-circle-check text-primary" style={{ fontSize: "12px" }} title="Verified Reviewer"></i>
+                          <i className="fa-solid fa-circle-check" style={{ color: "#2563eb", fontSize: "13px" }} title="Verified Reviewer"></i>
                         </div>
                         <small className="text-muted" style={{ fontSize: "12px" }}>
                           {dates[idx % dates.length]} • Google Review
