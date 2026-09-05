@@ -3203,3 +3203,42 @@ a {
 .offer-banner-card:hover .offer-car-thumb {
   transform: scale(1.05) !important;
 }
+
+
+/* ===================================================================
+   OFFERS SECTION: CAR IMAGE FITS FULL TOP TO BOTTOM OF BANNER
+   =================================================================== */
+.offer-banner-card {
+  min-height: 220px !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.offer-car-backdrop {
+  width: 55% !important;
+  height: 100% !important;
+  position: absolute !important;
+  top: 0 !important;
+  bottom: 0 !important;
+  right: 0 !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+  display: block !important;
+  pointer-events: none !important;
+  z-index: 1 !important;
+}
+
+.offer-car-thumb {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center right !important;
+  border-radius: 0 22px 22px 0 !important;
+  mask-image: linear-gradient(to left, rgba(0, 0, 0, 1) 50%, rgba(0, 0, 0, 0) 100%) !important;
+  -webkit-mask-image: linear-gradient(to left, rgba(0, 0, 0, 1) 50%, rgba(0, 0, 0, 0) 100%) !important;
+  transition: transform 0.5s ease !important;
+}
+
+.offer-banner-card:hover .offer-car-thumb {
+  transform: scale(1.06) !important;
+}

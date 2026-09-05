@@ -115,12 +115,12 @@ export default function OffersSection() {
                   boxShadow: "0 12px 30px -8px rgba(15, 23, 42, 0.15)",
                 }}
               >
-                {/* Previous Design: Backdrop Car Graphic on the right - fitted top to bottom */}
-                <div className="offer-car-backdrop position-absolute end-0 top-0 bottom-0">
+                {/* Full Height Top-to-Bottom Edge-to-Edge Car Image */}
+                <div className="offer-car-backdrop position-absolute end-0 top-0 bottom-0 h-100">
                   <img
                     src={offer.carImg}
                     alt={offer.title}
-                    className="offer-car-thumb"
+                    className="offer-car-thumb w-100 h-100"
                   />
                 </div>
 
@@ -135,7 +135,7 @@ export default function OffersSection() {
                   <div className="offer-card-discount mb-2" style={{ color: offer.accentColor }}>
                     {offer.discount}
                   </div>
-                  <p className="offer-card-subtext mb-3" style={{ color: "rgba(255, 255, 255, 0.9)" }}>
+                  <p className="offer-card-subtext mb-3" style={{ color: "rgba(255, 255, 255, 0.95)" }}>
                     {offer.subtext}
                   </p>
                 </div>
