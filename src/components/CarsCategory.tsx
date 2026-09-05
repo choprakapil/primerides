@@ -193,7 +193,7 @@ export default function CarsCategory() {
                       </h3>
 
                       {/* Specs Row: Transmission, Fuel, Seats */}
-                      <div className="modern-car-specs d-flex align-items-center gap-3 mb-3">
+                      <div className="modern-car-specs d-flex align-items-center gap-3 mb-1">
                         <span className="spec-item d-flex align-items-center gap-1">
                           <i className="fa-solid fa-gear text-muted"></i>
                           <span>{car.transmission.split(" ")[0]}</span>

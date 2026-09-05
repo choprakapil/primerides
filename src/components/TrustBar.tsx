@@ -35,7 +35,7 @@ export default function TrustBar() {
     <div
       className="trustbar-section section-alt"
       style={{
-        padding: "55px 0",
+        paddingTop: 0,
         borderTop: "none",
         borderBottom: "1px solid #e2e8f0",
         backgroundColor: "#f8fafc",
