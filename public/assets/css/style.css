@@ -3269,3 +3269,178 @@ a {
   padding-top: 55px !important;
   padding-bottom: 55px !important;
 }
+
+/* ===================================================================
+   ELEGANT LIGHT ICON MICRO-ANIMATIONS (Global across entire website)
+   =================================================================== */
+
+/* 1. Global Light Float / Smooth Physics for FontAwesome Icons & SVGs */
+i.fa-solid,
+i.fa-regular,
+i.fa-brands,
+.motion-icon svg,
+svg.lucide {
+  display: inline-block;
+  vertical-align: middle;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.25s ease, filter 0.25s ease;
+  will-change: transform;
+}
+
+/* 2. Ambient Light Breathing for Highlight & Gold Icons */
+.text-gold,
+.location-pill-badge i,
+.offers-pill-badge i,
+.easy-about-badge i,
+.why-badge i,
+.seo-icon-pill i,
+.turbo-hero-badge i,
+.turbo-badge-dot {
+  animation: iconSoftGlow 3.5s ease-in-out infinite alternate;
+}
+
+@keyframes iconSoftGlow {
+  0% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 0px rgba(197, 155, 39, 0));
+  }
+  50% {
+    transform: scale(1.08);
+    filter: drop-shadow(0 0 4px rgba(197, 155, 39, 0.45));
+  }
+  100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 0px rgba(197, 155, 39, 0));
+  }
+}
+
+/* 3. Action / Arrow Micro-Nudge on Hover */
+.arrow-icon,
+.btn-prime i.fa-arrow-right,
+.location-explore-btn i.fa-arrow-right,
+.modern-card-btn i.fa-arrow-right,
+.btn-view-all-fleet i,
+.view-all-offers-link i {
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+button:hover .arrow-icon,
+a:hover .arrow-icon,
+.btn-prime:hover i.fa-arrow-right,
+.location-explore-btn:hover i.fa-arrow-right,
+.modern-card-btn:hover i.fa-arrow-right,
+.btn-view-all-fleet:hover i,
+.view-all-offers-link:hover i {
+  transform: translateX(4px) scale(1.1) !important;
+}
+
+/* 4. WhatsApp Pulse & Bob on Hover / Ambient */
+.btn-cta-whatsapp i,
+.fa-whatsapp {
+  animation: waIconPulse 3.5s ease-in-out infinite;
+}
+
+@keyframes waIconPulse {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+  }
+  15% {
+    transform: scale(1.14) rotate(-8deg);
+  }
+  30% {
+    transform: scale(1.1) rotate(8deg);
+  }
+  45% {
+    transform: scale(1.05) rotate(-4deg);
+  }
+  60% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+/* 5. Star Rating Gentle Shimmer */
+.fa-star {
+  transition: transform 0.25s ease, color 0.25s ease;
+}
+
+.google-review-card:hover .fa-star,
+.easy-about-badge:hover .fa-star {
+  animation: starTwinkle 2s ease-in-out infinite;
+}
+
+@keyframes starTwinkle {
+  0%, 100% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+  50% {
+    transform: scale(1.15) rotate(4deg);
+    filter: brightness(1.2);
+  }
+}
+
+/* 6. Carousel Arrow Buttons Hover Bounce */
+.carousel-arrow-btn:hover i.fa-chevron-left {
+  transform: translateX(-3px) scale(1.12);
+}
+
+.carousel-arrow-btn:hover i.fa-chevron-right {
+  transform: translateX(3px) scale(1.12);
+}
+
+/* 7. Feature Pills Icons Light Floating */
+.turbo-pill-item i {
+  animation: pillIconFloat 3s ease-in-out infinite alternate;
+}
+
+@keyframes pillIconFloat {
+  0% {
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    transform: translateY(-2px) scale(1.08);
+  }
+}
+
+/* 8. Spec Icons (Gear, Gas Pump, User Group) Hover Interaction */
+.modern-car-specs .spec-item i {
+  transition: transform 0.25s ease, color 0.25s ease;
+}
+
+.modern-car-card:hover .spec-item i.fa-gear {
+  transform: rotate(45deg);
+  color: var(--primary-color) !important;
+}
+
+.modern-car-card:hover .spec-item i.fa-gas-pump {
+  transform: scale(1.14);
+  color: var(--primary-color) !important;
+}
+
+.modern-car-card:hover .spec-item i.fa-user-group {
+  transform: scale(1.12);
+  color: var(--primary-color) !important;
+}
+
+/* 9. Verified Checkmark Gentle Pulse */
+.fa-circle-check {
+  animation: checkmarkPulse 3.5s ease-in-out infinite;
+}
+
+@keyframes checkmarkPulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+/* 10. Footer Social Icons Spin on Hover */
+.footer-social-link i {
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.footer-social-link:hover i {
+  transform: scale(1.22) rotate(8deg);
+  color: var(--primary-color) !important;
+}
