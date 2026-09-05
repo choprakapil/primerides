@@ -36,6 +36,7 @@ export default function TrustBar() {
       className="trustbar-section section-alt"
       style={{
         paddingTop: 0,
+        paddingBottom: "55px",
         borderTop: "none",
         borderBottom: "1px solid #e2e8f0",
         backgroundColor: "#f8fafc",
@@ -48,6 +49,8 @@ export default function TrustBar() {
               <div
                 className="trust-item d-flex align-items-center gap-3 p-3 rounded-4"
                 style={{
+        paddingTop: 0,
+        paddingBottom: "55px",
                   background: "#ffffff",
                   border: "1px solid rgba(226, 232, 240, 0.8)",
                   boxShadow: "0 4px 16px rgba(0,0,0,0.02)",
@@ -57,6 +60,8 @@ export default function TrustBar() {
               >
                 <div
                   style={{
+        paddingTop: 0,
+        paddingBottom: "55px",
                     width: "48px",
                     height: "48px",
                     borderRadius: "14px",
@@ -77,10 +82,14 @@ export default function TrustBar() {
                   />
                 </div>
                 <div>
-                  <h6 className="mb-1 fw-bold" style={{ color: "var(--text-heading)", fontSize: "15px" }}>
+                  <h6 className="mb-1 fw-bold" style={{
+        paddingTop: 0,
+        paddingBottom: "55px", color: "var(--text-heading)", fontSize: "15px" }}>
                     {item.title}
                   </h6>
-                  <p className="mb-0 text-muted" style={{ fontSize: "13px", lineHeight: 1.4 }}>
+                  <p className="mb-0 text-muted" style={{
+        paddingTop: 0,
+        paddingBottom: "55px", fontSize: "13px", lineHeight: 1.4 }}>
                     {item.desc}
                   </p>
                 </div>

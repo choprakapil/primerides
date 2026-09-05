@@ -54,9 +54,21 @@ export default function CtaSection() {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="btn-cta-whatsapp d-inline-flex align-items-center gap-2"
+                  style={{
+                    background: "linear-gradient(135deg, #25D366 0%, #128C7E 100%)",
+                    color: "#ffffff",
+                    border: "none",
+                    borderRadius: "30px",
+                    padding: "13px 26px",
+                    fontSize: "14.5px",
+                    fontWeight: 700,
+                    textDecoration: "none",
+                    boxShadow: "0 4px 16px rgba(37, 211, 102, 0.4)",
+                    transition: "all 0.3s ease",
+                  }}
                 >
-                  <i className="fa-brands fa-whatsapp fs-5 text-white"></i>
-                  <span>WhatsApp Us</span>
+                  <i className="fa-brands fa-whatsapp fs-5" style={{ color: "#ffffff" }}></i>
+                  <span style={{ color: "#ffffff" }}>WhatsApp Us</span>
                 </a>
               </div>
             </div>
