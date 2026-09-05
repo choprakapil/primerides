@@ -32,7 +32,15 @@ const TRUST_ITEMS = [
 
 export default function TrustBar() {
   return (
-    <div className="section-alt" style={{ padding: "40px 0", borderBottom: "1px solid var(--border-color)" }}>
+    <div
+      className="trustbar-section section-alt"
+      style={{
+        padding: "55px 0",
+        borderTop: "none",
+        borderBottom: "1px solid #e2e8f0",
+        backgroundColor: "#f8fafc",
+      }}
+    >
       <div className="container">
         <div className="row g-4">
           {TRUST_ITEMS.map((item, idx) => (

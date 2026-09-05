@@ -41,11 +41,11 @@ export default function HeroSection() {
         />
       </div>
 
-      <div className="container position-relative" style={{ zIndex: 10, paddingTop: "140px", paddingBottom: "50px" }}>
+      <div className="container position-relative" style={{ zIndex: 10, paddingTop: "140px", paddingBottom: "55px" }}>
         {/* Top Hero Row: Headline on Left, Car Image on Right */}
         <div className="row align-items-center g-4 mb-4 mb-lg-5">
           {/* Left Column: Heading, Subtitle & Value Pills */}
-          <div className="col-xl-6 col-lg-6 col-md-12">
+          <div className="col-xl-7 col-lg-7 col-md-12">
             <div className="turbo-hero-content pe-xl-3">
               {/* Pill / Tagline */}
               <div className="turbo-hero-badge d-inline-flex align-items-center gap-2 mb-3">
@@ -83,7 +83,7 @@ export default function HeroSection() {
           </div>
 
           {/* Right Column: Prominent Luxury Car Image */}
-          <div className="col-xl-6 col-lg-6 col-md-12 text-center text-lg-end">
+          <div className="col-xl-5 col-lg-5 col-md-12 text-center text-lg-end">
             <div className="turbo-car-showcase position-relative">
               <div className="turbo-car-img-box" style={{ marginLeft: "0", width: "100%", maxWidth: "600px" }}>
                 <img

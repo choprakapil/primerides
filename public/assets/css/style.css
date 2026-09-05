@@ -128,7 +128,7 @@ a {
 
 /* Section Header Badges & Utilities */
 .section-padding {
-  padding: 85px 0 !important;
+  padding: 55px 0 !important;
   position: relative;
 }
 
@@ -138,8 +138,13 @@ a {
 
 .section-alt {
   background-color: #f8fafc !important;
-  border-top: 1px solid #e2e8f0;
+  border-top: none !important;
   border-bottom: 1px solid #e2e8f0;
+}
+
+.trustbar-section {
+  padding: 55px 0 !important;
+  border-top: none !important;
 }
 
 .section-header-block {
@@ -206,7 +211,7 @@ a {
 
 /* 3D Modern Navbar */
 .navbar {
-  padding: 22px 0;
+  padding: 10px 0;
   position: absolute;
   top: 0;
   left: 0;
@@ -217,7 +222,7 @@ a {
 }
 
 .navbar .navbar-brand img {
-  height: 44px;
+  height: 58px !important;
   width: auto;
   transition: transform 0.3s ease;
 }
@@ -227,7 +232,7 @@ a {
 }
 
 .navbar .nav-link {
-  color: #ffffff;
+  color: #111827 !important;
   font-family: var(--font-heading);
   font-size: 14px;
   font-weight: 700;
@@ -1647,7 +1652,7 @@ a {
 }
 
 .turbo-hero-title {
-  font-size: 52px;
+  font-size: 58px;
   font-weight: 850;
   line-height: 1.15;
   color: #111827;
@@ -1751,8 +1756,8 @@ a {
   gap: 6px;
   font-size: 12.5px;
   font-weight: 600;
-  color: #334155;
-  background: rgba(255, 255, 255, 0.9);
+  color: #ffffff;
+  background: #111827;
   border: 1px solid #e2e8f0;
   border-radius: 20px;
   padding: 6px 14px;
@@ -1841,9 +1846,9 @@ a {
    =================================================================== */
 .navbar,
 .navbar.nav-light-top {
-  box-shadow: none !important;
   text-shadow: none !important;
-  background: transparent !important;
+  background: #ffffff1f !important;
+  box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px !important;
 }
 
 .navbar .nav-link,
@@ -2069,7 +2074,7 @@ a {
    CHOOSE YOUR LOCATION SECTION (Matching Reference Image)
    =================================================================== */
 .choose-location-section {
-  padding: 85px 0 60px;
+  padding: 55px 0 !important;
   background: #fafbfc;
   position: relative;
   border-bottom: 1px solid rgba(226, 232, 240, 0.7);
@@ -2217,9 +2222,11 @@ a {
   0% {
     transform: translate(0, 0) rotate(15deg);
   }
+
   50% {
     transform: translate(-10px, 15px) rotate(35deg);
   }
+
   100% {
     transform: translate(5px, 35px) rotate(50deg);
   }
@@ -2231,6 +2238,7 @@ a {
     height: 180px;
     margin-bottom: 12px;
   }
+
   .choose-location-title {
     font-size: 30px;
   }
@@ -2276,7 +2284,7 @@ a {
    EXCLUSIVE OFFERS & PROMO CODES SECTION
    =================================================================== */
 .offers-section {
-  padding: 60px 0 75px;
+  padding: 55px 0 !important;
   background: #ffffff;
   position: relative;
 }
@@ -2407,8 +2415,15 @@ a {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(4px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 
@@ -2416,7 +2431,7 @@ a {
    WHY DRIVERS PREFER PRIMERIDES SECTION
    =================================================================== */
 .why-primerides-section {
-  padding: 95px 0 85px;
+  padding: 55px 0 !important;
   background: #f8fafc;
   position: relative;
   border-top: 1px solid rgba(226, 232, 240, 0.8);
@@ -2483,7 +2498,7 @@ a {
 }
 
 .why-img-overlay {
-  background: linear-gradient(180deg, rgba(0,0,0,0) 40%, rgba(15, 23, 42, 0.85) 100%);
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 40%, rgba(15, 23, 42, 0.85) 100%);
 }
 
 .why-floating-card-top {
@@ -2513,13 +2528,27 @@ a {
 }
 
 @keyframes floatCard1 {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-6px); }
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-6px);
+  }
 }
 
 @keyframes floatCard2 {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(6px); }
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(6px);
+  }
 }
 
 .why-float-icon-wrap {
@@ -2609,9 +2638,11 @@ a {
     padding: 0;
     margin-bottom: 25px;
   }
+
   .why-main-img-card {
     height: 340px;
   }
+
   .why-floating-card-top,
   .why-floating-card-bottom {
     position: static !important;
@@ -2626,7 +2657,7 @@ a {
    BEAUTIFUL CTA SECTION (Placed below Why Choose Us)
    =================================================================== */
 .cta-prime-section {
-  padding: 40px 0 85px;
+  padding: 55px 0 !important;
   background: #f8fafc;
   position: relative;
 }
@@ -2635,7 +2666,7 @@ a {
   background: linear-gradient(135deg, #090e1a 0%, #0f172a 45%, #1e293b 100%);
   border-radius: 32px;
   border: 1px solid rgba(197, 155, 39, 0.35);
-  box-shadow: 
+  box-shadow:
     0 25px 60px -15px rgba(9, 14, 26, 0.4),
     0 0 0 1px rgba(255, 255, 255, 0.05);
 }
@@ -2783,11 +2814,13 @@ a {
   .cta-heading {
     font-size: 28px;
   }
+
   .cta-car-img {
     max-width: 100%;
     transform: scale(1);
     margin: 20px auto;
   }
+
   .cta-floating-guarantee {
     position: static;
     display: inline-flex;
@@ -2801,7 +2834,7 @@ a {
    =================================================================== */
 .cta-fullwidth-section {
   width: 100%;
-  padding: 100px 0;
+  padding: 55px 0 !important;
   background: linear-gradient(135deg, #090e1a 0%, #0f172a 45%, #1e293b 100%);
   position: relative;
   border-top: 1px solid rgba(197, 155, 39, 0.35);
@@ -2814,7 +2847,7 @@ a {
    SEO RICH CONTENT & KEYWORDS SECTION (CKEditor Formatted)
    =================================================================== */
 .seo-content-section {
-  padding: 50px 0 65px;
+  padding: 55px 0 !important;
   background: #f8fafc;
   border-top: 1px solid rgba(226, 232, 240, 0.8);
 }
@@ -2946,6 +2979,7 @@ a {
   .seo-card-wrapper {
     padding: 22px 18px;
   }
+
   .seo-main-heading {
     font-size: 17px;
   }
@@ -2956,7 +2990,7 @@ a {
    EASY & CLEAN "WHY DRIVERS PREFER PRIMERIDES" & "CTA" SECTIONS
    =================================================================== */
 .easy-about-section {
-  padding: 85px 0;
+  padding: 55px 0 !important;
   background: #ffffff;
   border-top: 1px solid rgba(226, 232, 240, 0.8);
   border-bottom: 1px solid rgba(226, 232, 240, 0.8);
@@ -3042,7 +3076,7 @@ a {
 
 /* Easy Clean CTA Section */
 .easy-cta-section {
-  padding: 80px 0;
+  padding: 55px 0 !important;
   background: linear-gradient(135deg, #090e1a 0%, #0f172a 50%, #1e293b 100%);
   border-top: 1px solid rgba(197, 155, 39, 0.3);
   border-bottom: 1px solid rgba(197, 155, 39, 0.3);
@@ -3081,10 +3115,12 @@ a {
   .easy-about-img-wrap {
     height: 280px;
   }
+
   .easy-about-title,
   .easy-cta-title {
     font-size: 28px;
   }
+
   .easy-cta-car {
     max-width: 100%;
     margin-top: 20px;
@@ -3200,4 +3236,28 @@ a {
 
 .offer-banner-card:hover .offer-car-thumb {
   transform: scale(1.06) !important;
+}
+
+/* ===================================================================
+   UNIFIED 55PX TOP/BOTTOM SECTION SPACING ACROSS ALL SECTIONS
+   =================================================================== */
+.turbo-hero-wrapper {
+  padding-bottom: 0px !important;
+}
+
+.trustbar-section,
+.choose-location-section,
+.offers-section,
+.easy-about-section,
+.easy-cta-section,
+.cta-fullwidth-section,
+.seo-content-section,
+#categoriesSection,
+#aboutSection,
+#testimonialsSection,
+#blogSection,
+#faqSection,
+#seoContentSection {
+  padding-top: 55px !important;
+  padding-bottom: 55px !important;
 }
