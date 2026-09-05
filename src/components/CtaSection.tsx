@@ -14,9 +14,19 @@ export default function CtaSection() {
           {/* Left: Heading, Clean Subtitle & 2 Buttons */}
           <div className="col-lg-7 col-md-12">
             <div className="easy-cta-content">
-              <span className="badge bg-gold text-dark fw-bold mb-3 px-3 py-1.5 rounded-pill" style={{ fontSize: "11.5px", letterSpacing: "1px" }}>
-                ⚡ INSTANT 5-MIN BOOKING
-              </span>
+              <div
+                className="d-inline-flex align-items-center gap-2 mb-3 px-3 py-1.5 rounded-pill"
+                style={{
+                  background: "linear-gradient(135deg, #c59b27 0%, #dfb743 100%)",
+                  color: "#090e1a",
+                  fontWeight: 800,
+                  fontSize: "12px",
+                  letterSpacing: "1px",
+                  boxShadow: "0 4px 15px rgba(197, 155, 39, 0.45)",
+                }}
+              >
+                <span>⚡ INSTANT 5-MIN DIGITAL BOOKING</span>
+              </div>
               <h2 className="easy-cta-title mb-3 text-white">
                 Ready to Experience the <span>Ultimate Road Trip?</span>
               </h2>
