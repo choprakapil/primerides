@@ -9,6 +9,7 @@ import CtaSection from "@/components/CtaSection";
 import Testimonials from "@/components/Testimonials";
 import BlogSection from "@/components/BlogSection";
 import FaqSection from "@/components/FaqSection";
+import SeoContentSection from "@/components/SeoContentSection";
 
 export default function HomePage() {
   return (
@@ -23,6 +24,7 @@ export default function HomePage() {
       <Testimonials />
       <BlogSection />
       <FaqSection />
+      <SeoContentSection />
     </>
   );
 }
