@@ -12,19 +12,19 @@ const TRUST_ITEMS = [
   },
   {
     iconName: "MapPin",
-    animation: "bounce" as const,
+    animation: "pulse" as const,
     title: "Doorstep Delivery",
     desc: "To any home, office, or airport terminal in NCR",
   },
   {
     iconName: "ShieldCheck",
-    animation: "wiggle" as const,
+    animation: "pulse" as const,
     title: "Zero Hidden Fees",
     desc: "100% transparent pricing & minimal security deposit",
   },
   {
     iconName: "Headphones",
-    animation: "heartbeat" as const,
+    animation: "pulse" as const,
     title: "24/7 Roadside Assistance",
     desc: "Round-the-clock emergency support across India",
   },
@@ -47,10 +47,8 @@ export default function TrustBar() {
           {TRUST_ITEMS.map((item, idx) => (
             <div key={idx} className="col-lg-3 col-md-6">
               <div
-                className="trust-item d-flex align-items-center gap-3 p-3 rounded-4"
+                className="trust-item d-flex align-items-center gap-3 p-3 rounded-4 h-100"
                 style={{
-        paddingTop: 0,
-        paddingBottom: "55px",
                   background: "#ffffff",
                   border: "1px solid rgba(226, 232, 240, 0.8)",
                   boxShadow: "0 4px 16px rgba(0,0,0,0.02)",
@@ -60,10 +58,8 @@ export default function TrustBar() {
               >
                 <div
                   style={{
-        paddingTop: 0,
-        paddingBottom: "55px",
-                    width: "48px",
-                    height: "48px",
+                    width: "50px",
+                    height: "50px",
                     borderRadius: "14px",
                     background: "rgba(197, 155, 39, 0.12)",
                     color: "var(--primary-color)",
@@ -71,25 +67,22 @@ export default function TrustBar() {
                     alignItems: "center",
                     justifyContent: "center",
                     flexShrink: 0,
+                    overflow: "hidden",
                   }}
                 >
                   <MotionIcon
                     name={item.iconName}
                     animation={item.animation}
-                    trigger="always"
-                    size={24}
+                    trigger="hover"
+                    size={22}
                     color="#c59b27"
                   />
                 </div>
                 <div>
-                  <h6 className="mb-1 fw-bold" style={{
-        paddingTop: 0,
-        paddingBottom: "55px", color: "var(--text-heading)", fontSize: "15px" }}>
+                  <h6 className="mb-1 fw-bold" style={{ color: "var(--text-heading)", fontSize: "15px" }}>
                     {item.title}
                   </h6>
-                  <p className="mb-0 text-muted" style={{
-        paddingTop: 0,
-        paddingBottom: "55px", fontSize: "13px", lineHeight: 1.4 }}>
+                  <p className="mb-0 text-muted" style={{ fontSize: "13px", lineHeight: 1.4 }}>
                     {item.desc}
                   </p>
                 </div>

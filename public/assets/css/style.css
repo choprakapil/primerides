@@ -2341,8 +2341,8 @@ a {
 }
 
 .offer-banner-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 20px 40px -10px rgba(15, 23, 42, 0.25) !important;
+  transform: none !important;
+  box-shadow: 0 14px 32px -8px rgba(15, 23, 42, 0.22) !important;
 }
 
 .offer-car-backdrop {
@@ -2375,7 +2375,7 @@ a {
 }
 
 .offer-banner-card:hover .offer-car-thumb {
-  transform: scale(1.06);
+  transform: none !important;
 }
 
 .offer-tag-badge {
@@ -3155,8 +3155,8 @@ a {
 }
 
 .google-review-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 16px 32px -8px rgba(15, 23, 42, 0.1), 0 0 0 1px rgba(197, 155, 39, 0.3);
+  transform: none !important;
+  box-shadow: 0 10px 28px -6px rgba(15, 23, 42, 0.1), 0 0 0 1.5px rgba(197, 155, 39, 0.35) !important;
 }
 
 .google-reviewer-avatar {
@@ -3238,7 +3238,7 @@ a {
 }
 
 .offer-banner-card:hover .offer-car-thumb {
-  transform: scale(1.06) !important;
+  transform: none !important;
 }
 
 /* ===================================================================

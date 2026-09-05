@@ -143,7 +143,7 @@ export default function Testimonials() {
 
         {/* Google Reviews Carousel Viewport */}
         <div
-          className="position-relative overflow-hidden pb-1"
+          className="position-relative overflow-hidden pt-2 pb-2"
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
