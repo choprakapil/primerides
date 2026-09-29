@@ -1,0 +1,59 @@
+{
+  "logoUrl": "/assets/img/PRLogo.png",
+  "logoHeight": 44,
+  "menuItems": [
+    {
+      "id": "home",
+      "label": "HOME",
+      "href": "/",
+      "isVisible": true,
+      "order": 1
+    },
+    {
+      "id": "about",
+      "label": "ABOUT US",
+      "href": "/about",
+      "isVisible": true,
+      "order": 2
+    },
+    {
+      "id": "fleet",
+      "label": "OUR FLEET",
+      "href": "/cars",
+      "isVisible": true,
+      "order": 3
+    },
+    {
+      "id": "blogs",
+      "label": "BLOGS",
+      "href": "/blogs",
+      "isVisible": true,
+      "order": 4
+    },
+    {
+      "id": "contact",
+      "label": "CONTACT",
+      "href": "/contact",
+      "isVisible": true,
+      "order": 5
+    }
+  ],
+  "buttons": {
+    "authButton": {
+      "enabled": true,
+      "label": "Register / Login",
+      "icon": "User"
+    },
+    "phoneButton": {
+      "enabled": true,
+      "label": "+91 90453 01702",
+      "phoneNumber": "+919045301702",
+      "icon": "PhoneCall"
+    },
+    "whatsappButton": {
+      "enabled": false,
+      "label": "WhatsApp Concierge",
+      "number": "919045301702"
+    }
+  }
+}

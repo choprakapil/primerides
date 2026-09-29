@@ -1,0 +1,51 @@
+{
+  "aboutText": "PrimeRides is Delhi NCR and Lucknow premier luxury self-drive mobility provider with 100% verified fleet, unlimited kilometers, and zero hidden charges.",
+  "copyrightText": "© 2026 PrimeRides Mobility Private Limited. All rights reserved.",
+  "quickLinks": [
+    {
+      "label": "Home",
+      "href": "/"
+    },
+    {
+      "label": "Our Fleet",
+      "href": "/cars"
+    },
+    {
+      "label": "Rental Hubs",
+      "href": "/locations"
+    },
+    {
+      "label": "Travel Blogs",
+      "href": "/blogs"
+    },
+    {
+      "label": "FAQs & Rental Policies",
+      "href": "/faq"
+    },
+    {
+      "label": "Contact Us",
+      "href": "/contact"
+    }
+  ],
+  "cityHubs": [
+    {
+      "name": "Delhi - IGI Airport Terminal 3",
+      "tag": "Flagship Hub"
+    },
+    {
+      "name": "Delhi - Aerocity Hospitality Hub",
+      "tag": "Express Valet"
+    },
+    {
+      "name": "Gurugram - DLF Cyber City Tower 10",
+      "tag": "Corporate Desk"
+    },
+    {
+      "name": "Lucknow - CCS Airport & Gomti Nagar",
+      "tag": "Regional Hub"
+    }
+  ],
+  "supportPhone": "+91 90453 01702",
+  "supportEmail": "concierge@primerides.in",
+  "hours": "24 Hours / 7 Days (Doorstep & Curbside Airport Handover)"
+}

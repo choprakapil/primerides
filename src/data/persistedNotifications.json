@@ -1,0 +1,34 @@
+{
+  "announcementBar": {
+    "enabled": true,
+    "badgeText": "SPECIAL FESTIVE OFFER",
+    "text": "🎉 Special Weekend Offer: 10% Off on Innova Crysta & Fortuner bookings!",
+    "linkText": "Explore Fleet",
+    "linkUrl": "/cars"
+  },
+  "templates": {
+    "bookingConfirmed": {
+      "whatsapp": "Dear {customer_name}, your PrimeRides self-drive reservation #{booking_id} for {car_name} is CONFIRMED! Pickup: {pickup_location} on {pickup_date}.",
+      "sms": "PrimeRides: Booking #{booking_id} confirmed for {car_name}. Pickup {pickup_date} at {pickup_location}. Support: 9045301702"
+    },
+    "kycApproved": {
+      "whatsapp": "Hello {customer_name}, your Driving License & ID have been VERIFIED successfully. You are ready for vehicle handover!",
+      "sms": "PrimeRides: Your KYC documents are verified! Handover ready for booking #{booking_id}."
+    },
+    "kycRejected": {
+      "whatsapp": "Hello {customer_name}, your KYC document verification requires attention: {reason}. Please re-upload via your account portal.",
+      "sms": "PrimeRides: Action required on your KYC documents. Please visit your account to re-upload. Info: 9045301702"
+    },
+    "tripReminder": {
+      "whatsapp": "Reminder: Your PrimeRides trip starts tomorrow at {pickup_time}. Our concierge will meet you at {pickup_location}.",
+      "sms": "PrimeRides: Trip reminder for tomorrow at {pickup_time} ({pickup_location}). Have a great drive!"
+    }
+  },
+  "adminAlerts": {
+    "newBookingSms": true,
+    "newBookingEmail": true,
+    "newKycAlert": true,
+    "alertEmail": "concierge@primerides.in",
+    "alertPhone": "+919045301702"
+  }
+}

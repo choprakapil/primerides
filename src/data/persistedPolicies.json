@@ -1,0 +1,82 @@
+{
+  "eyebrow": "PrimeRides Compliance & Legal",
+  "title": "Rental Policies, Security & Terms of Service",
+  "description": "Mandatory customer self-drive terms, security deposit refund schedules, insurance liability, and traffic compliance obligations.",
+  "clauses": [
+    {
+      "id": "rental-terms",
+      "title": "Rental Terms & Driving Eligibility",
+      "revision": "Rev 3.2",
+      "category": "Eligibility",
+      "content": "Governs self-drive age criteria (min 21 years), valid commercial or LMV driving license requirement (min 1 year driving experience), and prohibited uses.",
+      "points": [
+        "Driver must be at least 21 years of age with a valid Indian driving license or International Driving Permit.",
+        "Original physical driving license must be presented at the time of vehicle curbside delivery.",
+        "Vehicles are strictly for personal transportation; sub-leasing, racing, commercial taxi usage, and towing are strictly prohibited.",
+        "Zero tolerance policy for driving under the influence of alcohol, narcotics, or intoxicating substances."
+      ],
+      "lastUpdated": "2026-03-01",
+      "isActive": true
+    },
+    {
+      "id": "cancellation-refund",
+      "title": "Cancellation & Refund Policy",
+      "revision": "Rev 2.4",
+      "category": "Billing",
+      "content": "Defines customer cancellation windows, advance payment refund timelines, and early return terms.",
+      "points": [
+        "100% full refund if cancelled more than 24 hours prior to scheduled trip start time.",
+        "50% partial refund if cancelled within 12 to 24 hours before trip start time.",
+        "Non-refundable if cancelled less than 12 hours before scheduled delivery or in case of a customer no-show.",
+        "Refunds are credited back to the original payment source (Bank/UPI/Card) within 5-7 business days."
+      ],
+      "lastUpdated": "2026-03-01",
+      "isActive": true
+    },
+    {
+      "id": "security-deposit",
+      "title": "Security Deposit & Refund Timeline",
+      "revision": "Rev 1.9",
+      "category": "Deposits",
+      "content": "Outlines refundable security deposit requirements, FASTag toll reconciliation, and release SLA.",
+      "points": [
+        "A refundable security deposit of ₹5,000 (standard fleet) or ₹10,000 (luxury segment) is collected prior to handover.",
+        "Automated release initiated within 48 to 72 hours of successful vehicle check-in.",
+        "FASTag highway toll transactions and pending challans incurred during the rental window will be deducted from the deposit.",
+        "Zero hidden deductions; itemized toll statement sent via WhatsApp/Email upon trip closure."
+      ],
+      "lastUpdated": "2026-03-01",
+      "isActive": true
+    },
+    {
+      "id": "damage-insurance",
+      "title": "Damage Liability & PrimeShield Cover",
+      "revision": "Rev 2.1",
+      "category": "Insurance",
+      "content": "Defines comprehensive insurance coverage, customer damage cap, and accident notification protocols.",
+      "points": [
+        "All vehicles are covered under comprehensive commercial self-drive insurance.",
+        "Maximum customer liability in accidental damage is capped at the security deposit amount (with PrimeShield protection).",
+        "Immediate reporting required within 2 hours of any collision, breakdown, or FIR incident.",
+        "Negligent driving, water submersion, clutch burnout, or tire sidewall puncture due to reckless off-roading are not covered."
+      ],
+      "lastUpdated": "2026-03-01",
+      "isActive": true
+    },
+    {
+      "id": "interstate-travel",
+      "title": "Interstate Travel & FASTag Guidelines",
+      "revision": "Rev 2.0",
+      "category": "Travel",
+      "content": "Commercial permit borders, state tax permits, and geo-fenced travel limits.",
+      "points": [
+        "Vehicles are legally permitted to travel across all Indian states and Union Territories.",
+        "FASTag is pre-fitted on all vehicles; customer is responsible for maintaining toll balance or settling upon return.",
+        "State border entry taxes (e.g. entering UP/Haryana/Himachal/Uttarakhand) are the customer's responsibility via online Parivahan portal.",
+        "Travel to Leh/Ladakh or remote high-altitude routes requires prior concierge authorization."
+      ],
+      "lastUpdated": "2026-03-01",
+      "isActive": true
+    }
+  ]
+}

@@ -1,0 +1,881 @@
+@import "tailwindcss";
+
+@theme {
+  --font-heading: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --color-gold-400: #e5b94f;
+  --color-gold-500: #c59b27;
+  --color-gold-600: #b88d22;
+  --color-gold-700: #936e16;
+}
+
+/* Nexlink CRM Dashboard Design System (Authoritative Operations & Customer Portal) */
+:root {
+  --font-dashboard: 'Instrument Sans', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* Layout Dimensions */
+  --admin-sidebar-width: 256px;
+  --admin-sidebar-collapsed-width: 74px;
+  --admin-header-height: 64px;
+  --admin-page-max-width: 1440px;
+  --admin-page-padding: 24px;
+  --admin-page-padding-mobile: 16px;
+
+  /* Controlled Spacing Scale (8px rhythm) */
+  --admin-space-1: 4px;
+  --admin-space-2: 8px;
+  --admin-space-3: 12px;
+  --admin-space-4: 16px;
+  --admin-space-5: 20px;
+  --admin-space-6: 24px;
+  --admin-space-8: 32px;
+
+  /* Restrained Radii (Nexlink CRM 10px-16px scale) */
+  --admin-radius-sm: 6px;
+  --admin-radius-md: 8px;
+  --admin-radius-lg: 10px;
+  --admin-radius-xl: 12px;
+  --admin-radius-2xl: 16px;
+
+  /* Standardized Admin Shadows */
+  --admin-shadow-none: none;
+  --admin-shadow-subtle: 0 1px 3px 0 rgba(2, 2, 76, 0.04);
+  --admin-shadow-floating: 0 4px 16px -2px rgba(2, 2, 76, 0.08), 0 2px 6px -2px rgba(2, 2, 76, 0.04);
+
+  /* Surface System (Nexlink Warm Light Canvas & Pure White Surface) */
+  --admin-surface: #ffffff;
+  --admin-surface-warm: #fcfbf9;
+  --admin-surface-muted: #f4f6fa;
+  --admin-surface-subtle: #f8fafc;
+
+  /* Borders */
+  --admin-border: #e8edf2;
+  --admin-border-subtle: #f1f3f7;
+  --admin-border-focus: #5955d1;
+
+  /* Typography Colors */
+  --admin-text: #1c274c;
+  --admin-text-secondary: #495057;
+  --admin-text-muted: #7e8b9b;
+
+  /* Brand Accents (Nexlink Signature Indigo) */
+  --admin-brand: #5955d1;
+  --admin-brand-hover: #4743ba;
+  --admin-brand-subtle: #eeedfc;
+  --admin-brand-border: #d2d0f7;
+  --theme-primary: #5955d1;
+  --theme-secondary: #29294b;
+
+  /* Semantic Status Palette (Nexlink Standard) */
+  --admin-success: #009966;
+  --admin-success-bg: #e6f5f0;
+  --admin-warning: #f5a70d;
+  --admin-warning-bg: #fef6e7;
+  --admin-danger: #f83636;
+  --admin-danger-bg: #feebeb;
+  --admin-info: #7008e7;
+  --admin-info-bg: #f1e6fd;
+
+  /* Motion Timing Tokens */
+  --admin-transition-fast: 140ms cubic-bezier(0.4, 0, 0.2, 1);
+  --admin-transition-normal: 180ms cubic-bezier(0.4, 0, 0.2, 1);
+  --admin-transition-drawer: 220ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --admin-transition-fast: 0ms;
+    --admin-transition-normal: 0ms;
+    --admin-transition-drawer: 0ms;
+  }
+}
+
+/* Fix browser float length overflow in Tailwind v4 where rounded-full creates 3.4e38px */
+.rounded-full,
+[class*="rounded-full"] {
+  border-radius: 9999px !important;
+}
+
+/* Nexlink CRM Dashboard Theme (Admin & Customer Portal) */
+.admin-theme,
+.customer-portal-theme {
+  font-family: var(--font-dashboard);
+  background-color: var(--admin-surface-muted);
+  color: var(--admin-text);
+  min-height: 100vh;
+}
+
+/* Two-column CSS Grid Shell Geometry */
+.admin-shell-grid {
+  display: grid;
+  grid-template-columns: var(--admin-sidebar-width) minmax(0, 1fr);
+  min-height: 100vh;
+  width: 100%;
+  transition: grid-template-columns var(--admin-transition-normal, 180ms);
+}
+
+.admin-shell-grid.is-collapsed {
+  grid-template-columns: var(--admin-sidebar-collapsed-width) minmax(0, 1fr);
+}
+
+@media (max-width: 1023px) {
+  .admin-shell-grid,
+  .admin-shell-grid.is-collapsed {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.admin-main-container {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  background-color: var(--admin-surface-muted);
+}
+
+.font-heading {
+  font-family: var(--font-heading);
+}
+
+.font-dashboard {
+  font-family: var(--font-dashboard);
+}
+
+/* Canonical Nexlink CRM Button System */
+.admin-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border-radius: 10px !important;
+  font-weight: 600;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+  white-space: nowrap;
+  user-select: none;
+  border: 1px solid transparent;
+}
+
+.admin-btn:hover {
+  transform: translateY(-1px);
+}
+
+.admin-btn:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.admin-btn-primary {
+  background: #5955d1 !important;
+  color: #ffffff !important;
+  border: 1px solid transparent !important;
+  box-shadow: 0 4px 12px rgba(89, 85, 209, 0.25) !important;
+}
+
+.admin-btn-primary:hover {
+  background: #4743ba !important;
+  box-shadow: 0 6px 18px rgba(89, 85, 209, 0.35) !important;
+}
+
+.admin-btn-secondary {
+  background: #ffffff !important;
+  color: #1c274c !important;
+  border: 1px solid #e8edf2 !important;
+  box-shadow: 0 2px 6px rgba(2, 2, 76, 0.03) !important;
+}
+
+.admin-btn-secondary:hover {
+  border-color: #d2d0f7 !important;
+  color: #5955d1 !important;
+  background: #f8fafc !important;
+}
+
+.admin-btn-action {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px !important;
+  background: #f0f3f8 !important;
+  color: #1c274c !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border: none !important;
+  transition: all 0.18s ease !important;
+}
+
+.admin-btn-action:hover {
+  background: #e2e7f0 !important;
+  color: #5955d1 !important;
+}
+
+.admin-btn-success {
+  background: #009966 !important;
+  color: #ffffff !important;
+  border: 1px solid transparent !important;
+  box-shadow: 0 4px 12px rgba(0, 153, 102, 0.25) !important;
+}
+
+.admin-btn-success:hover {
+  background: #008055 !important;
+}
+
+.admin-btn-danger {
+  background: #feebeb !important;
+  color: #f83636 !important;
+  border: 1px solid rgba(248, 54, 54, 0.2) !important;
+}
+
+.admin-btn-danger:hover {
+  background: #f83636 !important;
+  color: #ffffff !important;
+  border-color: #f83636 !important;
+  box-shadow: 0 4px 12px rgba(248, 54, 54, 0.25) !important;
+}
+
+.admin-btn-vip {
+  background: #29294b !important;
+  color: #ffffff !important;
+  border: 1px solid transparent !important;
+  box-shadow: 0 4px 14px rgba(41, 41, 75, 0.2) !important;
+}
+
+.admin-btn-vip:hover {
+  background: #1e1e38 !important;
+}
+
+/* Nexlink Clean Pill Navigation Container */
+.admin-pill-bar {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  background-color: #f0f3f8;
+  border: 1px solid #e8edf2;
+  border-radius: 12px !important;
+}
+
+.admin-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 8px !important;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #7e8b9b;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+}
+
+.admin-pill-btn:hover {
+  color: #1c274c;
+  background-color: rgba(255, 255, 255, 0.8);
+}
+
+.admin-pill-btn.active {
+  background: #5955d1 !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(89, 85, 209, 0.3) !important;
+}
+
+.admin-pill-btn.active-white {
+  background: #ffffff !important;
+  color: #1c274c !important;
+  box-shadow: 0 2px 6px rgba(2, 2, 76, 0.05) !important;
+}
+
+/* Nexlink CRM Card Architecture */
+.admin-card-lux,
+.admin-glass-card {
+  background: #ffffff !important;
+  border-radius: 16px !important;
+  border: 1px solid #e8edf2 !important;
+  padding: 22px 24px;
+  box-shadow: 0 4px 12px rgba(2, 2, 76, 0.02) !important;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.admin-card-lux:hover,
+.admin-glass-card:hover {
+  border-color: #d2d0f7 !important;
+  box-shadow: 0 8px 24px rgba(2, 2, 76, 0.06) !important;
+  transform: translateY(-1px);
+}
+
+/* High-contrast Navy Card */
+.admin-card-dark {
+  background: #29294b !important;
+  border-radius: 16px !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  padding: 24px;
+  color: #ffffff !important;
+  box-shadow: 0 8px 24px rgba(41, 41, 75, 0.15) !important;
+}
+
+/* Input Fields */
+.admin-input-box {
+  background-color: #ffffff !important;
+  border: 1px solid #e8edf2 !important;
+  border-radius: 10px !important;
+  transition: all 0.2s ease !important;
+}
+.admin-input-box:focus-within {
+  background-color: #ffffff !important;
+  border-color: #5955d1 !important;
+  box-shadow: 0 0 0 3px rgba(89, 85, 209, 0.15) !important;
+}
+.admin-input-box input {
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  color: #1c274c !important;
+  font-size: 13.5px !important;
+  padding: 0 12px;
+}
+.admin-input-box input::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* Luxury Vehicle Card (Matches Homepage .modern-car-card) */
+.modern-car-card {
+  background: #ffffff;
+  border-radius: 20px !important;
+  border: 1px solid rgba(226, 232, 240, 0.85);
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modern-car-card:hover {
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.09), 0 0 0 1.5px rgba(197, 155, 39, 0.4) !important;
+  border-color: rgba(197, 155, 39, 0.3) !important;
+}
+
+/* Homepage Micro Badges */
+.admin-badge-glass {
+  background: rgba(17, 24, 39, 0.85) !important;
+  backdrop-filter: blur(6px) !important;
+  color: #f7d58b !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 9999px !important;
+}
+
+.admin-badge-gold {
+  background: rgba(197, 155, 39, 0.12) !important;
+  border: 1px solid rgba(197, 155, 39, 0.35) !important;
+  border-radius: 9999px !important;
+  color: #a87e14 !important;
+}
+
+/* Override any Bootstrap form clashes in admin */
+.admin-input {
+  background-color: #f8fafc !important;
+  color: #090e1a !important;
+  border: 1px solid #cbd5e1 !important;
+  box-shadow: none !important;
+  box-sizing: border-box !important;
+}
+.admin-input:focus {
+  background-color: #ffffff !important;
+  border-color: #c59b27 !important;
+  box-shadow: 0 0 0 3px rgba(197, 155, 39, 0.18) !important;
+  outline: none !important;
+}
+
+/* Chrome & Safari Autofill Light Luxury Theme Override */
+.admin-theme input:-webkit-autofill,
+.admin-theme input:-webkit-autofill:hover, 
+.admin-theme input:-webkit-autofill:focus, 
+.admin-theme input:-webkit-autofill:active,
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px #f8fafc inset !important;
+  -webkit-text-fill-color: #090e1a !important;
+  caret-color: #090e1a !important;
+  transition: background-color 5000s ease-in-out 0s !important;
+}
+
+/* Luxury Input Field Box (Matches Homepage Light Theme) */
+.admin-input-box {
+  background-color: #f8fafc !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 12px !important;
+  transition: all 0.2s ease !important;
+}
+.admin-input-box:focus-within {
+  background-color: #ffffff !important;
+  border-color: #c59b27 !important;
+  box-shadow: 0 0 0 3px rgba(197, 155, 39, 0.18) !important;
+}
+.admin-input-box input {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  color: #090e1a !important;
+  font-size: 14px !important;
+  padding: 0 12px;
+}
+.admin-input-box input::placeholder {
+  color: #94a3b8 !important;
+}
+
+
+/* Exact FAQ accordion styles from static site */
+.faq-accordion-item {
+  background: #ffffff;
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 14px !important;
+  margin-bottom: 14px;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.faq-accordion-item:hover {
+  border-color: rgba(197, 155, 39, 0.4);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.04);
+}
+.faq-accordion-button {
+  background: #ffffff;
+  color: var(--text-heading, #090e1a);
+  font-weight: 600;
+  font-size: 16px;
+  padding: 20px 24px;
+  border: none;
+  box-shadow: none !important;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+}
+.faq-accordion-button:not(.collapsed) {
+  color: var(--primary-color, #c59b27);
+  background: #fdfaf2;
+}
+.faq-accordion-button::after {
+  content: '\f078';
+  font-family: 'Font Awesome 6 Free';
+  font-weight: 900;
+  font-size: 13px;
+  transition: transform 0.3s ease;
+  color: var(--primary-color, #c59b27);
+}
+.faq-accordion-button:not(.collapsed)::after {
+  transform: rotate(180deg);
+}
+.faq-accordion-body {
+  padding: 18px 24px 24px 24px;
+  color: #64748b;
+  font-size: 15px;
+  line-height: 1.7;
+  background: #fdfaf2;
+}
+
+/* ===================================================================
+   MOTION ICONS KEYFRAMES & UTILITIES (motionicons.dev)
+   =================================================================== */
+:root {
+  --motion-ease-out: cubic-bezier(.23, 1, .32, 1);
+  --motion-ease-in-out: cubic-bezier(.77, 0, .175, 1);
+  --motion-ease-spring: cubic-bezier(.34, 1.56, .64, 1);
+}
+
+@keyframes motion-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.75; transform: scale(1.12); }
+}
+
+@keyframes motion-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes motion-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-7px); }
+}
+
+@keyframes motion-wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-12deg); }
+  75% { transform: rotate(12deg); }
+}
+
+@keyframes motion-heartbeat {
+  0%, 100% { transform: scale(1); }
+  14% { transform: scale(1.22); }
+  28% { transform: scale(1); }
+  42% { transform: scale(1.18); }
+  56% { transform: scale(1); }
+}
+
+@keyframes motion-shake {
+  0%, 100% { transform: translate(0); }
+  20%, 60% { transform: translate(-3px); }
+  40%, 80% { transform: translate(3px); }
+}
+
+@keyframes motion-nudge {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(3px); }
+}
+
+@keyframes motion-pop {
+  0% { transform: scale(0.92); opacity: 0.85; }
+  50% { transform: scale(1.18); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.motion-pulse { animation: motion-pulse 2s var(--motion-ease-in-out) infinite !important; }
+.motion-spin { animation: motion-spin 3s linear infinite !important; }
+.motion-bounce { animation: motion-bounce 1.6s var(--motion-ease-in-out) infinite !important; }
+.motion-wiggle { animation: motion-wiggle 1.8s var(--motion-ease-in-out) infinite !important; }
+.motion-heartbeat { animation: motion-heartbeat 1.8s var(--motion-ease-in-out) infinite !important; }
+.motion-shake { animation: motion-shake 1.2s var(--motion-ease-in-out) infinite !important; }
+.motion-nudge { animation: motion-nudge 1.6s var(--motion-ease-out) infinite !important; }
+.motion-pop { animation: motion-pop 2.2s var(--motion-ease-spring) infinite !important; }
+
+/* Interactive Hover Acceleration */
+.trust-item:hover .motion-pulse,
+.trust-item:hover .motion-bounce,
+.trust-item:hover .motion-wiggle,
+.trust-item:hover .motion-heartbeat {
+  animation-duration: 0.9s !important;
+}
+
+/* ===================================================================
+   PUBLIC NAVBAR FIX: OVERRIDE TAILWIND V4 .collapse UTILITY COLLISION
+   =================================================================== */
+.navbar .navbar-collapse,
+.navbar .navbar-collapse.collapse,
+.navbar-collapse.collapse,
+.navbar .collapse {
+  visibility: visible !important;
+}
+
+@media (min-width: 992px) {
+  .navbar-expand-lg .navbar-collapse {
+    display: flex !important;
+    visibility: visible !important;
+    flex-basis: auto !important;
+  }
+}
+
+@media (max-width: 991.98px) {
+  .navbar-collapse.collapse:not(.show) {
+    display: none !important;
+  }
+  .navbar-collapse.collapse.show {
+    display: block !important;
+    visibility: visible !important;
+    background: #ffffff !important;
+    padding: 24px 20px !important;
+    border-radius: 18px !important;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12) !important;
+    margin-top: 15px !important;
+    border: 1px solid rgba(226, 232, 240, 0.9) !important;
+  }
+  .navbar-collapse.collapse.show .nav-item {
+    margin-bottom: 8px !important;
+  }
+  .navbar-collapse.collapse.show .nav-link {
+    color: #090e1a !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    padding: 8px 12px !important;
+  }
+  .navbar-collapse.collapse.show .d-flex {
+    margin-top: 16px !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+  }
+  .navbar-collapse.collapse.show .btn,
+  .navbar-collapse.collapse.show .btn-prime {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+}
+
+
+/* Authentic Nexlink Nav Pills Custom */
+.nav-pills-custom {
+  --bs-nav-link-padding-x: 1rem;
+  --bs-nav-link-padding-y: 0.4rem;
+  --bs-nav-link-color: #5d6778;
+  --bs-nav-pills-link-active-color: #1c274c;
+  --bs-nav-pills-link-active-bg: #ffffff;
+  gap: 2px;
+}
+
+.nav-pills-custom .nav-link {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.2;
+  border-radius: 50rem;
+  padding: 0.45rem 1rem;
+  color: #5d6778;
+  transition: all 0.15s ease-in-out;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+}
+
+.nav-pills-custom .nav-link:hover {
+  color: #1c274c;
+}
+
+.nav-pills-custom .nav-link.active {
+  color: #1c274c !important;
+  background-color: #ffffff !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* ==========================================================================
+   PASTEL COLOR DESIGN SYSTEM & MICRO-ANIMATIONS (Admin & Customer Portals)
+   ========================================================================== */
+
+/* Pastel Color Utility Classes */
+.bg-pastel-lavender { background-color: #f5f3ff !important; }
+.bg-pastel-mint { background-color: #ecfdf5 !important; }
+.bg-pastel-sky { background-color: #f0f9ff !important; }
+.bg-pastel-peach { background-color: #fffbeb !important; }
+.bg-pastel-rose { background-color: #fff1f2 !important; }
+.bg-pastel-indigo { background-color: #eef2ff !important; }
+
+.text-pastel-lavender { color: #7c3aed !important; }
+.text-pastel-mint { color: #059669 !important; }
+.text-pastel-sky { color: #0284c7 !important; }
+.text-pastel-peach { color: #d97706 !important; }
+.text-pastel-rose { color: #e11d48 !important; }
+.text-pastel-indigo { color: #4f46e5 !important; }
+
+.border-pastel-lavender { border-color: #ddd6fe !important; }
+.border-pastel-mint { border-color: #a7f3d0 !important; }
+.border-pastel-sky { border-color: #bae6fd !important; }
+.border-pastel-peach { border-color: #fde68a !important; }
+.border-pastel-rose { border-color: #fecdd3 !important; }
+.border-pastel-indigo { border-color: #c7d2fe !important; }
+
+/* Pastel Card Containers with Soft Glassmorphic Tints */
+.pastel-card {
+  background: #ffffff;
+  border: 1px solid #e8edf2;
+  border-radius: 16px;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.pastel-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(28, 39, 76, 0.06);
+}
+
+.pastel-card-lavender {
+  border-color: #e9d5ff;
+  background: linear-gradient(180deg, #ffffff 65%, #faf5ff 100%);
+}
+.pastel-card-lavender:hover {
+  border-color: #d8b4fe;
+  box-shadow: 0 10px 25px -5px rgba(168, 85, 247, 0.12);
+}
+
+.pastel-card-mint {
+  border-color: #a7f3d0;
+  background: linear-gradient(180deg, #ffffff 65%, #f0fdf4 100%);
+}
+.pastel-card-mint:hover {
+  border-color: #6ee7b7;
+  box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.12);
+}
+
+.pastel-card-sky {
+  border-color: #bae6fd;
+  background: linear-gradient(180deg, #ffffff 65%, #f0f9ff 100%);
+}
+.pastel-card-sky:hover {
+  border-color: #7dd3fc;
+  box-shadow: 0 10px 25px -5px rgba(14, 165, 233, 0.12);
+}
+
+.pastel-card-peach {
+  border-color: #fde68a;
+  background: linear-gradient(180deg, #ffffff 65%, #fffbeb 100%);
+}
+.pastel-card-peach:hover {
+  border-color: #fcd34d;
+  box-shadow: 0 10px 25px -5px rgba(245, 158, 11, 0.12);
+}
+
+.pastel-card-rose {
+  border-color: #fecdd3;
+  background: linear-gradient(180deg, #ffffff 65%, #fff1f2 100%);
+}
+.pastel-card-rose:hover {
+  border-color: #fda4af;
+  box-shadow: 0 10px 25px -5px rgba(244, 63, 94, 0.12);
+}
+
+/* Trend Arrow Badges */
+.trend-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  transition: all 0.2s ease;
+}
+.trend-pill-up {
+  background-color: #ecfdf5;
+  color: #059669;
+  border: 1px solid #a7f3d0;
+}
+.trend-pill-up:hover {
+  background-color: #d1fae5;
+  transform: scale(1.04);
+}
+.trend-pill-down {
+  background-color: #fff1f2;
+  color: #e11d48;
+  border: 1px solid #fecdd3;
+}
+.trend-pill-down:hover {
+  background-color: #ffe4e6;
+  transform: scale(1.04);
+}
+.trend-pill-neutral {
+  background-color: #f0f9ff;
+  color: #0284c7;
+  border: 1px solid #bae6fd;
+}
+
+/* Draggable Moveable Widgets System */
+.draggable-widget-handle {
+  cursor: grab;
+  opacity: 0.45;
+  transition: opacity 0.15s, transform 0.15s;
+}
+.draggable-widget-handle:hover {
+  opacity: 1;
+  transform: scale(1.15);
+}
+.draggable-widget-handle:active {
+  cursor: grabbing;
+}
+
+.draggable-widget {
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
+  user-select: none;
+}
+.draggable-widget.is-dragging {
+  opacity: 0.55;
+  transform: scale(0.98);
+  box-shadow: 0 20px 30px rgba(89, 85, 209, 0.18) !important;
+}
+.draggable-dropzone-indicator {
+  border: 2px dashed #8b5cf6;
+  background: rgba(139, 92, 246, 0.04);
+  border-radius: 16px;
+  min-height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: dropzone-pulse 1.4s ease-in-out infinite alternate;
+}
+
+@keyframes dropzone-pulse {
+  from { border-color: #c4b5fd; background: rgba(139, 92, 246, 0.02); }
+  to { border-color: #8b5cf6; background: rgba(139, 92, 246, 0.08); }
+}
+
+/* Live Telemetry Radar Pulse */
+.telemetry-radar-dot {
+  position: relative;
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #10b981;
+}
+.telemetry-radar-dot::after {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid #10b981;
+  animation: radar-ping 1.6s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+@keyframes radar-ping {
+  0% { transform: scale(0.5); opacity: 1; }
+  80%, 100% { transform: scale(2.4); opacity: 0; }
+}
+
+/* Micro-animations */
+@keyframes float-subtle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+.animate-float-subtle {
+  animation: float-subtle 4s ease-in-out infinite;
+}
+
+/* Interactive SVG Chart Node Glows */
+.chart-dot-glow {
+  transition: all 0.2s ease;
+}
+.chart-dot-glow:hover {
+  r: 6;
+  filter: drop-shadow(0 0 6px rgba(139, 92, 246, 0.6));
+  cursor: pointer;
+}
+
+/* ==========================================================================
+   COLORFUL ANIMATED SIDEBAR ICONS
+   ========================================================================== */
+.sidebar-icon-wrapper {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  margin-right: 10px;
+  position: relative;
+}
+
+.menu-link:hover .sidebar-icon-wrapper {
+  transform: scale(1.14) rotate(-3deg);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+}
+
+.menu-link:hover .sidebar-icon-wrapper svg {
+  animation: sidebar-icon-wobble 0.45s ease-in-out;
+}
+
+.menu-link.active .sidebar-icon-wrapper {
+  transform: scale(1.06);
+  box-shadow: 0 4px 14px rgba(89, 85, 209, 0.28);
+}
+
+@keyframes sidebar-icon-wobble {
+  0% { transform: scale(1); }
+  35% { transform: scale(1.18) rotate(6deg); }
+  65% { transform: scale(0.95) rotate(-4deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}

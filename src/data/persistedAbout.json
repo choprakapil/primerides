@@ -1,0 +1,33 @@
+{
+  "eyebrow": "ABOUT PRIMERIDES",
+  "pageTitle": "Redefining Luxury & Self-Drive Mobility",
+  "subtitle": "Born in Delhi NCR, PrimeRides empowers discerning travelers, corporate executives, and road-trippers with immaculate, top-tier self-drive vehicles.",
+  "mission": "To deliver effortless self-drive mobility with absolute transparent pricing, zero hidden penalties, and instant curbside handover across Delhi NCR and Lucknow.",
+  "vision": "To become India's most trusted luxury self-drive platform, renowned for impeccable vehicle hygiene, transparent policies, and unforgettable journeys.",
+  "statHappy": "12,000+",
+  "statFleet": "50+",
+  "statRating": "4.9/5",
+  "statReviews": "2,800+",
+  "values": [
+    {
+      "title": "Immaculate Vehicle Hygiene",
+      "description": "Every car undergoes a 45-point mechanical inspection and hospital-grade interior sanitization before every key handover.",
+      "icon": "Sparkles"
+    },
+    {
+      "title": "Absolute Pricing Transparency",
+      "description": "No surge pricing, no opaque tax surcharges, and instant security deposit release within 48 hours.",
+      "icon": "ShieldCheck"
+    },
+    {
+      "title": "Curbside Terminal Delivery",
+      "description": "Direct key handover at IGI Airport T1/T2/T3, CCS Airport Lucknow, or right to your residence.",
+      "icon": "MapPin"
+    },
+    {
+      "title": "24/7 Pan-India Roadside Shield",
+      "description": "Dedicated dispatchers and towing assistance active nationwide 365 days a year.",
+      "icon": "Clock"
+    }
+  ]
+}

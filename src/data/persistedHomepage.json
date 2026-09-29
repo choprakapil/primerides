@@ -1,0 +1,52 @@
+{
+  "heroData": {
+    "badgeText": "VERIFIED LUXURY FLEET • DELHI NCR & LUCKNOW",
+    "titleLine1": "Experience The Pinnacle Of",
+    "titleLine2": "Luxury Self-Drive Freedom",
+    "subtext": "More than 50+ luxury sedans, 4x4 SUVs, and executive cars delivered to your doorstep or airport terminal with zero hidden fees.",
+    "bgImage": "/assets/img/banner_1.png",
+    "usp1": "Zero Security Deposit Option",
+    "usp2": "Instant Curbside Airport Handover",
+    "usp3": "Unlimited KM Packages"
+  },
+  "hubs": [
+    {
+      "id": "delhi",
+      "city": "Delhi NCR",
+      "fleetCount": "50+ Premium Vehicles",
+      "desc": "IGI Airport T1/T2/T3, Aerocity, Gurugram Cyber Hub, Noida & 24/7 doorstep delivery across Delhi NCR.",
+      "tag": "Primary Hub"
+    },
+    {
+      "id": "lucknow",
+      "city": "Lucknow",
+      "fleetCount": "30+ Premium Vehicles",
+      "desc": "Chaudhary Charan Singh Airport, Gomti Nagar, Hazratganj, and premium outstation self-drive rentals.",
+      "tag": "Regional Hub"
+    }
+  ],
+  "trustHighlights": [
+    {
+      "title": "Unlimited Kilometers",
+      "desc": "Drive freely across states with zero per-km penalties",
+      "iconName": "Gauge"
+    },
+    {
+      "title": "Instant Airport Delivery",
+      "desc": "Curbside key handover at IGI Airport Terminal 1, 2 & 3",
+      "iconName": "MapPin"
+    },
+    {
+      "title": "Zero Hidden Charges",
+      "desc": "100% transparent rates & minimal refundable deposit",
+      "iconName": "ShieldCheck"
+    },
+    {
+      "title": "24/7 Roadside Shield",
+      "desc": "Round-the-clock emergency assistance nationwide",
+      "iconName": "Headphones"
+    }
+  ],
+  "offers": [],
+  "reviews": []
+}

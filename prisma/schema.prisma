@@ -1,0 +1,550 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// -----------------------------------------------------------------------------
+// 1. IDENTITY, USERS & DEVICES
+// -----------------------------------------------------------------------------
+model AdminUser {
+  id          Int       @id @default(autoincrement())
+  username    String    @unique @db.VarChar(100)
+  email       String    @unique @db.VarChar(255)
+  name        String    @db.VarChar(255)
+  password    String    @db.VarChar(255) // Argon2id hash
+  role        String    @default("staff") @db.VarChar(50) // 'superadmin', 'manager', 'staff'
+  permissions Json?     // Array of scoped permission keys e.g. ["fleet.manage", "bookings.view"]
+  is_active   Boolean   @default(true)
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+  deleted_at  DateTime?
+
+  audit_logs AuditLog[]
+
+  @@map("tbl_admin_users")
+}
+
+model CustomerUser {
+  id          Int       @id @default(autoincrement())
+  phone       String    @unique @db.VarChar(20)
+  email       String?   @unique @db.VarChar(255)
+  full_name   String    @db.VarChar(255)
+  password    String?   @db.VarChar(255) // Argon2id hash
+  avatar_url  String?   @db.VarChar(500)
+  is_verified Boolean   @default(false)
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+  deleted_at  DateTime?
+
+  devices     UserDevice[]
+  bookings    Booking[]
+  documents   IdentityDocument[]
+  password_resets PasswordResetToken[]
+
+  @@map("tbl_customer_users")
+}
+
+model PasswordResetToken {
+  id         Int          @id @default(autoincrement())
+  user_id    Int
+  user       CustomerUser @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  token_hash String       @unique @db.VarChar(255)
+  expires_at DateTime
+  used_at    DateTime?
+  created_at DateTime     @default(now())
+
+  @@index([user_id])
+  @@map("tbl_password_reset_tokens")
+}
+
+model UserDevice {
+  id          Int          @id @default(autoincrement())
+  user_id     Int
+  user        CustomerUser @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  device_type String       @db.VarChar(20) // 'ios', 'android', 'web'
+  fcm_token   String       @db.VarChar(500)
+  is_active   Boolean      @default(true)
+  last_seen   DateTime     @default(now())
+  created_at  DateTime     @default(now())
+  updated_at  DateTime     @updatedAt
+
+  @@index([user_id])
+  @@map("tbl_user_devices")
+}
+
+model Session {
+  id                 String    @id @default(uuid()) @db.VarChar(64)
+  user_id            Int
+  user_type          String    @db.VarChar(20) // 'admin' | 'customer'
+  token_hash         String    @db.VarChar(255)
+  refresh_token_hash String?   @db.VarChar(255)
+  ip_address         String?   @db.VarChar(50)
+  user_agent         String?   @db.Text
+  is_revoked         Boolean   @default(false)
+  expires_at         DateTime
+  created_at         DateTime  @default(now())
+  updated_at         DateTime  @updatedAt
+
+  @@index([user_id, user_type])
+  @@index([refresh_token_hash])
+  @@map("tbl_sessions")
+}
+
+model IdentityDocument {
+  id               Int          @id @default(autoincrement())
+  customer_id      Int
+  customer         CustomerUser @relation(fields: [customer_id], references: [id], onDelete: Cascade)
+  type             String       @db.VarChar(50) // 'driving_license_front', 'driving_license_back', 'aadhaar', 'passport'
+  storage_key      String       @db.VarChar(500)
+  file_name        String?      @db.VarChar(255)
+  mime_type        String?      @db.VarChar(100)
+  file_size        Int?
+  status           String       @default("pending") @db.VarChar(50) // 'pending', 'verified', 'rejected'
+  rejection_reason String?      @db.Text
+  verified_at      DateTime?
+  verified_by      Int?         // Admin user ID
+  created_at       DateTime     @default(now())
+  updated_at       DateTime     @updatedAt
+  deleted_at       DateTime?
+
+  @@index([customer_id])
+  @@index([status])
+  @@map("tbl_identity_documents")
+}
+
+// -----------------------------------------------------------------------------
+// 2. LOCATIONS, FLEET & PRICING PLANS
+// -----------------------------------------------------------------------------
+model Location {
+  id          Int       @id @default(autoincrement())
+  city        String    @db.VarChar(100) // 'Delhi NCR', 'Lucknow'
+  name        String    @db.VarChar(255) // 'Delhi NCR Hub', 'Lucknow Hub'
+  slug        String    @unique @db.VarChar(100)
+  address     String?   @db.Text
+  is_active   Boolean   @default(true)
+  sort_order  Int       @default(0)
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+  deleted_at  DateTime?
+
+  cars        Car[]
+  bookings    Booking[]
+
+  @@map("tbl_locations")
+}
+
+model CarCategory {
+  id          Int       @id @default(autoincrement())
+  name        String    @db.VarChar(100)
+  slug        String    @unique @db.VarChar(100)
+  description String?   @db.Text
+  image_url   String?   @db.VarChar(500)
+  sort_order  Int       @default(0)
+  is_active   Boolean   @default(true)
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+  deleted_at  DateTime?
+
+  cars        Car[]
+
+  @@map("tbl_car_categories")
+}
+
+model Car {
+  id               Int          @id @default(autoincrement())
+  name             String       @db.VarChar(255)
+  slug             String       @unique @db.VarChar(255)
+  brand            String       @db.VarChar(100)
+  category_id      Int
+  category         CarCategory  @relation(fields: [category_id], references: [id])
+  
+  location_id      Int?
+  location         Location?    @relation(fields: [location_id], references: [id])
+  
+  price_per_day    Decimal      @db.Decimal(10, 2)
+  price_per_hour   Decimal?     @db.Decimal(10, 2)
+  security_deposit Decimal?     @default(5000.00) @db.Decimal(10, 2)
+  
+  transmission     String       @default("Automatic") @db.VarChar(50)
+  seats            Int          @default(5)
+  doors            Int          @default(4)
+  fuel_type        String       @default("Petrol") @db.VarChar(50)
+  engine_hp        Int?
+  acceleration     String?      @db.VarChar(50)
+  top_speed        Int?
+  
+  primary_image    String       @db.VarChar(500)
+  gallery_images   Json?
+  badge            String?      @db.VarChar(50)
+  
+  description      String?      @db.Text
+  features         Json?
+  
+  is_available     Boolean      @default(true)
+  is_featured      Boolean      @default(false)
+  sort_order       Int          @default(0)
+  created_at       DateTime     @default(now())
+  updated_at       DateTime     @updatedAt
+  deleted_at       DateTime?
+
+  rental_plans     RentalPlan[]
+  bookings         Booking[]
+  price_snapshots  PriceSnapshot[]
+
+  @@index([location_id])
+  @@map("tbl_cars")
+}
+
+model RentalPlan {
+  id               Int       @id @default(autoincrement())
+  car_id           Int
+  car              Car       @relation(fields: [car_id], references: [id], onDelete: Cascade)
+  plan_type        String    @db.VarChar(50) // 'km_package' | 'monthly'
+  name             String    @db.VarChar(100) // e.g. '300 km Package', '450 km Package', '600 km Package', 'Monthly (5,000 km)'
+  free_km          Int       // 300, 450, 600, 5000
+  price            Decimal   @db.Decimal(10, 2) // 2500.00, 3000.00, 3750.00, 40000.00
+  security_deposit Decimal   @default(5000.00) @db.Decimal(10, 2)
+  extra_km_rate    Decimal   @default(7.00) @db.Decimal(10, 2)
+  duration_days    Int       @default(1) // 1 day for km package, 30 days for monthly
+  is_active        Boolean   @default(true)
+  created_at       DateTime  @default(now())
+  updated_at       DateTime  @updatedAt
+
+  bookings         Booking[]
+  price_snapshots  PriceSnapshot[]
+
+  @@index([car_id])
+  @@map("tbl_rental_plans")
+}
+
+model Driver {
+  id             Int       @id @default(autoincrement())
+  name           String    @db.VarChar(255)
+  phone          String    @unique @db.VarChar(20)
+  email          String?   @db.VarChar(255)
+  license_number String    @db.VarChar(100)
+  is_available   Boolean   @default(true)
+  is_active      Boolean   @default(true)
+  rating         Decimal   @default(5.0) @db.Decimal(3, 2)
+  created_at     DateTime  @default(now())
+  updated_at     DateTime  @updatedAt
+  deleted_at     DateTime?
+
+  bookings       Booking[]
+
+  @@map("tbl_drivers")
+}
+
+// -----------------------------------------------------------------------------
+// 3. BOOKING ENGINE & AUDIT TRAIL
+// -----------------------------------------------------------------------------
+model Booking {
+  id              Int           @id @default(autoincrement())
+  booking_code    String        @unique @db.VarChar(30)
+  customer_id     Int?
+  customer        CustomerUser? @relation(fields: [customer_id], references: [id])
+  
+  full_name       String        @db.VarChar(255)
+  phone           String        @db.VarChar(20)
+  email           String?       @db.VarChar(255)
+  
+  location_id     Int?
+  location        Location?     @relation(fields: [location_id], references: [id])
+
+  car_id          Int?
+  car             Car?          @relation(fields: [car_id], references: [id])
+  car_name        String?       @db.VarChar(255)
+  
+  rental_plan_id  Int?
+  rental_plan     RentalPlan?   @relation(fields: [rental_plan_id], references: [id])
+
+  driver_id       Int?
+  driver          Driver?       @relation(fields: [driver_id], references: [id])
+  
+  start_date      DateTime
+  end_date        DateTime
+  pickup_location String?       @db.VarChar(255)
+  drop_location   String?       @db.VarChar(255)
+  with_chauffeur  Boolean       @default(false)
+  
+  base_amount      Decimal?      @db.Decimal(10, 2)
+  chauffeur_fee    Decimal?      @db.Decimal(10, 2)
+  security_deposit Decimal?      @db.Decimal(10, 2)
+  discount_amount  Decimal?      @default(0.00) @db.Decimal(10, 2)
+  coupon_id        Int?
+  coupon           Coupon?       @relation(fields: [coupon_id], references: [id])
+  coupon_code      String?       @db.VarChar(50)
+  total_amount     Decimal?      @db.Decimal(10, 2)
+  
+  status          String        @default("pending") @db.VarChar(50) // 'pending', 'confirmed', 'active', 'completed', 'cancelled'
+  source          String        @default("web") @db.VarChar(50) // 'web', 'ios', 'android', 'admin'
+  idempotency_key String?       @unique @db.VarChar(100)
+  
+  notes           String?       @db.Text
+  admin_notes     String?       @db.Text
+  created_at      DateTime      @default(now())
+  updated_at      DateTime      @updatedAt
+  deleted_at      DateTime?
+
+  price_snapshot  PriceSnapshot?
+  status_history  BookingStatusHistory[]
+  payments        Payment[]
+  cancellation    Cancellation?
+  trip            Trip?
+
+  @@index([car_id, start_date, end_date])
+  @@index([status])
+  @@index([location_id])
+  @@map("tbl_bookings")
+}
+
+model PriceSnapshot {
+  id                     Int         @id @default(autoincrement())
+  booking_id             Int         @unique
+  booking                Booking     @relation(fields: [booking_id], references: [id], onDelete: Cascade)
+  car_id                 Int?
+  car                    Car?        @relation(fields: [car_id], references: [id])
+  rental_plan_id         Int?
+  rental_plan            RentalPlan? @relation(fields: [rental_plan_id], references: [id])
+  
+  plan_name              String?     @db.VarChar(100)
+  plan_price             Decimal?    @db.Decimal(10, 2)
+  free_km                Int         @default(300)
+  extra_km_rate          Decimal     @default(7.00) @db.Decimal(10, 2)
+  
+  price_per_day          Decimal?    @db.Decimal(10, 2)
+  price_per_hour         Decimal?    @db.Decimal(10, 2)
+  chauffeur_rate_per_day Decimal?    @db.Decimal(10, 2)
+  security_deposit       Decimal?    @default(5000.00) @db.Decimal(10, 2)
+  tax_amount             Decimal     @default(0.00) @db.Decimal(10, 2) // Inclusive for now, deferred to Phase 5
+  discount_amount        Decimal?    @default(0.00) @db.Decimal(10, 2)
+  coupon_code            String?     @db.VarChar(50)
+  
+  calculated_days        Int         @default(1)
+  calculated_hours       Int         @default(0)
+  total_calculated       Decimal     @db.Decimal(10, 2)
+  currency               String      @default("INR") @db.VarChar(10)
+  snapshot_data          Json?
+  created_at             DateTime    @default(now())
+
+  @@map("tbl_price_snapshots")
+}
+
+model BookingStatusHistory {
+  id                 Int      @id @default(autoincrement())
+  booking_id         Int
+  booking            Booking  @relation(fields: [booking_id], references: [id], onDelete: Cascade)
+  from_status        String   @db.VarChar(50)
+  to_status          String   @db.VarChar(50)
+  changed_by_user_id Int?
+  changed_by_role    String   @default("system") @db.VarChar(50) // 'system', 'admin', 'customer'
+  reason             String?  @db.Text
+  created_at         DateTime @default(now())
+
+  @@index([booking_id])
+  @@map("tbl_booking_status_history")
+}
+
+model Payment {
+  id              Int       @id @default(autoincrement())
+  booking_id      Int
+  booking         Booking   @relation(fields: [booking_id], references: [id], onDelete: Cascade)
+  transaction_ref String    @unique @db.VarChar(150)
+  gateway         String    @default("razorpay") @db.VarChar(50) // 'razorpay', 'stripe', 'cash'
+  amount          Decimal   @db.Decimal(10, 2)
+  currency        String    @default("INR") @db.VarChar(10)
+  status          String    @default("pending") @db.VarChar(50) // 'pending', 'successful', 'failed', 'refunded'
+  payment_method  String?   @db.VarChar(50) // 'card', 'upi', 'netbanking', 'wallet'
+  metadata        Json?
+  created_at      DateTime  @default(now())
+  updated_at      DateTime  @updatedAt
+
+  @@index([booking_id])
+  @@map("tbl_payments")
+}
+
+model Cancellation {
+  id             Int       @id @default(autoincrement())
+  booking_id     Int       @unique
+  booking        Booking   @relation(fields: [booking_id], references: [id], onDelete: Cascade)
+  reason         String    @db.Text
+  cancelled_by   String    @db.VarChar(50) // 'customer', 'admin', 'system'
+  refund_amount  Decimal?  @db.Decimal(10, 2)
+  penalty_amount Decimal?  @db.Decimal(10, 2)
+  processed_at   DateTime?
+  created_at     DateTime  @default(now())
+
+  @@map("tbl_cancellations")
+}
+
+model Trip {
+  id                Int       @id @default(autoincrement())
+  booking_id        Int       @unique
+  booking           Booking   @relation(fields: [booking_id], references: [id], onDelete: Cascade)
+  start_odometer    Int?
+  end_odometer      Int?
+  start_fuel_level  String?   @db.VarChar(50)
+  end_fuel_level    String?   @db.VarChar(50)
+  inspection_notes  String?   @db.Text
+  pickup_photos     Json?
+  return_photos     Json?
+  started_at        DateTime?
+  completed_at      DateTime?
+  created_at        DateTime  @default(now())
+  updated_at        DateTime  @updatedAt
+
+  @@map("tbl_trips")
+}
+
+model AuditLog {
+  id          Int        @id @default(autoincrement())
+  actor_id    Int?
+  actor       AdminUser? @relation(fields: [actor_id], references: [id])
+  actor_type  String     @default("admin") @db.VarChar(50) // 'admin', 'system', 'customer'
+  action      String     @db.VarChar(100) // e.g. 'CAR_CREATE', 'BOOKING_STATUS_UPDATE'
+  entity      String     @db.VarChar(100) // e.g. 'Car', 'Booking', 'RentalPlan'
+  entity_id   Int?
+  before_state Json?
+  after_state  Json?
+  ip_address   String?   @db.VarChar(50)
+  user_agent   String?   @db.Text
+  created_at   DateTime  @default(now())
+
+  @@index([actor_id])
+  @@index([entity, entity_id])
+  @@map("tbl_audit_logs")
+}
+
+// -----------------------------------------------------------------------------
+// 4. CONTENT, LEADS & SEO
+// -----------------------------------------------------------------------------
+model ContactLead {
+  id          Int       @id @default(autoincrement())
+  name        String    @db.VarChar(255)
+  phone       String    @db.VarChar(20)
+  email       String?   @db.VarChar(255)
+  subject     String?   @db.VarChar(255)
+  message     String    @db.Text
+  source      String    @default("contact_page") @db.VarChar(50)
+  status      String    @default("new") @db.VarChar(50)
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+  deleted_at  DateTime?
+
+  @@map("tbl_contact_leads")
+}
+
+model BlogCategory {
+  id          Int       @id @default(autoincrement())
+  name        String    @db.VarChar(150)
+  slug        String    @unique @db.VarChar(150)
+  description String?   @db.Text
+  is_active   Boolean   @default(true)
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+  deleted_at  DateTime?
+
+  blogs       Blog[]
+
+  @@map("tbl_blog_categories")
+}
+
+model Blog {
+  id               Int          @id @default(autoincrement())
+  title            String       @db.VarChar(255)
+  slug             String       @unique @db.VarChar(255)
+  category_id      Int
+  category         BlogCategory @relation(fields: [category_id], references: [id])
+  featured_image   String?      @db.VarChar(500)
+  image_alt        String?      @db.VarChar(255)
+  summary          String?      @db.Text
+  content          String       @db.LongText
+  author_name      String       @default("PrimeRides Editorial") @db.VarChar(100)
+  read_time        String?      @db.VarChar(50)
+  
+  meta_title       String?      @db.VarChar(255)
+  meta_description String?      @db.Text
+  meta_keywords    String?      @db.Text
+  canonical_url    String?      @db.VarChar(500)
+  
+  is_published     Boolean      @default(true)
+  published_at     DateTime?    @default(now())
+  created_at       DateTime     @default(now())
+  updated_at       DateTime     @updatedAt
+  deleted_at       DateTime?
+
+  @@map("tbl_blogs")
+}
+
+model FAQ {
+  id         Int       @id @default(autoincrement())
+  category   String    @default("General") @db.VarChar(100)
+  question   String    @db.VarChar(500)
+  answer     String    @db.Text
+  sort_order Int       @default(0)
+  is_active  Boolean   @default(true)
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  @@map("tbl_faqs")
+}
+
+model Testimonial {
+  id          Int       @id @default(autoincrement())
+  client_name String    @db.VarChar(255)
+  role_title  String?   @db.VarChar(150)
+  rating      Int       @default(5)
+  comment     String    @db.Text
+  avatar_url  String?   @db.VarChar(500)
+  is_featured Boolean   @default(true)
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+  deleted_at  DateTime?
+
+  @@map("tbl_testimonials")
+}
+
+model PageMeta {
+  id               Int       @id @default(autoincrement())
+  route_path       String    @unique @db.VarChar(255)
+  meta_title       String    @db.VarChar(255)
+  meta_description String?   @db.Text
+  meta_keywords    String?   @db.Text
+  og_title         String    @db.VarChar(255)
+  og_description   String    @db.Text
+  og_image         String?   @db.VarChar(500)
+  canonical_url    String?   @db.VarChar(500)
+  robots           String    @default("index, follow") @db.VarChar(100)
+  created_at       DateTime  @default(now())
+  updated_at       DateTime  @updatedAt
+
+  @@map("tbl_page_meta")
+}
+
+model Coupon {
+  id                  Int          @id @default(autoincrement())
+  code                String       @unique @db.VarChar(50)
+  description         String?      @db.VarChar(255)
+  discount_type       String       @default("percentage") @db.VarChar(20) // 'percentage', 'fixed'
+  discount_value      Decimal      @db.Decimal(10, 2) // e.g. 10 for 10% or 500 for ₹500
+  min_booking_amount  Decimal?     @default(0.00) @db.Decimal(10, 2)
+  max_discount_amount Decimal?     @db.Decimal(10, 2) // Cap for percentage discount
+  valid_from          DateTime?
+  valid_until         DateTime?
+  usage_limit         Int?         // Total times coupon can be used
+  used_count          Int          @default(0)
+  is_active           Boolean      @default(true)
+  created_at          DateTime     @default(now())
+  updated_at          DateTime     @updatedAt
+  deleted_at          DateTime?
+
+  bookings            Booking[]
+
+  @@index([code, is_active])
+  @@map("tbl_coupons")
+}
