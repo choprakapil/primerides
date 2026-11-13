@@ -12,6 +12,10 @@ import {
   ArrowUpDown,
   RefreshCw,
   Search,
+  SlidersHorizontal,
+  X,
+  CheckCircle2,
+  ShieldCheck,
 } from "lucide-react";
 
 interface FleetSearchResultsProps {
@@ -49,6 +53,7 @@ export default function FleetSearchResults({
   const [sortBy, setSortBy] = useState<string>("popular");
   const [cars, setCars] = useState<any[]>(initialCars);
   const [loading, setLoading] = useState(false);
+  const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
 
   // Sync state if searchParams change dynamically (e.g., client navigation from footer or header)
   useEffect(() => {
@@ -166,22 +171,40 @@ export default function FleetSearchResults({
       seats: "all",
       brand: "all",
     });
+    router.push("/cars");
   };
 
-  // Sort cars
+  const activeFilterCount = useMemo(() => {
+    let count = 0;
+    if (filters.location !== "all") count++;
+    if (filters.category !== "all") count++;
+    if (filters.transmission !== "all") count++;
+    if (filters.fuelType !== "all") count++;
+    if (filters.seats !== "all") count++;
+    if (filters.brand !== "all") count++;
+    if (filters.maxPrice < 15000) count++;
+    if (filters.startDate !== "") count++;
+    return count;
+  }, [filters]);
+
   const sortedCars = useMemo(() => {
-    const list = [...cars];
-    if (sortBy === "price_asc") {
-      return list.sort((a, b) => Number(a.price_per_day) - Number(b.price_per_day));
-    }
-    if (sortBy === "price_desc") {
-      return list.sort((a, b) => Number(b.price_per_day) - Number(a.price_per_day));
-    }
-    if (sortBy === "name_asc") {
-      return list.sort((a, b) => a.name.localeCompare(b.name));
-    }
-    // Default: Popular / Available first
-    return list.sort((a, b) => {
+    return [...cars].sort((a, b) => {
+      const getCarPrice = (car: any) => {
+        return car.rental_plans?.[0]?.price
+          ? Number(car.rental_plans[0].price)
+          : Number(car.price_per_day);
+      };
+
+      if (sortBy === "price_asc") {
+        return getCarPrice(a) - getCarPrice(b);
+      }
+      if (sortBy === "price_desc") {
+        return getCarPrice(b) - getCarPrice(a);
+      }
+      if (sortBy === "name_asc") {
+        return (a.name || "").localeCompare(b.name || "");
+      }
+      // default: 'popular'
       if (a.is_sold_out && !b.is_sold_out) return 1;
       if (!a.is_sold_out && b.is_sold_out) return -1;
       return (b.fleet_count || 1) - (a.fleet_count || 1);
@@ -197,39 +220,103 @@ export default function FleetSearchResults({
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
-      {/* Top Breadcrumb & Title Bar */}
+      {/* Top Header Bar */}
       <div className="mb-8">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200/60 mb-2">
-              <Sparkles className="w-3.5 h-3.5 text-amber-700" />
-              <span>Cardekhen Verified Self-Drive Fleet</span>
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-[#fffdf7] text-[#936e16] border border-[#e5b94f]/50 mb-3 shadow-xs">
+              <Sparkles className="w-3.5 h-3.5 text-[#c59b27]" />
+              <span>Prime Verified Fleet • Sanitized &amp; GPS Telemetry</span>
             </div>
-            <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
-              Self-Drive Car Rental in{" "}
-              <span className="text-amber-700">{activeCityName}</span>
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#0b0f19] tracking-tight font-heading">
+              Self-Drive Fleet in <span className="text-[#c59b27]">{activeCityName}</span>
             </h1>
-            <p className="text-sm text-slate-500 mt-1">
-              Choose from verified SUVs, luxury sedans, and 4x4 off-roaders with live fleet inventory.
+            <p className="text-sm text-slate-500 mt-1 max-w-2xl font-sans">
+              Rent verified 4x4 SUVs, luxury sedans, and family cruisers with unlimited KMs, zero deposit, and 24/7 doorstep handover.
             </p>
           </div>
 
-          {/* Quick Stats or Booking Guarantee Pill */}
-          <div className="flex items-center gap-3">
-            <div className="px-4 py-2 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-700 font-medium">
-              <span className="font-bold text-slate-900">Zero</span> Security Deposit
+          {/* Luxury Feature Badges */}
+          <div className="flex flex-wrap items-center gap-2.5">
+            <div className="px-3.5 py-1.5 bg-[#fcfbf9] rounded-xl border border-[#e8edf2] text-xs text-slate-700 font-medium flex items-center gap-1.5 shadow-xs">
+              <span className="w-2 h-2 rounded-full bg-emerald-500" />
+              <span className="font-bold text-[#0b0f19]">Zero</span> Security Deposit
             </div>
-            <div className="px-4 py-2 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-700 font-medium">
-              <span className="font-bold text-slate-900">Doorstep</span> Handover
+            <div className="px-3.5 py-1.5 bg-[#fcfbf9] rounded-xl border border-[#e8edf2] text-xs text-slate-700 font-medium flex items-center gap-1.5 shadow-xs">
+              <span className="w-2 h-2 rounded-full bg-[#c59b27]" />
+              <span className="font-bold text-[#0b0f19]">Doorstep</span> Curbside Handover
+            </div>
+            <div className="px-3.5 py-1.5 bg-[#fcfbf9] rounded-xl border border-[#e8edf2] text-xs text-slate-700 font-medium flex items-center gap-1.5 shadow-xs">
+              <span className="w-2 h-2 rounded-full bg-emerald-500" />
+              <span className="font-bold text-[#0b0f19]">Unlimited</span> KMs Included
             </div>
           </div>
         </div>
       </div>
 
-      {/* Main Two-Column Layout (Cardekhen style: Filter on left, Cars on right) */}
+      {/* Mobile Quick Control Bar (Visible only on < lg screens) */}
+      <div className="lg:hidden mb-6 bg-white rounded-2xl border border-slate-200 p-3.5 shadow-sm space-y-3">
+        <div className="flex items-center justify-between gap-2.5">
+          <button
+            type="button"
+            onClick={() => setIsMobileDrawerOpen(true)}
+            className="flex-1 inline-flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-[#0b0f19] text-[#c59b27] text-xs font-bold shadow-sm active:scale-98 transition-all"
+          >
+            <SlidersHorizontal className="w-4 h-4 text-[#c59b27]" />
+            <span>Filter Fleet</span>
+            {activeFilterCount > 0 && (
+              <span className="w-5 h-5 rounded-full bg-[#c59b27] text-[#0b0f19] text-[10px] font-black flex items-center justify-center">
+                {activeFilterCount}
+              </span>
+            )}
+          </button>
+
+          <div className="flex items-center gap-1.5">
+            <span className="text-[11px] font-bold text-slate-400 whitespace-nowrap">Sort:</span>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              aria-label="Sort cars mobile"
+              className="text-xs font-bold text-slate-800 bg-[#f8fafc] border border-slate-200 rounded-xl px-2.5 py-2.5 focus:outline-none focus:border-[#c59b27]"
+            >
+              <option value="popular">Popular</option>
+              <option value="price_asc">Price: Low-High</option>
+              <option value="price_desc">Price: High-Low</option>
+              <option value="name_asc">Name (A-Z)</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Quick Location Pills */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-0.5">
+          {[
+            { label: "All Cities", value: "all" },
+            { label: "Delhi NCR", value: "delhi-ncr" },
+            { label: "Lucknow", value: "lucknow" },
+          ].map((loc) => {
+            const isSel = filters.location === loc.value;
+            return (
+              <button
+                key={loc.value}
+                type="button"
+                onClick={() => setFilters((prev) => ({ ...prev, location: loc.value }))}
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap border transition-all ${
+                  isSel
+                    ? "bg-[#0b0f19] text-[#c59b27] border-[#0b0f19] font-bold shadow-xs"
+                    : "bg-[#f8fafc] text-slate-700 border-slate-200"
+                }`}
+              >
+                {loc.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Main Two-Column Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        {/* Left Column: Filter Sidebar */}
-        <div className="lg:col-span-4 xl:col-span-3">
+        {/* Desktop Left Column: Sticky Filter Sidebar */}
+        <div className="hidden lg:block lg:col-span-4 xl:col-span-3">
           <FleetSearchFilter
             filters={filters}
             onChange={setFilters}
@@ -240,37 +327,37 @@ export default function FleetSearchResults({
 
         {/* Right Column: Search Results & Cards */}
         <div className="lg:col-span-8 xl:col-span-9 space-y-6">
-          {/* Results Summary and Sorting Bar */}
-          <div className="bg-white rounded-2xl border border-slate-200/90 p-4 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          {/* Results Summary and Sorting Bar (Desktop) */}
+          <div className="hidden sm:flex bg-white rounded-2xl border border-slate-200/90 p-4 shadow-sm items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-slate-900 text-amber-400 flex items-center justify-center font-bold text-sm shadow-sm">
+              <div className="w-10 h-10 rounded-xl bg-[#0b0f19] text-[#c59b27] flex items-center justify-center font-bold text-sm shadow-sm">
                 {sortedCars.length}
               </div>
               <div>
-                <p className="text-sm font-bold text-slate-900">
+                <p className="text-sm font-bold text-[#0b0f19]">
                   {sortedCars.length === 1
                     ? "1 Vehicle Available"
                     : `${sortedCars.length} Vehicles Available`}
                 </p>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-slate-500 font-sans">
                   {filters.startDate && filters.endDate
-                    ? `For ${filters.startDate} to ${filters.endDate}`
+                    ? `For ${filters.startDate} to ${filters.endDate} • ${activeCityName}`
                     : `In ${activeCityName}`}
                 </p>
               </div>
             </div>
 
-            {/* Sort Control */}
+            {/* Desktop Sort Control */}
             <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold text-slate-500 whitespace-nowrap flex items-center gap-1">
-                <ArrowUpDown className="w-3.5 h-3.5" />
+              <span className="text-xs font-bold text-slate-500 whitespace-nowrap flex items-center gap-1">
+                <ArrowUpDown className="w-3.5 h-3.5 text-[#c59b27]" />
                 Sort By:
               </span>
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
                 aria-label="Sort cars"
-                className="text-xs font-bold text-slate-800 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 focus:bg-white focus:border-amber-400 focus:outline-none transition-colors"
+                className="text-xs font-bold text-slate-800 bg-[#f8fafc] border border-slate-200 rounded-xl px-3 py-2 focus:bg-white focus:border-[#c59b27] focus:outline-none transition-colors"
               >
                 <option value="popular">Popularity &amp; Stock</option>
                 <option value="price_asc">Price: Low to High</option>
@@ -282,25 +369,25 @@ export default function FleetSearchResults({
 
           {/* Cars Grid / Loading / Empty State */}
           {loading ? (
-            <div className="min-h-[360px] flex flex-col items-center justify-center bg-white rounded-2xl border border-slate-200 p-12 text-center">
-              <RefreshCw className="w-8 h-8 text-amber-500 animate-spin mb-3" />
-              <p className="text-sm font-bold text-slate-800">
-                Checking Live Fleet Inventory...
+            <div className="min-h-[360px] flex flex-col items-center justify-center bg-white rounded-3xl border border-slate-200 p-12 text-center">
+              <RefreshCw className="w-8 h-8 text-[#c59b27] animate-spin mb-3" />
+              <p className="text-sm font-bold text-[#0b0f19]">
+                Checking Live Fleet Telemetry...
               </p>
-              <p className="text-xs text-slate-400 mt-1">
-                Verifying car availability in {activeCityName}
+              <p className="text-xs text-slate-500 mt-1">
+                Verifying real-time car availability in {activeCityName}
               </p>
             </div>
           ) : sortedCars.length === 0 ? (
-            <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center space-y-4">
-              <div className="w-16 h-16 rounded-full bg-amber-50 text-amber-600 mx-auto flex items-center justify-center">
+            <div className="bg-white rounded-3xl border border-slate-200 p-12 text-center space-y-4">
+              <div className="w-16 h-16 rounded-2xl bg-[#fffdf7] text-[#c59b27] border border-[#e5b94f]/40 mx-auto flex items-center justify-center shadow-xs">
                 <Search className="w-8 h-8" />
               </div>
               <div>
-                <h3 className="text-lg font-bold text-slate-900">
+                <h3 className="text-lg font-bold text-[#0b0f19] font-heading">
                   No Cars Found For Selected Filters
                 </h3>
-                <p className="text-xs text-slate-500 max-w-md mx-auto mt-1">
+                <p className="text-xs text-slate-500 max-w-md mx-auto mt-1 font-sans">
                   We could not find any vehicles matching all your criteria in{" "}
                   {activeCityName}. Try changing dates or clearing some filters.
                 </p>
@@ -308,13 +395,13 @@ export default function FleetSearchResults({
               <button
                 type="button"
                 onClick={handleReset}
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 text-amber-400 font-bold text-xs hover:bg-slate-800 transition-colors shadow-sm"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#0b0f19] text-[#c59b27] font-bold text-xs hover:bg-slate-800 transition-colors shadow-sm"
               >
                 Clear All Filters
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {sortedCars.map((car) => (
                 <CarSearchCard
                   key={car.id}
@@ -327,6 +414,59 @@ export default function FleetSearchResults({
           )}
         </div>
       </div>
+
+      {/* Mobile Filter Bottom-Sheet Drawer */}
+      {isMobileDrawerOpen && (
+        <div className="fixed inset-0 z-50 flex flex-col justify-end lg:hidden">
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
+            onClick={() => setIsMobileDrawerOpen(false)}
+          />
+
+          {/* Drawer Body */}
+          <div className="relative bg-white rounded-t-3xl max-h-[85vh] w-full z-10 flex flex-col shadow-2xl overflow-hidden animate-in slide-in-from-bottom duration-300">
+            {/* Drawer Header */}
+            <div className="flex items-center justify-between p-4 border-b border-slate-100 bg-[#fcfbf9]">
+              <div className="flex items-center gap-2">
+                <SlidersHorizontal className="w-4 h-4 text-[#c59b27]" />
+                <h3 className="font-bold text-[#0b0f19] text-base font-heading">
+                  Filter Fleet ({sortedCars.length} available)
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsMobileDrawerOpen(false)}
+                className="w-8 h-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center hover:bg-slate-200"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Scrollable Filters */}
+            <div className="p-5 overflow-y-auto space-y-6">
+              <FleetSearchFilter
+                filters={filters}
+                onChange={setFilters}
+                onReset={handleReset}
+                totalResults={sortedCars.length}
+                isMobileModal={true}
+              />
+            </div>
+
+            {/* Drawer Footer CTA */}
+            <div className="p-4 border-t border-slate-100 bg-white">
+              <button
+                type="button"
+                onClick={() => setIsMobileDrawerOpen(false)}
+                className="w-full py-3.5 rounded-xl bg-gradient-to-r from-[#c59b27] via-[#d4a838] to-[#b88d22] text-[#0b0f19] font-black text-xs uppercase tracking-wider text-center shadow-md active:scale-98 transition-all"
+              >
+                View {sortedCars.length} Vehicles →
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

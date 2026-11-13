@@ -34,6 +34,7 @@ interface FleetSearchFilterProps {
   onChange: (filters: FilterState) => void;
   onReset: () => void;
   totalResults: number;
+  isMobileModal?: boolean;
 }
 
 export default function FleetSearchFilter({
@@ -41,6 +42,7 @@ export default function FleetSearchFilter({
   onChange,
   onReset,
   totalResults,
+  isMobileModal = false,
 }: FleetSearchFilterProps) {
   const updateFilter = (key: keyof FilterState, value: any) => {
     onChange({
@@ -99,19 +101,25 @@ export default function FleetSearchFilter({
     filters.startDate !== "" ||
     filters.endDate !== "";
 
+  const containerClasses = isMobileModal
+    ? "bg-white p-1 space-y-6"
+    : "bg-white rounded-3xl border border-slate-200/90 shadow-[0_4px_24px_rgba(0,0,0,0.04)] p-5 lg:p-6 sticky top-28 space-y-6";
+
+  const Component = isMobileModal ? "div" : "aside";
+
   return (
-    <aside className="bg-white rounded-2xl border border-slate-200/90 shadow-[0_4px_24px_rgba(0,0,0,0.05)] p-5 md:p-6 sticky top-28 space-y-6">
+    <Component className={containerClasses}>
       {/* Header */}
       <div className="flex items-center justify-between pb-4 border-b border-slate-100">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
-            <SlidersHorizontal className="w-4 h-4" />
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-xl bg-[#fffdf7] text-[#c59b27] border border-[#e5b94f]/50 flex items-center justify-center shadow-xs">
+            <SlidersHorizontal className="w-4 h-4 text-[#c59b27]" />
           </div>
           <div>
-            <h3 className="font-bold text-slate-900 text-base leading-tight">
-              Filters
+            <h3 className="font-bold text-[#0b0f19] text-base leading-tight font-heading">
+              Filter Fleet
             </h3>
-            <p className="text-xs text-slate-500">{totalResults} vehicles found</p>
+            <p className="text-xs text-slate-500 font-sans">{totalResults} vehicles found</p>
           </div>
         </div>
 
@@ -119,19 +127,19 @@ export default function FleetSearchFilter({
           <button
             onClick={onReset}
             type="button"
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-rose-600 hover:text-rose-700 transition-colors py-1 px-2.5 rounded-lg bg-rose-50 hover:bg-rose-100"
+            className="inline-flex items-center gap-1 text-xs font-bold text-[#c59b27] hover:text-[#936e16] hover:underline transition-colors py-1 px-2"
           >
-            <RotateCcw className="w-3 h-3" />
-            Reset All
+            <RotateCcw className="w-3 h-3 text-[#c59b27]" />
+            <span>Reset All</span>
           </button>
         )}
       </div>
 
       {/* 1. Location Selection */}
       <div className="space-y-2.5">
-        <label id="fleet-filter-city-label" className="text-xs font-bold uppercase tracking-wider text-slate-600 flex items-center gap-1.5">
+        <label id="fleet-filter-city-label" className="text-xs font-bold uppercase tracking-wider text-[#0b0f19] flex items-center gap-1.5">
           <MapPin className="w-3.5 h-3.5 text-amber-700" />
-          Pickup City
+          <span>Pickup City Hub</span>
         </label>
         <div role="group" aria-labelledby="fleet-filter-city-label" className="grid grid-cols-3 gap-2">
           {[
@@ -146,10 +154,10 @@ export default function FleetSearchFilter({
                 type="button"
                 aria-pressed={isSelected}
                 onClick={() => updateFilter("location", loc.value)}
-                className={`py-2 px-2 text-xs font-semibold rounded-xl border transition-all text-center ${
+                className={`py-2 px-1 text-xs font-semibold rounded-xl border transition-all text-center ${
                   isSelected
-                    ? "bg-slate-900 text-amber-400 border-slate-900 shadow-sm"
-                    : "bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200"
+                    ? "bg-[#0b0f19] text-[#c59b27] border-[#0b0f19] shadow-xs font-bold"
+                    : "bg-[#f8fafc] hover:bg-[#fffdf7] hover:border-[#c59b27]/60 text-slate-700 border-slate-200"
                 }`}
               >
                 {loc.label}
@@ -161,13 +169,13 @@ export default function FleetSearchFilter({
 
       {/* 2. Rental Trip Dates */}
       <div className="space-y-3 pt-2 border-t border-slate-100">
-        <div className="text-xs font-bold uppercase tracking-wider text-slate-600 flex items-center gap-1.5">
+        <div className="text-xs font-bold uppercase tracking-wider text-[#0b0f19] flex items-center gap-1.5">
           <Calendar className="w-3.5 h-3.5 text-amber-700" />
-          Trip Dates &amp; Availability
+          <span>Trip Dates &amp; Availability</span>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           <div>
-            <label htmlFor="fleet-filter-start-date" className="text-[11px] font-medium text-slate-500 block mb-1">
+            <label htmlFor="fleet-filter-start-date" className="text-[11px] font-semibold text-slate-500 block mb-1">
               Pickup Date
             </label>
             <input
@@ -177,11 +185,11 @@ export default function FleetSearchFilter({
               type="date"
               value={filters.startDate}
               onChange={(e) => updateFilter("startDate", e.target.value)}
-              className="w-full text-xs font-medium text-slate-800 bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-2 focus:bg-white focus:border-amber-600 focus:outline-none transition-colors"
+              className="w-full text-xs font-medium text-slate-800 bg-[#f8fafc] border border-slate-200 rounded-xl px-2.5 py-2 focus:bg-white focus:border-[#c59b27] focus:outline-none transition-colors"
             />
           </div>
           <div>
-            <label htmlFor="fleet-filter-end-date" className="text-[11px] font-medium text-slate-500 block mb-1">
+            <label htmlFor="fleet-filter-end-date" className="text-[11px] font-semibold text-slate-500 block mb-1">
               Return Date
             </label>
             <input
@@ -192,13 +200,14 @@ export default function FleetSearchFilter({
               value={filters.endDate}
               min={filters.startDate || undefined}
               onChange={(e) => updateFilter("endDate", e.target.value)}
-              className="w-full text-xs font-medium text-slate-800 bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-2 focus:bg-white focus:border-amber-600 focus:outline-none transition-colors"
+              className="w-full text-xs font-medium text-slate-800 bg-[#f8fafc] border border-slate-200 rounded-xl px-2.5 py-2 focus:bg-white focus:border-[#c59b27] focus:outline-none transition-colors"
             />
           </div>
         </div>
         {filters.startDate && filters.endDate && (
-          <p className="text-[11px] font-medium text-emerald-600 bg-emerald-50 px-2.5 py-1.5 rounded-lg">
-            ✓ Showing inventory with live unit stock for your dates
+          <p className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200/60 px-2.5 py-1.5 rounded-xl flex items-center gap-1">
+            <span>✓</span>
+            <span>Live unit stock verified for selected dates</span>
           </p>
         )}
       </div>
@@ -206,10 +215,10 @@ export default function FleetSearchFilter({
       {/* 3. Price Range Slider */}
       <div className="space-y-2.5 pt-2 border-t border-slate-100">
         <div className="flex items-center justify-between">
-          <label htmlFor="fleet-filter-budget" className="text-xs font-bold uppercase tracking-wider text-slate-600">
+          <label htmlFor="fleet-filter-budget" className="text-xs font-bold uppercase tracking-wider text-[#0b0f19]">
             Daily Budget (Max)
           </label>
-          <span className="text-xs font-bold text-amber-700">
+          <span className="text-xs font-extrabold text-amber-700">
             ₹{filters.maxPrice.toLocaleString("en-IN")}/day
           </span>
         </div>
@@ -227,9 +236,9 @@ export default function FleetSearchFilter({
           aria-valuenow={filters.maxPrice}
           aria-valuetext={`₹${filters.maxPrice.toLocaleString("en-IN")} per day`}
           onChange={(e) => updateFilter("maxPrice", Number(e.target.value))}
-          className="w-full accent-amber-600 cursor-pointer"
+          className="w-full accent-[#c59b27] cursor-pointer"
         />
-        <div className="flex justify-between text-[11px] text-slate-600">
+        <div className="flex justify-between text-[11px] font-medium text-slate-500">
           <span>₹1,500</span>
           <span>₹7,500</span>
           <span>₹15,000+</span>
@@ -238,24 +247,23 @@ export default function FleetSearchFilter({
 
       {/* 4. Car Category / Body Type */}
       <div className="space-y-2 pt-2 border-t border-slate-100">
-        <label id="fleet-filter-category-label" className="text-xs font-bold uppercase tracking-wider text-slate-600 flex items-center gap-1.5">
+        <label id="fleet-filter-category-label" className="text-xs font-bold uppercase tracking-wider text-[#0b0f19] flex items-center gap-1.5">
           <Car className="w-3.5 h-3.5 text-amber-700" />
-          Body Type
+          <span>Vehicle Category</span>
         </label>
-        <div role="group" aria-labelledby="fleet-filter-category-label" className="flex flex-wrap gap-1.5">
+        <div role="group" aria-labelledby="fleet-filter-category-label" className="grid grid-cols-2 gap-2">
           {categories.map((cat) => {
-            const currentCat = filters.category === "sedan" ? "luxury" : (filters.category === "hatchbacks" ? "hatchback" : filters.category);
-            const isSelected = currentCat === cat.value;
+            const isSelected = filters.category === cat.value;
             return (
               <button
                 key={cat.value}
                 type="button"
                 aria-pressed={isSelected}
                 onClick={() => updateFilter("category", cat.value)}
-                className={`px-3 py-1.5 text-xs font-medium rounded-lg border transition-all ${
+                className={`py-2 px-2 text-xs font-semibold rounded-xl border transition-all text-center truncate ${
                   isSelected
-                    ? "bg-slate-900 text-amber-400 border-slate-900 shadow-sm"
-                    : "bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200"
+                    ? "bg-[#0b0f19] text-[#c59b27] border-[#0b0f19] shadow-xs font-bold"
+                    : "bg-[#f8fafc] hover:bg-[#fffdf7] hover:border-[#c59b27]/60 text-slate-700 border-slate-200"
                 }`}
               >
                 {cat.label}
@@ -267,9 +275,9 @@ export default function FleetSearchFilter({
 
       {/* 5. Transmission */}
       <div className="space-y-2 pt-2 border-t border-slate-100">
-        <label id="fleet-filter-transmission-label" className="text-xs font-bold uppercase tracking-wider text-slate-600 flex items-center gap-1.5">
+        <label id="fleet-filter-transmission-label" className="text-xs font-bold uppercase tracking-wider text-[#0b0f19] flex items-center gap-1.5">
           <Gauge className="w-3.5 h-3.5 text-amber-700" />
-          Transmission
+          <span>Transmission</span>
         </label>
         <div role="group" aria-labelledby="fleet-filter-transmission-label" className="grid grid-cols-3 gap-2">
           {transmissions.map((tr) => {
@@ -280,10 +288,10 @@ export default function FleetSearchFilter({
                 type="button"
                 aria-pressed={isSelected}
                 onClick={() => updateFilter("transmission", tr.value)}
-                className={`py-1.5 px-2 text-xs font-medium rounded-lg border transition-all text-center ${
+                className={`py-2 px-2 text-xs font-semibold rounded-xl border transition-all text-center ${
                   isSelected
-                    ? "bg-slate-900 text-amber-400 border-slate-900 shadow-sm"
-                    : "bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200"
+                    ? "bg-[#0b0f19] text-[#c59b27] border-[#0b0f19] shadow-xs font-bold"
+                    : "bg-[#f8fafc] hover:bg-[#fffdf7] hover:border-[#c59b27]/60 text-slate-700 border-slate-200"
                 }`}
               >
                 {tr.label}
@@ -295,11 +303,11 @@ export default function FleetSearchFilter({
 
       {/* 6. Fuel Type */}
       <div className="space-y-2 pt-2 border-t border-slate-100">
-        <label id="fleet-filter-fuel-label" className="text-xs font-bold uppercase tracking-wider text-slate-600 flex items-center gap-1.5">
+        <label id="fleet-filter-fuel-label" className="text-xs font-bold uppercase tracking-wider text-[#0b0f19] flex items-center gap-1.5">
           <Fuel className="w-3.5 h-3.5 text-amber-700" />
-          Fuel Type
+          <span>Fuel Type</span>
         </label>
-        <div role="group" aria-labelledby="fleet-filter-fuel-label" className="grid grid-cols-2 gap-1.5">
+        <div role="group" aria-labelledby="fleet-filter-fuel-label" className="grid grid-cols-2 gap-2">
           {fuelTypes.map((fuel) => {
             const isSelected = filters.fuelType === fuel.value;
             return (
@@ -308,10 +316,10 @@ export default function FleetSearchFilter({
                 type="button"
                 aria-pressed={isSelected}
                 onClick={() => updateFilter("fuelType", fuel.value)}
-                className={`py-1.5 px-2 text-xs font-medium rounded-lg border transition-all text-center ${
+                className={`py-2 px-2 text-xs font-semibold rounded-xl border transition-all text-center ${
                   isSelected
-                    ? "bg-slate-900 text-amber-400 border-slate-900 shadow-sm"
-                    : "bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200"
+                    ? "bg-[#0b0f19] text-[#c59b27] border-[#0b0f19] shadow-xs font-bold"
+                    : "bg-[#f8fafc] hover:bg-[#fffdf7] hover:border-[#c59b27]/60 text-slate-700 border-slate-200"
                 }`}
               >
                 {fuel.label}
@@ -323,9 +331,9 @@ export default function FleetSearchFilter({
 
       {/* 7. Seating Capacity */}
       <div className="space-y-2 pt-2 border-t border-slate-100">
-        <label id="fleet-filter-seats-label" className="text-xs font-bold uppercase tracking-wider text-slate-600 flex items-center gap-1.5">
+        <label id="fleet-filter-seats-label" className="text-xs font-bold uppercase tracking-wider text-[#0b0f19] flex items-center gap-1.5">
           <Users className="w-3.5 h-3.5 text-amber-700" />
-          Seats
+          <span>Seating Capacity</span>
         </label>
         <div role="group" aria-labelledby="fleet-filter-seats-label" className="grid grid-cols-4 gap-1.5">
           {seatingOptions.map((seat) => {
@@ -336,10 +344,10 @@ export default function FleetSearchFilter({
                 type="button"
                 aria-pressed={isSelected}
                 onClick={() => updateFilter("seats", seat.value)}
-                className={`py-1.5 px-1 text-xs font-medium rounded-lg border transition-all text-center ${
+                className={`py-2 px-1 text-xs font-semibold rounded-xl border transition-all text-center ${
                   isSelected
-                    ? "bg-slate-900 text-amber-400 border-slate-900 shadow-sm"
-                    : "bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200"
+                    ? "bg-[#0b0f19] text-[#c59b27] border-[#0b0f19] shadow-xs font-bold"
+                    : "bg-[#f8fafc] hover:bg-[#fffdf7] hover:border-[#c59b27]/60 text-slate-700 border-slate-200"
                 }`}
               >
                 {seat.label}
@@ -351,8 +359,8 @@ export default function FleetSearchFilter({
 
       {/* 8. Brand */}
       <div className="space-y-2 pt-2 border-t border-slate-100">
-        <label htmlFor="fleet-filter-brand" className="text-xs font-bold uppercase tracking-wider text-slate-600">
-          Make / Brand
+        <label htmlFor="fleet-filter-brand" className="text-xs font-bold uppercase tracking-wider text-[#0b0f19]">
+          Make / Manufacturer
         </label>
         <select
           id="fleet-filter-brand"
@@ -360,7 +368,7 @@ export default function FleetSearchFilter({
           aria-label="Filter by vehicle make or brand"
           value={filters.brand}
           onChange={(e) => updateFilter("brand", e.target.value)}
-          className="w-full text-xs font-medium text-slate-800 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 focus:bg-white focus:border-amber-600 focus:outline-none transition-colors"
+          className="w-full text-xs font-semibold text-slate-800 bg-[#f8fafc] border border-slate-200 rounded-xl px-3 py-2.5 focus:bg-white focus:border-[#c59b27] focus:outline-none transition-colors"
         >
           {brands.map((b) => (
             <option key={b.value} value={b.value}>
@@ -369,6 +377,6 @@ export default function FleetSearchFilter({
           ))}
         </select>
       </div>
-    </aside>
+    </Component>
   );
 }
