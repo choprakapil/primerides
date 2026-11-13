@@ -1,7 +1,6 @@
 import React, { Suspense } from "react";
 import PageHeader from "@/components/PageHeader";
 import FleetSearchResults from "@/components/fleet/FleetSearchResults";
-import TrustBar from "@/components/TrustBar";
 import { getFleetCarsWithAvailability } from "@/server/fleet";
 
 export const metadata = {
@@ -35,13 +34,10 @@ export default async function CarsPage({
       <PageHeader
         title="Verified Car Rental Fleet"
         breadcrumb="Fleet Inventory"
-        badge1="Stationed: Delhi NCR & Lucknow"
-        badge2="Available for Booking"
       />
       <Suspense fallback={<div className="text-center py-12 text-slate-500 font-medium">Loading Live Fleet Inventory...</div>}>
         <FleetSearchResults initialCars={initialCars} />
       </Suspense>
-      <TrustBar />
     </>
   );
 }

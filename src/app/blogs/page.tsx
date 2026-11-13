@@ -1,7 +1,6 @@
 import React from "react";
 import PageHeader from "@/components/PageHeader";
 import BlogsCatalog from "@/components/blog/BlogsCatalog";
-import TrustBar from "@/components/TrustBar";
 import { getBlogs } from "@/server/cms";
 
 export const metadata = {
@@ -18,11 +17,8 @@ export default async function BlogsPage() {
       <PageHeader
         title="Road Trip Journal & Travel Guides"
         breadcrumb="Travel Guides"
-        badge1="Prime Editorial Desk"
-        badge2="Verified Road Itineraries"
       />
       <BlogsCatalog initialBlogs={blogs} />
-      <TrustBar />
     </>
   );
 }

@@ -5,7 +5,6 @@ import { getCarBySlug, getFleetCars } from "@/server/fleet";
 import { getCurrentCustomer } from "@/server/auth/customer";
 import CarBookingCard from "@/components/CarBookingCard";
 import CarGallery from "@/components/fleet/CarGallery";
-import TrustBar from "@/components/TrustBar";
 import { formatCarDisplayName } from "@/components/fleet/types";
 import {
   ChevronLeft,
@@ -430,11 +429,6 @@ export default async function CarDetailPage({
             </div>
           </div>
         )}
-
-        {/* TRUST BAR FOOTER */}
-        <div className="pt-10">
-          <TrustBar />
-        </div>
       </div>
     </div>
   );

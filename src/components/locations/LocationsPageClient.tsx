@@ -45,8 +45,6 @@ export default function LocationsPageClient({ dbLocations }: LocationsPageClient
       <PageHeader
         title="Delhi NCR & Lucknow Mobility Networks"
         breadcrumb="Airport Hubs & Locations"
-        badge1="Stationed: Delhi NCR & Lucknow"
-        badge2="24/7 Handover Desks"
       />
 
       {/* Quick Action Sub-Strip */}

@@ -1,7 +1,6 @@
 import React from "react";
 import PageHeader from "@/components/PageHeader";
 import FaqSection from "@/components/FaqSection";
-import TrustBar from "@/components/TrustBar";
 import { getPageMeta } from "@/server/seo";
 import { prisma } from "@/server/db/client";
 
@@ -39,11 +38,8 @@ export default async function FaqPage() {
       <PageHeader
         title="Frequently Asked Questions"
         breadcrumb="FAQs & Rental Policies"
-        badge1="Instant Self-Service Help"
-        badge2="24/7 Handover Desk"
       />
       <FaqSection showAll={true} items={dbFaqs.length > 0 ? dbFaqs : undefined} />
-      <TrustBar />
     </>
   );
 }

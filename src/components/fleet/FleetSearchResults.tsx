@@ -274,10 +274,10 @@ export default function FleetSearchResults({
                 key={loc.value}
                 type="button"
                 onClick={() => setFilters((prev) => ({ ...prev, location: loc.value }))}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap border transition-all ${
+                className={`px-3.5 py-1.5 rounded-full text-xs whitespace-nowrap border transition-all ${
                   isSel
-                    ? "bg-[#0b0f19] text-[#c59b27] border-[#0b0f19] font-bold shadow-xs"
-                    : "bg-[#f8fafc] text-slate-700 border-slate-200 hover:border-[#c59b27]/40"
+                    ? "bg-slate-900 text-amber-300 border-slate-900 font-medium shadow-2xs"
+                    : "bg-white text-slate-600 border-slate-200/80 hover:border-slate-300 font-normal shadow-2xs"
                 }`}
               >
                 {loc.label}

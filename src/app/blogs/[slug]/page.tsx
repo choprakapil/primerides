@@ -3,7 +3,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getBlogs, getBlogBySlug } from "@/server/cms";
 import { getFleetCars } from "@/server/fleet";
-import TrustBar from "@/components/TrustBar";
 import {
   Calendar,
   Clock,
@@ -84,8 +83,8 @@ export default async function BlogPostPage({
   return (
     <div className="min-h-screen bg-[#fafbfc] text-slate-900 pt-28 sm:pt-32 pb-20 font-sans">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-        {/* Breadcrumb Bar matching /cars/[slug] */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-slate-200/80">
+        {/* Breadcrumb Bar */}
+        <div className="flex items-center justify-between gap-3 pb-2 border-b border-slate-200/80">
           <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs font-medium text-slate-500">
             <Link href="/" className="hover:text-amber-700 transition-colors">
               Home
@@ -99,17 +98,6 @@ export default async function BlogPostPage({
               {post.title}
             </span>
           </nav>
-
-          <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-900 border border-amber-200 shadow-2xs">
-              <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-              <span>Prime Editorial Desk</span>
-            </span>
-            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 shadow-2xs">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-              <span>Verified Guide</span>
-            </span>
-          </div>
         </div>
 
         {/* Article Header */}
@@ -408,9 +396,6 @@ export default async function BlogPostPage({
             </div>
           </div>
         )}
-      </div>
-      <div className="mt-16">
-        <TrustBar />
       </div>
     </div>
   );

@@ -112,8 +112,6 @@ export default async function TermsPage() {
       <PageHeader
         title="Terms & Conditions"
         breadcrumb="Terms & Conditions"
-        badge1="Rental Agreement Guidelines"
-        badge2="100% Transparent Tariff"
       />
 
       <section className="section-padding bg-light">

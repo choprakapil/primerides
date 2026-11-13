@@ -83,11 +83,11 @@ export default function PageHeader({
     );
   }
 
-  // When image is removed (Default Minimal Luxury Breadcrumb - exactly matching /cars/[slug])
+  // When image is removed (Default Minimal Luxury Breadcrumb)
   return (
     <div className="w-full bg-[#f8fafc] text-slate-900 font-sans pt-28 sm:pt-32 pb-3">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-slate-200/80">
+        <div className="flex items-center justify-between gap-3 pb-2 border-b border-slate-200/80">
           {/* Breadcrumb Path */}
           <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs font-medium text-slate-500">
             <Link
@@ -107,18 +107,6 @@ export default function PageHeader({
             )}
             <span className="text-slate-800 font-semibold">{breadcrumb || title}</span>
           </nav>
-
-          {/* Luxury Status Pills matching /cars/[slug] */}
-          <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-900 border border-amber-200 shadow-2xs">
-              <MapPin className="w-3.5 h-3.5 text-amber-600" />
-              <span>{badge1 || subtitle || "Stationed: Delhi NCR & Lucknow"}</span>
-            </span>
-            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 shadow-2xs">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-              <span>{badge2 || "Available for Booking"}</span>
-            </span>
-          </div>
         </div>
       </div>
     </div>

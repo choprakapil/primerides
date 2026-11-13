@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import PageHeader from "@/components/PageHeader";
-import TrustBar from "@/components/TrustBar";
 import { SITE_CONFIG } from "@/data/siteConfig";
 
 export default function ContactPage() {
@@ -86,8 +85,6 @@ export default function ContactPage() {
       <PageHeader
         title="Contact Primerides"
         breadcrumb="Contact Concierge"
-        badge1="Stationed: Delhi NCR & Lucknow"
-        badge2="24/7 Handover Desk"
       />
 
       <section className="section-padding section-white">
@@ -332,8 +329,6 @@ export default function ContactPage() {
           </div>
         </div>
       </section>
-
-      <TrustBar />
     </>
   );
 }
