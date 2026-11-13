@@ -2,28 +2,10 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { REVIEWS_DATA as TESTIMONIALS_DATA } from "@/data";
+import CarouselControls from "@/components/CarouselControls";
 
-export interface TestimonialItem {
-  id: string;
-  name: string;
-  trip: string;
-  car: string;
-  img: string;
-  text: string;
-  rating: number;
-  isVerified?: boolean;
-}
-
-export default function Testimonials({
-  initialTestimonials,
-}: {
-  initialTestimonials?: TestimonialItem[];
-} = {}) {
-  const [items, setItems] = useState<TestimonialItem[]>(
-    initialTestimonials && initialTestimonials.length > 0
-      ? initialTestimonials
-      : (TESTIMONIALS_DATA as any)
-  );
+export default function Testimonials() {
+  const [items, setItems] = useState(TESTIMONIALS_DATA);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [visibleCount, setVisibleCount] = useState(3);
   const [isPaused, setIsPaused] = useState(false);
@@ -133,53 +115,8 @@ export default function Testimonials({
             </p>
           </div>
 
-          {/* Top-Right Arrows */}
-          <div className="d-flex gap-2 mt-3 mt-md-0 align-self-start align-self-md-end flex-shrink-0">
-            <button
-              type="button"
-              onClick={handlePrev}
-              className="carousel-arrow-btn"
-              style={{
-                width: "46px",
-                height: "46px",
-                borderRadius: "50%",
-                background: "var(--primary-color)",
-                color: "#ffffff",
-                border: "none",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                cursor: "pointer",
-                transition: "all 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
-                boxShadow: "0 4px 14px rgba(197, 155, 39, 0.35)",
-              }}
-              aria-label="Previous Testimonials"
-            >
-              <i className="fa-solid fa-chevron-left" style={{ fontSize: "15px" }}></i>
-            </button>
-            <button
-              type="button"
-              onClick={handleNext}
-              className="carousel-arrow-btn"
-              style={{
-                width: "46px",
-                height: "46px",
-                borderRadius: "50%",
-                background: "var(--primary-color)",
-                color: "#ffffff",
-                border: "none",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                cursor: "pointer",
-                transition: "all 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
-                boxShadow: "0 4px 14px rgba(197, 155, 39, 0.35)",
-              }}
-              aria-label="Next Testimonials"
-            >
-              <i className="fa-solid fa-chevron-right" style={{ fontSize: "15px" }}></i>
-            </button>
-          </div>
+          {/* Match the fleet carousel count, progress, and arrow controls */}
+          <CarouselControls currentIndex={currentIndex} maxIndex={maxIndex} onPrevious={handlePrev} onNext={handleNext} label="Testimonial carousel controls" previousLabel="Previous testimonials" nextLabel="Next testimonials" className="carousel-controls-desktop mt-3 mt-md-0 align-self-start align-self-md-end flex-shrink-0" />
         </div>
 
         {/* Google Reviews Carousel Viewport */}
@@ -240,7 +177,7 @@ export default function Testimonials({
                   </div>
 
                   {/* 5 Google Stars */}
-                  <div className="mb-2 d-flex align-items-center gap-1" style={{ color: "#b45309", fontSize: "14px" }}>
+                  <div className="mb-2 d-flex align-items-center gap-1" style={{ color: "#f59e0b", fontSize: "14px" }}>
                     {[...Array(5)].map((_, i) => (
                       <i key={i} className="fa-solid fa-star"></i>
                     ))}
@@ -268,28 +205,8 @@ export default function Testimonials({
             ))}
           </div>
         </div>
+        <CarouselControls currentIndex={currentIndex} maxIndex={maxIndex} onPrevious={handlePrev} onNext={handleNext} label="Testimonial carousel controls" previousLabel="Previous testimonials" nextLabel="Next testimonials" className="carousel-controls-mobile" />
 
-        {/* Carousel Pagination Dots */}
-        <div className="d-flex justify-content-center gap-2 mt-4">
-          {Array.from({ length: maxIndex + 1 }).map((_, dotIdx) => (
-            <button
-              key={dotIdx}
-              type="button"
-              onClick={() => setCurrentIndex(dotIdx)}
-              style={{
-                width: dotIdx === currentIndex ? "26px" : "8px",
-                height: "8px",
-                borderRadius: "4px",
-                background: dotIdx === currentIndex ? "var(--primary-color)" : "#cbd5e1",
-                border: "none",
-                padding: 0,
-                cursor: "pointer",
-                transition: "all 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
-              }}
-              aria-label={`Slide ${dotIdx + 1}`}
-            />
-          ))}
-        </div>
       </div>
     </section>
   );

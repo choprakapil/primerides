@@ -4,48 +4,31 @@ import React from "react";
 import { MotionIcon } from "motion-icons-react";
 import { useModal } from "@/context/ModalContext";
 import { LOCATIONS_DATA } from "@/data";
-export interface LocationCardItem {
-  id: string | number;
-  city: string;
-  subtitle?: string;
-  desc: string;
-  img: string;
-  carsCount: string;
-  highlight: string;
-  badgeIcon: string;
-}
+export default function ChooseLocation() {
+  const LOCATIONS = [
+    {
+      id: "delhi",
+      city: "Delhi NCR",
+      subtitle: "Capital Region & Hub",
+      desc: "IGI Airport T1/T2/T3, Aerocity, Gurugram Cyber Hub, Noida & 24/7 doorstep delivery across Delhi NCR.",
+      img: "/assets/img/locations/delhi.jpg",
+      carsCount: "50+ Cars Available",
+      highlight: "Airport Hub",
+      badgeIcon: "fa-plane-arrival",
+    },
+    {
+      id: "lucknow",
+      city: "Lucknow",
+      subtitle: "City of Nawabs & UP Hub",
+      desc: "Chaudhary Charan Singh Airport, Gomti Nagar, Hazratganj, and premium outstation self-drive rentals.",
+      img: "/assets/img/locations/lucknow.jpg",
+      carsCount: "30+ Cars Available",
+      highlight: "Doorstep Drop",
+      badgeIcon: "fa-map-pin",
+    },
+  ];
 
-const DEFAULT_LOCATIONS: LocationCardItem[] = [
-  {
-    id: "delhi",
-    city: "Delhi NCR",
-    subtitle: "Capital Region & Hub",
-    desc: "IGI Airport T1/T2/T3, Aerocity, Gurugram Cyber Hub, Noida & 24/7 doorstep delivery across Delhi NCR.",
-    img: "/assets/img/locations/delhi.jpg",
-    carsCount: "50+ Cars Available",
-    highlight: "Airport Hub",
-    badgeIcon: "fa-plane-arrival",
-  },
-  {
-    id: "lucknow",
-    city: "Lucknow",
-    subtitle: "City of Nawabs & UP Hub",
-    desc: "Chaudhary Charan Singh Airport, Gomti Nagar, Hazratganj, and premium outstation self-drive rentals.",
-    img: "/assets/img/locations/lucknow.jpg",
-    carsCount: "30+ Cars Available",
-    highlight: "Doorstep Drop",
-    badgeIcon: "fa-map-pin",
-  },
-];
-
-interface ChooseLocationProps {
-  locations?: LocationCardItem[];
-}
-
-export default function ChooseLocation({ locations }: ChooseLocationProps) {
-  const LOCATIONS = locations && locations.length > 0 ? locations : DEFAULT_LOCATIONS;
-
-  const handleCityClick = (cityId: string | number) => {
+  const handleCityClick = (cityId: string) => {
     const categoriesSection = document.getElementById("categoriesSection");
     if (categoriesSection) {
       categoriesSection.scrollIntoView({ behavior: "smooth" });
@@ -55,7 +38,7 @@ export default function ChooseLocation({ locations }: ChooseLocationProps) {
   return (
     <section className="choose-location-section position-relative overflow-hidden">
       {/* Decorative Dashed Road Journey SVG with Moving Car */}
-      <div className="location-decor-path d-none d-xl-block position-absolute end-0 top-50 translate-middle-y">
+      <div className="location-decor-path d-none  position-absolute end-0 top-50 translate-middle-y">
         <svg width="220" height="260" viewBox="0 0 220 260" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path
             d="M20 20C120 40 200 120 180 240"
@@ -91,7 +74,7 @@ export default function ChooseLocation({ locations }: ChooseLocationProps) {
         <div className="row g-4 justify-content-center">
           {LOCATIONS.map((loc) => (
             <div key={loc.id} className="col-lg-6 col-md-12">
-              <div className="location-city-card h-100 d-flex flex-column flex-sm-row align-items-center">
+              <div className="location-city-card d-flex flex-column flex-sm-row align-items-center">
                 {/* Landmark Image */}
                 <div className="location-card-img-wrap position-relative flex-shrink-0">
                   <img
@@ -106,7 +89,7 @@ export default function ChooseLocation({ locations }: ChooseLocationProps) {
                 </div>
 
                 {/* City Details */}
-                <div className="location-card-body d-flex flex-column justify-content-between p-4 flex-grow-1 w-100">
+                <div className="location-card-body d-flex flex-column justify-content-between flex-grow-1 w-100">
                   <div>
                     <div className="d-flex justify-content-between align-items-start mb-1">
                       <h3 className="location-city-name mb-0">{loc.city}</h3>
@@ -119,7 +102,7 @@ export default function ChooseLocation({ locations }: ChooseLocationProps) {
                     </p>
                   </div>
 
-                  {/* Explore Cars Button - styled exactly like the header call button */}
+                  {/* Explore Cars Button */}
                   <div>
                     <button
                       type="button"

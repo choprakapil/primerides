@@ -26,6 +26,22 @@ export default function Navbar() {
     setIsMobileMenuOpen(false);
   }, [pathname]);
 
+  useEffect(() => {
+    if (!isMobileMenuOpen) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setIsMobileMenuOpen(false);
+    };
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isMobileMenuOpen]);
+
   const isHome = pathname === "/";
 
   const [navLinks, setNavLinks] = useState([
@@ -147,6 +163,7 @@ export default function Navbar() {
   }, []);
 
   return (
+    <>
     <nav className={`navbar navbar-expand-lg ${isScrolled || !isHome ? "nav-scroll" : "nav-light-top"}`}>
       <div className="container">
         {/* Brand Logo */}
@@ -158,43 +175,10 @@ export default function Navbar() {
               height: `${logoData.height}px`,
             }}
           />
+          <span className="navbar-brand-name">Prime Rides</span>
         </Link>
 
-        {/* Mobile Navigation Toggler Button */}
-        <button
-          className={`navbar-toggler ${isMobileMenuOpen ? "" : "collapsed"}`}
-          type="button"
-          onClick={() => setIsMobileMenuOpen((prev) => !prev)}
-          aria-controls="navbarMain"
-          aria-expanded={isMobileMenuOpen}
-          aria-label="Toggle navigation"
-        >
-          <span className="navbar-toggler-icon"></span>
-        </button>
-
-        {/* Main Navigation Menu & Actions Container */}
-        <div className={`collapse navbar-collapse ${isMobileMenuOpen ? "show" : ""}`} id="navbarMain">
-          <ul className="navbar-nav mx-auto mb-2 mb-lg-0">
-            {navLinks.map((item) => {
-              const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
-              return (
-                <li key={item.href} className="nav-item">
-                  <Link
-                    className={`nav-link ${isActive ? "active" : ""}`}
-                    href={item.href}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    style={{
-                      color: isActive ? "var(--primary-color)" : "var(--text-heading)",
-                    }}
-                  >
-                    {item.label}
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-
-          <div className="d-flex align-items-center gap-3">
+        <div className="navbar-actions d-flex align-items-center gap-3">
             {customer ? (
               <div className="position-relative" ref={userDropdownRef}>
                 <button
@@ -594,11 +578,10 @@ export default function Navbar() {
                   setIsMobileMenuOpen(false);
                   openAuthModal("login");
                 }}
-                className="btn d-flex align-items-center gap-2 fw-bold"
+                className="btn d-flex align-items-center gap-2 "
                 style={{
-                  background: "rgba(255, 255, 255, 0.8)",
-                  border: "1.5px solid rgba(198, 159, 70, 0.4)",
-                  color: "var(--text-heading)",
+            
+                  color: "#fff",
                   padding: "8px 18px",
                   borderRadius: "30px",
                   fontSize: "13px",
@@ -606,7 +589,7 @@ export default function Navbar() {
                   transition: "all 0.3s ease",
                 }}
               >
-                <MotionIcon name="User" animation="pulse" trigger="always" size={15} color="#c59b27" />
+                <MotionIcon name="User" animation="pulse" trigger="always" size={15} color="#fff" />
                 <span>{headerButtons.authButton.label}</span>
               </button>
             ) : null}
@@ -634,20 +617,128 @@ export default function Navbar() {
               </a>
             )}
 
-            {headerButtons.phoneButton.enabled && (
+          {headerButtons.phoneButton.enabled && (
               <a
-                href={`tel:${headerButtons.phoneButton.phoneNumber}`}
+                href={`https://wa.me/${headerButtons.phoneButton.phoneNumber.replace(/[^0-9]/g, "")}`}
+                target="_blank"
+                rel="noopener noreferrer"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="btn-prime d-none d-md-inline-flex align-items-center gap-2"
+                className="btn-prime navbar-whatsapp-btn d-none d-md-inline-flex align-items-center gap-2"
                 style={{ padding: "8px 20px", fontSize: "13px", borderRadius: "30px" }}
               >
-                <MotionIcon name="PhoneCall" animation="pulse" trigger="always" size={14} color="#ffffff" />
-                <span>{headerButtons.phoneButton.label}</span>
-              </a>
-            )}
-          </div>
+                <i className="fa-brands fa-whatsapp navbar-whatsapp-icon" aria-hidden="true" />
+                <span>WhatsApp</span>
+            </a>
+          )}
+          <a
+            href={`https://wa.me/${(headerButtons.whatsappButton.enabled ? headerButtons.whatsappButton.number : headerButtons.phoneButton.phoneNumber).replace(/[^0-9]/g, "")}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mobile-header-whatsapp"
+            aria-label="Chat with PrimeRides on WhatsApp"
+          >
+            <i className="fa-brands fa-whatsapp" aria-hidden="true" />
+          </a>
+          <button
+            className={`nav-menu-toggle ${isMobileMenuOpen ? "is-open" : ""}`}
+            type="button"
+            onClick={() => setIsMobileMenuOpen((prev) => !prev)}
+            aria-controls="navbarDrawer"
+            aria-expanded={isMobileMenuOpen}
+            aria-label={isMobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
+          >
+            <span />
+            <span />
+            <span />
+          </button>
         </div>
       </div>
+
+      <div
+        className={`nav-drawer-backdrop ${isMobileMenuOpen ? "is-open" : ""}`}
+        onClick={() => setIsMobileMenuOpen(false)}
+        aria-hidden="true"
+      />
+      <aside
+        className={`nav-drawer ${isMobileMenuOpen ? "is-open" : ""}`}
+        id="navbarDrawer"
+        aria-label="Main navigation"
+        aria-hidden={!isMobileMenuOpen}
+        inert={!isMobileMenuOpen}
+      >
+        <div className="nav-drawer-header">
+          <div className="nav-drawer-heading">
+            <span className="nav-drawer-eyebrow">PRIMERIDES</span>
+            <span className="nav-drawer-title">Explore</span>
+          </div>
+          <button type="button" onClick={() => setIsMobileMenuOpen(false)} aria-label="Close navigation menu">
+            <i className="fa-solid fa-xmark" aria-hidden="true" />
+          </button>
+        </div>
+        <ul className="nav-drawer-links">
+          {navLinks.map((item, index) => {
+            const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
+            const iconByPath: Record<string, string> = {
+              "/": "fa-house",
+              "/about": "fa-circle-info",
+              "/cars": "fa-car-side",
+              "/blogs": "fa-newspaper",
+              "/contact": "fa-headset",
+            };
+            const descriptionByPath: Record<string, string> = {
+              "/": "Discover the PrimeRides experience",
+              "/about": "Our story and the way we work",
+              "/cars": "Find a car for your next journey",
+              "/blogs": "Guides, updates and travel ideas",
+              "/contact": "Talk to our concierge team",
+            };
+            return (
+              <li key={`${item.href}-${index}`}>
+                <Link
+                  className={`nav-drawer-link ${isActive ? "active" : ""}`}
+                  href={item.href}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  tabIndex={isMobileMenuOpen ? 0 : -1}
+                >
+                  <span className="nav-drawer-icon">
+                    <i className={`fa-solid ${iconByPath[item.href] || "fa-compass"}`} aria-hidden="true" />
+                  </span>
+                  <span className="nav-drawer-copy">
+                    <span className="nav-drawer-item-title">{item.label}</span>
+                    <span className="nav-drawer-description">
+                      {descriptionByPath[item.href] || "Explore more from PrimeRides"}
+                    </span>
+                  </span>
+                  <i className="fa-solid fa-chevron-right nav-drawer-chevron" aria-hidden="true" />
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      </aside>
     </nav>
+    <div className="mobile-bottom-bar" role="navigation" aria-label="Quick navigation">
+      <Link href="/" className={`mobile-bottom-item ${pathname === "/" ? "active" : ""}`} aria-current={pathname === "/" ? "page" : undefined}>
+        <i className="fa-solid fa-house" aria-hidden="true" />
+        <span>Home</span>
+      </Link>
+      <Link href="/cars" className={`mobile-bottom-item ${pathname.startsWith("/cars") ? "active" : ""}`} aria-current={pathname.startsWith("/cars") ? "page" : undefined}>
+        <i className="fa-solid fa-car-side" aria-hidden="true" />
+        <span>Fleet</span>
+      </Link>
+      <a href={`tel:${headerButtons.phoneButton.phoneNumber}`} className="mobile-bottom-item mobile-bottom-call">
+        <span className="mobile-bottom-call-icon"><i className="fa-solid fa-phone" aria-hidden="true" /></span>
+        <span>Call</span>
+      </a>
+      <Link href="/blogs" className={`mobile-bottom-item ${pathname.startsWith("/blogs") ? "active" : ""}`} aria-current={pathname.startsWith("/blogs") ? "page" : undefined}>
+        <i className="fa-solid fa-newspaper" aria-hidden="true" />
+        <span>Blogs</span>
+      </Link>
+      <Link href="/account" className={`mobile-bottom-item ${pathname.startsWith("/account") ? "active" : ""}`} aria-current={pathname.startsWith("/account") ? "page" : undefined}>
+        <i className="fa-regular fa-user" aria-hidden="true" />
+        <span>Account</span>
+      </Link>
+    </div>
+    </>
   );
 }

@@ -1,37 +1,25 @@
-import React, { Suspense } from "react";
+import React from "react";
 import PageHeader from "@/components/PageHeader";
+import BlogSection from "@/components/BlogSection";
 import TrustBar from "@/components/TrustBar";
-import BlogPaginationList from "@/components/BlogPaginationList";
-import { getBlogs } from "@/server/cms";
 
 export const metadata = {
-  title: "Road Trip Blogs, Highway Guides & Itineraries - PrimeRides Delhi NCR",
+  title: "Road Trip Blogs & Travel Guides - Primerides Delhi NCR",
   description:
-    "Explore inspiring mountain expeditions, 3-day weekend road trip itineraries from Delhi NCR, vehicle recommendations, and expressway insights from PrimeRides.",
+    "Read inspiring road trip itineraries, mountain expedition guides, vehicle comparisons, and Delhi NCR self-drive travel tips from Primerides.",
 };
 
-export default async function BlogsPage() {
-  const blogs = await getBlogs();
-
+export default function BlogsPage() {
   return (
-    <div className="min-h-screen bg-slate-50/60">
+    <>
       <PageHeader
         title="Road Trip Journal & Travel Guides"
-        subtitle="Expedition Notes, Weekend Escapes & Highway Reviews"
-        breadcrumb="Travel Guides"
+        subtitle="Expeditions & Tips"
+        breadcrumb="Blogs"
         bgImage="/assets/img/slider/3.jpg"
       />
-      <Suspense
-        fallback={
-          <div className="max-w-7xl mx-auto px-4 py-16 text-center text-slate-500">
-            <div className="inline-block animate-spin w-8 h-8 border-4 border-amber-500 border-t-transparent rounded-full mb-3" />
-            <p className="font-semibold text-sm">Loading Travel Articles...</p>
-          </div>
-        }
-      >
-        <BlogPaginationList blogs={blogs} />
-      </Suspense>
+      <BlogSection />
       <TrustBar />
-    </div>
+    </>
   );
 }

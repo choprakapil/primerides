@@ -4,8 +4,8 @@ import React, { useState } from "react";
 import { FAQS_DATA } from "@/data/faqs";
 import Link from "next/link";
 
-export interface FaqItem {
-  id: string | number;
+interface FaqItem {
+  id: number | string;
   question: string;
   answer: string;
   category?: string;
@@ -17,13 +17,14 @@ interface FaqSectionProps {
 }
 
 export default function FaqSection({ showAll = false, items }: FaqSectionProps) {
-  const sourceData = items && items.length > 0 ? items : FAQS_DATA;
-  const displayedFaqs = showAll ? sourceData : sourceData.slice(0, 5);
-  const [openFaq, setOpenFaq] = useState<string | number | null>(displayedFaqs[0]?.id || "faq1");
+  const [openFaq, setOpenFaq] = useState<string | number | null>("faq1");
 
   const toggleFaq = (id: string | number) => {
     setOpenFaq((prev) => (prev === id ? null : id));
   };
+
+  const dataSource = items && items.length > 0 ? items : FAQS_DATA;
+  const displayedFaqs = showAll ? dataSource : dataSource.slice(0, 5);
 
   return (
     <section className="section-padding section-white" id="faqSection">

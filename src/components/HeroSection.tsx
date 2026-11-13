@@ -4,12 +4,6 @@ import React, { useState } from "react";
 import { MotionIcon } from "motion-icons-react";
 import { useModal } from "@/context/ModalContext";
 
-export interface HeroLocationItem {
-  id: number | string;
-  name: string;
-  city?: string;
-}
-
 interface HeroSectionProps {
   heroData?: {
     badgeText?: string;
@@ -21,10 +15,9 @@ interface HeroSectionProps {
     usp2?: string;
     usp3?: string;
   };
-  locations?: HeroLocationItem[];
 }
 
-export default function HeroSection({ heroData, locations }: HeroSectionProps = {}) {
+export default function HeroSection({ heroData }: HeroSectionProps) {
   const { openBookingModal } = useModal();
   const [pickupLoc, setPickupLoc] = useState("Delhi - IGI Airport Terminal 3 (Arrivals Gate)");
   const [dropoffLoc, setDropoffLoc] = useState("Delhi - IGI Airport Terminal 3");
@@ -48,9 +41,9 @@ export default function HeroSection({ heroData, locations }: HeroSectionProps = 
     <header className="turbo-hero-wrapper position-relative overflow-hidden">
       {/* Background Banner Image with Road Highway Sketch */}
       <div
-        className="turbo-hero-bg position-absolute top-0 start-0 w-100 h-100"
+        className="turbo-hero-bg position-absolute top-0 start-0 w-100 h-100 d-none"
         style={{
-          backgroundImage: "url('/assets/img/banner_1.png')",
+          backgroundImage: `url('${heroData?.bgImage || '/assets/img/banner_1.png'}')`,
           backgroundSize: "cover",
           backgroundPosition: "center right",
           backgroundRepeat: "no-repeat",
@@ -67,34 +60,31 @@ export default function HeroSection({ heroData, locations }: HeroSectionProps = 
         />
       </div>
 
-      <div className="container position-relative" style={{ zIndex: 10, paddingTop: "140px", paddingBottom: "55px" }}>
+      <div className="container position-relative" style={{ zIndex: 10 }}>
         {/* Top Hero Row: Headline on Left, Car Image on Right */}
-        <div className="row align-items-center g-4 mb-4 mb-lg-5">
+        <div className="row align-items-center justify-content-center g-4 mb-4 mb-lg-5">
           {/* Left Column: Heading, Subtitle & Value Pills */}
-          <div className="col-xl-7 col-lg-7 col-md-12">
-            <div className="turbo-hero-content pe-xl-3">
+          <div className="col-xl-10 col-lg-10 col-md-12">
+            <div className="turbo-hero-content pe-xl-3 text-center">
               {/* Pill / Tagline */}
               <div className="turbo-hero-badge d-inline-flex align-items-center gap-2 mb-3">
                 <span className="turbo-badge-dot"></span>
-                <span className="fw-bold">
-                  {heroData?.badgeText || "LUXURY & SELF-DRIVE FLEET DELHI NCR"}
-                </span>
+                <span className="fw-bold">{heroData?.badgeText || "LUXURY & SELF-DRIVE FLEET DELHI NCR"}</span>
               </div>
 
               {/* Main Heading */}
               <h1 className="turbo-hero-title mb-3">
-                Make Your Ride Easy &amp; <br />
-                <span>Fast with PrimeRides</span>
+                {heroData?.titleLine1 || "Make Your Ride Easy & Fast with PrimeRides"}{" "}
+                {heroData?.titleLine2 ? <span>{heroData.titleLine2}</span> : null}
               </h1>
 
               {/* Subtitle */}
               <p className="turbo-hero-subtext mb-4">
-                {heroData?.subtext ||
-                  "More than 50+ luxury sedans, 4x4 SUVs, and premium self-drive cars near your location across Delhi NCR for the ultimate driving experience."}
+                {heroData?.subtext || "More than 50+ luxury sedans, 4x4 SUVs, and premium self-drive cars near your location across Delhi NCR for the ultimate driving experience."}
               </p>
 
               {/* Quick Value Highlights */}
-              <div className="turbo-features-pills d-flex flex-wrap align-items-center gap-3">
+              <div className="turbo-features-pills d-flex flex-wrap align-items-center gap-3 justify-content-center">
                 <div className="turbo-pill-item">
                   <i className="fa-solid fa-shield-halved text-gold me-2"></i>
                   <span>{heroData?.usp1 || "Zero Security Deposit"}</span>
@@ -112,7 +102,7 @@ export default function HeroSection({ heroData, locations }: HeroSectionProps = 
           </div>
 
           {/* Right Column: Prominent Luxury Car Image */}
-          <div className="col-xl-5 col-lg-5 col-md-12 text-center text-lg-end">
+          <div className="col-xl-5 col-lg-5 col-md-12 text-center text-lg-end d-none">
             <div className="turbo-car-showcase position-relative">
               <div className="turbo-car-img-box" style={{ marginLeft: "0", width: "100%", maxWidth: "600px" }}>
                 <img

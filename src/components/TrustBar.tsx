@@ -42,19 +42,18 @@ interface TrustBarProps {
   items?: TrustItemType[];
 }
 
-export default function TrustBar({ items }: TrustBarProps = {}) {
+export default function TrustBar({ items }: TrustBarProps) {
   const displayItems = items && items.length > 0 ? items : DEFAULT_TRUST_ITEMS;
 
   return (
     <div
       className="trustbar-section section-alt"
       style={{
-        marginTop: "0",
-        paddingTop: "32px",
-        paddingBottom: "32px",
+        paddingTop: 0,
+        paddingBottom: "55px",
         borderTop: "none",
-        borderBottom: "1px solid rgba(198, 159, 70, 0.15)",
-        backgroundColor: "var(--section-alt-bg, #f4f6fa)",
+        borderBottom: "1px solid #e2e8f0",
+        backgroundColor: "#f8fafc",
       }}
     >
       <div className="container">
@@ -65,18 +64,24 @@ export default function TrustBar({ items }: TrustBarProps = {}) {
                 className="trust-item d-flex align-items-center gap-3 p-3 rounded-4 h-100"
                 style={{
                   background: "#ffffff",
-                  border: "1px solid rgba(198, 159, 70, 0.18)",
-                  boxShadow: "0 4px 15px rgba(0, 0, 0, 0.03)",
-                  transition: "transform 0.25s ease, box-shadow 0.25s ease",
+                  border: "1px solid rgba(226, 232, 240, 0.8)",
+                  boxShadow: "0 4px 16px rgba(0,0,0,0.02)",
+                  transition: "all 0.3s ease",
+                  cursor: "default",
                 }}
               >
                 <div
-                  className="trust-icon-box flex-shrink-0 d-flex align-items-center justify-content-center rounded-3"
                   style={{
-                    width: "48px",
-                    height: "48px",
-                    background: "rgba(198, 159, 70, 0.1)",
-                    border: "1px solid rgba(198, 159, 70, 0.25)",
+                    width: "50px",
+                    height: "50px",
+                    borderRadius: "14px",
+                    background: "rgba(197, 155, 39, 0.12)",
+                    color: "var(--primary-color)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexShrink: 0,
+                    overflow: "hidden",
                   }}
                 >
                   <MotionIcon
@@ -88,24 +93,10 @@ export default function TrustBar({ items }: TrustBarProps = {}) {
                   />
                 </div>
                 <div>
-                  <h4
-                    className="trust-title mb-1"
-                    style={{
-                      fontSize: "15px",
-                      fontWeight: 700,
-                      color: "var(--text-heading, #0f172a)",
-                    }}
-                  >
+                  <h6 className="mb-1 fw-bold" style={{ color: "var(--text-heading)", fontSize: "15px" }}>
                     {item.title}
-                  </h4>
-                  <p
-                    className="trust-desc mb-0"
-                    style={{
-                      fontSize: "12.5px",
-                      color: "var(--text-muted, #64748b)",
-                      lineHeight: "1.4",
-                    }}
-                  >
+                  </h6>
+                  <p className="mb-0 text-muted" style={{ fontSize: "13px", lineHeight: 1.4 }}>
                     {item.desc}
                   </p>
                 </div>

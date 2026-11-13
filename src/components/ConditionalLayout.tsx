@@ -43,7 +43,7 @@ export default function ConditionalLayout({
       <link rel="stylesheet" href="/assets/css/plugins.css" />
       <link rel="stylesheet" href="/assets/css/style.css" />
       <Navbar />
-      <main>{children}</main>
+      <main className={`public-main ${pathname === "/" ? "homepage-main" : ""}`.trim()}>{children}</main>
       <Footer />
     </ModalProvider>
   );

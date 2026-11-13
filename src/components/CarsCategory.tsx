@@ -2,15 +2,11 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { FLEET_CARS, CarItem } from "@/data/fleet";
+import { FLEET_CARS } from "@/data/fleet";
 import { useModal } from "@/context/ModalContext";
+import CarouselControls from "@/components/CarouselControls";
 
-export interface CarsCategoryProps {
-  cars?: CarItem[];
-}
-
-export default function CarsCategory({ cars }: CarsCategoryProps = {}) {
-  const fleetData = cars && cars.length > 0 ? cars : FLEET_CARS;
+export default function CarsCategory() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [visibleCount, setVisibleCount] = useState(4);
   const [isPaused, setIsPaused] = useState(false);
@@ -36,7 +32,11 @@ export default function CarsCategory({ cars }: CarsCategoryProps = {}) {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const maxIndex = Math.max(0, fleetData.length - visibleCount);
+  const maxIndex = Math.max(0, FLEET_CARS.length - visibleCount);
+
+  useEffect(() => {
+    setCurrentIndex((index) => Math.min(index, maxIndex));
+  }, [maxIndex]);
 
   useEffect(() => {
     if (isPaused || maxIndex === 0) return;
@@ -81,14 +81,14 @@ export default function CarsCategory({ cars }: CarsCategoryProps = {}) {
 
   return (
     <section
-      className="section-padding section-white position-relative overflow-hidden"
+      className="section-padding section-alt position-relative overflow-hidden"
       id="categoriesSection"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
       <div className="container">
         {/* Header with Title & Top-Right Slider Arrows */}
-        <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-4 pb-2">
+        <div className="fleet-section-heading d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-4 pb-2">
           <div className="section-header-block text-start mb-0">
             <span className="section-subtitle-tag">
               <i className="fa-solid fa-fire text-gold"></i> Top-Rated Fleet
@@ -102,52 +102,7 @@ export default function CarsCategory({ cars }: CarsCategoryProps = {}) {
           </div>
 
           {/* Top-Right Slider Controls */}
-          <div className="d-flex gap-2 mt-3 mt-md-0 align-self-start align-self-md-end flex-shrink-0">
-            <button
-              type="button"
-              onClick={handlePrev}
-              className="carousel-arrow-btn"
-              style={{
-                width: "46px",
-                height: "46px",
-                borderRadius: "50%",
-                background: "var(--primary-color)",
-                color: "#ffffff",
-                border: "none",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                cursor: "pointer",
-                transition: "all 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
-                boxShadow: "0 4px 14px rgba(197, 155, 39, 0.35)",
-              }}
-              aria-label="Previous Cars"
-            >
-              <i className="fa-solid fa-chevron-left" style={{ fontSize: "15px" }}></i>
-            </button>
-            <button
-              type="button"
-              onClick={handleNext}
-              className="carousel-arrow-btn"
-              style={{
-                width: "46px",
-                height: "46px",
-                borderRadius: "50%",
-                background: "var(--primary-color)",
-                color: "#ffffff",
-                border: "none",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                cursor: "pointer",
-                transition: "all 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
-                boxShadow: "0 4px 14px rgba(197, 155, 39, 0.35)",
-              }}
-              aria-label="Next Cars"
-            >
-              <i className="fa-solid fa-chevron-right" style={{ fontSize: "15px" }}></i>
-            </button>
-          </div>
+          <CarouselControls currentIndex={currentIndex} maxIndex={maxIndex} onPrevious={handlePrev} onNext={handleNext} label="Fleet carousel controls" previousLabel="Previous cars" nextLabel="Next cars" className="carousel-controls-desktop mt-3 mt-md-0 align-self-start align-self-md-end flex-shrink-0" />
         </div>
 
         {/* Single Smooth Carousel Viewport */}
@@ -166,17 +121,17 @@ export default function CarsCategory({ cars }: CarsCategoryProps = {}) {
               willChange: "transform",
             }}
           >
-            {fleetData.map((car) => {
+            {FLEET_CARS.map((car) => {
               const selectedKm = selectedKmMap[car.id] || "250 KM";
               return (
                 <div
                   key={car.id}
-                  className="flex-shrink-0"
+                  className="flex-shrink-0 align-self-start"
                   style={{
                     width: `calc((100% - ${(visibleCount - 1) * gap}px) / ${visibleCount})`,
                   }}
                 >
-                  <div className="modern-car-card h-100 d-flex flex-column">
+                  <div className="modern-car-card d-flex flex-column">
                     {/* Car Image Preview */}
                     <div className="modern-car-img-box position-relative">
                       <img
@@ -192,9 +147,9 @@ export default function CarsCategory({ cars }: CarsCategoryProps = {}) {
                     </div>
 
                     {/* Card Body */}
-                    <div className="modern-car-body d-flex flex-column flex-grow-1">
+                    <div className="modern-car-body d-flex flex-column">
                       {/* Car Name */}
-                      <h3 className="modern-car-name mb-2" title={car.name}>
+                      <h3 className="modern-car-name mb-2">
                         {car.name}
                       </h3>
 
@@ -227,15 +182,20 @@ export default function CarsCategory({ cars }: CarsCategoryProps = {}) {
                             key={km}
                             type="button"
                             className={`km-pill-btn ${selectedKm === km ? "active" : ""}`}
+                            aria-pressed={selectedKm === km}
+                            aria-label={`Select ${km} package for ${car.name}`}
                             onClick={() => handleKmSelect(car.id, km)}
                           >
+                            <span className={`km-checkbox ${selectedKm === km ? "checked" : ""}`} aria-hidden="true">
+                              {selectedKm === km && <i className="fa-solid fa-check" />}
+                            </span>
                             {km}
                           </button>
                         ))}
                       </div>
 
                       {/* View Car Details / Book Button - Leads directly to live reservation engine */}
-                      <div className="mt-auto pt-2">
+                      <div className="pt-1">
                         <Link
                           href={`/cars/${car.id}`}
                           className="modern-card-btn w-100 d-flex align-items-center justify-content-center gap-2 text-decoration-none"
@@ -251,28 +211,8 @@ export default function CarsCategory({ cars }: CarsCategoryProps = {}) {
             })}
           </div>
         </div>
+        <CarouselControls currentIndex={currentIndex} maxIndex={maxIndex} onPrevious={handlePrev} onNext={handleNext} label="Fleet carousel controls" previousLabel="Previous cars" nextLabel="Next cars" className="carousel-controls-mobile" />
 
-        {/* Carousel Pagination Dots */}
-        <div className="d-flex justify-content-center gap-2 mt-4">
-          {Array.from({ length: maxIndex + 1 }).map((_, dotIdx) => (
-            <button
-              key={dotIdx}
-              type="button"
-              onClick={() => setCurrentIndex(dotIdx)}
-              style={{
-                width: dotIdx === currentIndex ? "26px" : "8px",
-                height: "8px",
-                borderRadius: "4px",
-                background: dotIdx === currentIndex ? "var(--primary-color)" : "#cbd5e1",
-                border: "none",
-                padding: 0,
-                cursor: "pointer",
-                transition: "all 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
-              }}
-              aria-label={`Slide ${dotIdx + 1}`}
-            />
-          ))}
-        </div>
       </div>
     </section>
   );
