@@ -8,14 +8,11 @@ import {
   Car,
   MapPin,
   Calendar,
-  Sparkles,
   ArrowUpDown,
   RefreshCw,
   Search,
   SlidersHorizontal,
   X,
-  CheckCircle2,
-  ShieldCheck,
 } from "lucide-react";
 
 interface FleetSearchResultsProps {
@@ -230,49 +227,7 @@ export default function FleetSearchResults({
       : "All Cities";
 
   return (
-    <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
-      {/* Top Header Bar */}
-      <div className="mb-8">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-4 border-b border-slate-200/80">
-          <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-[#fffdf7] text-[#936e16] border border-[#e5b94f]/50 shadow-2xs">
-              <Sparkles className="w-3.5 h-3.5 text-[#c59b27]" />
-              <span>Prime Verified Fleet • Telemetry &amp; GPS Monitored</span>
-            </div>
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#0b0f19] tracking-tight font-heading leading-tight">
-              {isAllCities ? (
-                <>
-                  Self-Drive Fleet <span className="text-[#c59b27]">Collection</span>
-                </>
-              ) : (
-                <>
-                  Self-Drive Fleet in <span className="text-[#c59b27]">{activeCityName}</span>
-                </>
-              )}
-            </h1>
-            <p className="text-sm text-slate-500 max-w-2xl font-sans leading-relaxed">
-              Curated luxury SUVs, 4x4 off-roaders, and executive sedans with live inventory availability, doorstep delivery, and flexible KM packages.
-            </p>
-          </div>
-
-          {/* Luxury Feature Badges */}
-          <div className="flex flex-wrap items-center gap-2 pt-1 md:pt-0">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-white border border-slate-200 text-slate-700 shadow-2xs">
-              <ShieldCheck className="w-3.5 h-3.5 text-[#c59b27]" />
-              <span>100% Commercial Insurance</span>
-            </div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-white border border-slate-200 text-slate-700 shadow-2xs">
-              <MapPin className="w-3.5 h-3.5 text-[#c59b27]" />
-              <span>Doorstep Handover</span>
-            </div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-white border border-slate-200 text-slate-700 shadow-2xs">
-              <CheckCircle2 className="w-3.5 h-3.5 text-[#c59b27]" />
-              <span>Zero Advance Deposit</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
+    <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
       {/* Mobile Quick Control Bar (Visible only on < lg screens) */}
       <div className="lg:hidden mb-6 bg-white rounded-2xl border border-slate-200 p-3.5 shadow-sm space-y-3">
         <div className="flex items-center justify-between gap-2.5">
@@ -319,10 +274,10 @@ export default function FleetSearchResults({
                 key={loc.value}
                 type="button"
                 onClick={() => setFilters((prev) => ({ ...prev, location: loc.value }))}
-                className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap border transition-all ${
+                className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap border transition-all ${
                   isSel
                     ? "bg-[#0b0f19] text-[#c59b27] border-[#0b0f19] font-bold shadow-xs"
-                    : "bg-[#f8fafc] text-slate-700 border-slate-200"
+                    : "bg-[#f8fafc] text-slate-700 border-slate-200 hover:border-[#c59b27]/40"
                 }`}
               >
                 {loc.label}

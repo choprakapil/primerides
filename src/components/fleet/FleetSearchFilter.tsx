@@ -102,8 +102,8 @@ export default function FleetSearchFilter({
     filters.endDate !== "";
 
   const containerClasses = isMobileModal
-    ? "bg-white p-1 space-y-6"
-    : "bg-white rounded-3xl border border-slate-200/90 shadow-[0_4px_24px_rgba(0,0,0,0.04)] p-3 sticky top-28 space-y-6";
+    ? "bg-white p-1 space-y-5"
+    : "bg-white rounded-3xl border border-slate-200/90 shadow-[0_4px_24px_rgba(0,0,0,0.04)] p-4 sticky top-28 space-y-5";
 
   const Component = isMobileModal ? "div" : "aside";
 
@@ -111,16 +111,16 @@ export default function FleetSearchFilter({
     <Component className={containerClasses}>
       {/* Header (Desktop only; mobile drawer has its own header) */}
       {!isMobileModal && (
-        <div className="flex items-start justify-between gap-2 pb-4 border-b border-slate-100">
+        <div className="flex items-center justify-between gap-2 pb-3.5 border-b border-slate-100">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-[#fffdf7] text-[#c59b27] border border-[#e5b94f]/50 flex items-center justify-center flex-shrink-0 shadow-xs">
-              <SlidersHorizontal className="w-4 h-4 text-[#c59b27]" />
+            <div className="w-7 h-7 rounded-lg bg-[#fffdf7] text-[#c59b27] border border-[#e5b94f]/40 flex items-center justify-center flex-shrink-0 shadow-2xs">
+              <SlidersHorizontal className="w-3.5 h-3.5 text-[#c59b27]" />
             </div>
             <div>
-              <h3 className="font-extrabold text-[#0b0f19] text-base leading-tight font-heading whitespace-nowrap">
+              <h3 className="font-extrabold text-[#0b0f19] text-sm leading-tight font-heading tracking-tight">
                 Filter Fleet
               </h3>
-              <p className="text-xs text-slate-500 font-sans whitespace-nowrap">{totalResults} vehicles available</p>
+              <p className="text-[11px] text-slate-500 font-sans">{totalResults} vehicles available</p>
             </div>
           </div>
 
@@ -128,7 +128,7 @@ export default function FleetSearchFilter({
             <button
               onClick={onReset}
               type="button"
-              className="flex-shrink-0 whitespace-nowrap inline-flex items-center gap-1 text-xs font-bold text-[#c59b27] hover:text-[#936e16] hover:underline transition-colors py-1 px-1.5"
+              className="flex-shrink-0 inline-flex items-center gap-1 text-[11px] font-bold text-[#c59b27] hover:text-[#936e16] hover:underline transition-colors py-1 px-1.5"
             >
               <RotateCcw className="w-3 h-3 text-[#c59b27]" />
               <span>Reset</span>
@@ -137,13 +137,13 @@ export default function FleetSearchFilter({
         </div>
       )}
 
-      {/* 1. Location Selection */}
-      <div className="space-y-2.5">
-        <label id="fleet-filter-city-label" className="text-xs font-bold uppercase tracking-wider text-[#0b0f19] flex items-center gap-1.5">
-          <MapPin className="w-3.5 h-3.5 text-amber-700" />
+      {/* 1. Location Selection - Smooth Segmented Capsule */}
+      <div className="space-y-2">
+        <label id="fleet-filter-city-label" className="text-[11px] font-extrabold uppercase tracking-wider text-[#0b0f19] flex items-center gap-2">
+          <MapPin className="w-3.5 h-3.5 text-amber-700 flex-shrink-0" />
           <span>Pickup City Hub</span>
         </label>
-        <div role="group" aria-labelledby="fleet-filter-city-label" className="flex flex-wrap gap-1.5">
+        <div role="group" aria-labelledby="fleet-filter-city-label" className="flex items-center gap-1 p-1 bg-slate-100/90 rounded-full border border-slate-200/70">
           {[
             { label: "All Cities", value: "all" },
             { label: "Delhi NCR", value: "delhi-ncr" },
@@ -156,10 +156,10 @@ export default function FleetSearchFilter({
                 type="button"
                 aria-pressed={isSelected}
                 onClick={() => updateFilter("location", loc.value)}
-                className={`flex-1 min-w-[72px] py-2 px-1 text-[11px] leading-tight font-bold rounded-xl border transition-all text-center whitespace-nowrap ${
+                className={`flex-1 py-1.5 px-2 text-[11px] font-bold rounded-full transition-all duration-200 text-center whitespace-nowrap ${
                   isSelected
-                    ? "bg-[#0b0f19] text-[#c59b27] border-[#0b0f19] shadow-xs"
-                    : "bg-[#f8fafc] hover:bg-[#fffdf7] hover:border-[#c59b27]/60 text-slate-700 border-slate-200"
+                    ? "bg-[#0b0f19] text-[#c59b27] shadow-xs"
+                    : "text-slate-600 hover:text-[#0b0f19] hover:bg-white/80"
                 }`}
               >
                 {loc.label}
@@ -170,14 +170,14 @@ export default function FleetSearchFilter({
       </div>
 
       {/* 2. Rental Trip Dates */}
-      <div className="space-y-2.5 pt-2 border-t border-slate-100">
-        <div className="text-xs font-bold uppercase tracking-wider text-[#0b0f19] flex items-center gap-1.5">
-          <Calendar className="w-3.5 h-3.5 text-amber-700" />
+      <div className="space-y-2 pt-3 border-t border-slate-100">
+        <div className="text-[11px] font-extrabold uppercase tracking-wider text-[#0b0f19] flex items-center gap-2">
+          <Calendar className="w-3.5 h-3.5 text-amber-700 flex-shrink-0" />
           <span>Trip Dates &amp; Availability</span>
         </div>
-        <div className="grid grid-cols-1 gap-2">
+        <div className="grid grid-cols-2 gap-2">
           <div>
-            <label htmlFor="fleet-filter-start-date" className="text-[11px] font-semibold text-slate-500 block mb-1">
+            <label htmlFor="fleet-filter-start-date" className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block mb-1">
               Pickup Date
             </label>
             <input
@@ -187,11 +187,11 @@ export default function FleetSearchFilter({
               type="date"
               value={filters.startDate}
               onChange={(e) => updateFilter("startDate", e.target.value)}
-              className="w-full text-xs font-medium text-slate-800 bg-[#f8fafc] border border-slate-200 rounded-xl px-2.5 py-2 focus:bg-white focus:border-[#c59b27] focus:outline-none transition-colors"
+              className="w-full text-xs font-medium text-slate-800 bg-[#f8fafc] border border-slate-200 rounded-xl px-2.5 py-1.5 focus:bg-white focus:border-[#c59b27] focus:ring-1 focus:ring-[#c59b27]/30 focus:outline-none transition-all"
             />
           </div>
           <div>
-            <label htmlFor="fleet-filter-end-date" className="text-[11px] font-semibold text-slate-500 block mb-1">
+            <label htmlFor="fleet-filter-end-date" className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block mb-1">
               Return Date
             </label>
             <input
@@ -202,22 +202,22 @@ export default function FleetSearchFilter({
               value={filters.endDate}
               min={filters.startDate || undefined}
               onChange={(e) => updateFilter("endDate", e.target.value)}
-              className="w-full text-xs font-medium text-slate-800 bg-[#f8fafc] border border-slate-200 rounded-xl px-2.5 py-2 focus:bg-white focus:border-[#c59b27] focus:outline-none transition-colors"
+              className="w-full text-xs font-medium text-slate-800 bg-[#f8fafc] border border-slate-200 rounded-xl px-2.5 py-1.5 focus:bg-white focus:border-[#c59b27] focus:ring-1 focus:ring-[#c59b27]/30 focus:outline-none transition-all"
             />
           </div>
         </div>
         {filters.startDate && filters.endDate && (
-          <p className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200/60 px-2.5 py-1.5 rounded-xl flex items-center gap-1">
-            <span>✓</span>
+          <p className="text-[10.5px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200/60 px-2.5 py-1.5 rounded-xl flex items-center gap-1.5">
+            <span className="font-bold">✓</span>
             <span>Live unit stock verified for selected dates</span>
           </p>
         )}
       </div>
 
       {/* 3. Price Range Slider */}
-      <div className="space-y-2.5 pt-2 border-t border-slate-100">
+      <div className="space-y-2 pt-3 border-t border-slate-100">
         <div className="flex items-center justify-between">
-          <label htmlFor="fleet-filter-budget" className="text-xs font-bold uppercase tracking-wider text-[#0b0f19]">
+          <label htmlFor="fleet-filter-budget" className="text-[11px] font-extrabold uppercase tracking-wider text-[#0b0f19]">
             Daily Budget (Max)
           </label>
           <span className="text-xs font-extrabold text-amber-700">
@@ -240,20 +240,20 @@ export default function FleetSearchFilter({
           onChange={(e) => updateFilter("maxPrice", Number(e.target.value))}
           className="w-full accent-[#c59b27] cursor-pointer"
         />
-        <div className="flex justify-between text-[11px] font-medium text-slate-500">
+        <div className="flex justify-between text-[10.5px] font-medium text-slate-500">
           <span>₹1,500</span>
           <span>₹7,500</span>
           <span>₹15,000+</span>
         </div>
       </div>
 
-      {/* 4. Car Category / Body Type */}
-      <div className="space-y-2 pt-2 border-t border-slate-100">
-        <label id="fleet-filter-category-label" className="text-xs font-bold uppercase tracking-wider text-[#0b0f19] flex items-center gap-1.5">
-          <Car className="w-3.5 h-3.5 text-amber-700" />
+      {/* 4. Car Category / Body Type - Smooth Wrapped Pills */}
+      <div className="space-y-2 pt-3 border-t border-slate-100">
+        <label id="fleet-filter-category-label" className="text-[11px] font-extrabold uppercase tracking-wider text-[#0b0f19] flex items-center gap-2">
+          <Car className="w-3.5 h-3.5 text-amber-700 flex-shrink-0" />
           <span>Vehicle Category</span>
         </label>
-        <div role="group" aria-labelledby="fleet-filter-category-label" className="grid grid-cols-1 gap-1.5">
+        <div role="group" aria-labelledby="fleet-filter-category-label" className="flex flex-wrap gap-1.5">
           {categories.map((cat) => {
             const isSelected = filters.category === cat.value;
             return (
@@ -262,27 +262,27 @@ export default function FleetSearchFilter({
                 type="button"
                 aria-pressed={isSelected}
                 onClick={() => updateFilter("category", cat.value)}
-                className={`py-2 px-3 text-xs font-semibold rounded-xl border transition-all text-left flex items-center justify-between ${
+                className={`py-1.5 px-3 text-[11px] rounded-full border transition-all duration-200 inline-flex items-center gap-1.5 ${
                   isSelected
                     ? "bg-[#0b0f19] text-[#c59b27] border-[#0b0f19] shadow-xs font-bold"
-                    : "bg-[#f8fafc] hover:bg-[#fffdf7] hover:border-[#c59b27]/60 text-slate-700 border-slate-200"
+                    : "bg-slate-50 hover:bg-[#fffdf7] hover:border-[#c59b27]/50 text-slate-700 border-slate-200/90 font-medium hover:text-[#0b0f19]"
                 }`}
               >
                 <span>{cat.label}</span>
-                {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-[#c59b27]" />}
+                {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-[#c59b27] flex-shrink-0" />}
               </button>
             );
           })}
         </div>
       </div>
 
-      {/* 5. Transmission */}
-      <div className="space-y-2 pt-2 border-t border-slate-100">
-        <label id="fleet-filter-transmission-label" className="text-xs font-bold uppercase tracking-wider text-[#0b0f19] flex items-center gap-1.5">
-          <Gauge className="w-3.5 h-3.5 text-amber-700" />
+      {/* 5. Transmission - Smooth Segmented Capsule */}
+      <div className="space-y-2 pt-3 border-t border-slate-100">
+        <label id="fleet-filter-transmission-label" className="text-[11px] font-extrabold uppercase tracking-wider text-[#0b0f19] flex items-center gap-2">
+          <Gauge className="w-3.5 h-3.5 text-amber-700 flex-shrink-0" />
           <span>Transmission</span>
         </label>
-        <div role="group" aria-labelledby="fleet-filter-transmission-label" className="grid grid-cols-3 gap-2">
+        <div role="group" aria-labelledby="fleet-filter-transmission-label" className="flex items-center gap-1 p-1 bg-slate-100/90 rounded-full border border-slate-200/70">
           {transmissions.map((tr) => {
             const isSelected = filters.transmission === tr.value;
             return (
@@ -291,10 +291,10 @@ export default function FleetSearchFilter({
                 type="button"
                 aria-pressed={isSelected}
                 onClick={() => updateFilter("transmission", tr.value)}
-                className={`py-2 px-2 text-xs font-semibold rounded-xl border transition-all text-center ${
+                className={`flex-1 py-1.5 px-2 text-[11px] rounded-full transition-all duration-200 text-center whitespace-nowrap ${
                   isSelected
-                    ? "bg-[#0b0f19] text-[#c59b27] border-[#0b0f19] shadow-xs font-bold"
-                    : "bg-[#f8fafc] hover:bg-[#fffdf7] hover:border-[#c59b27]/60 text-slate-700 border-slate-200"
+                    ? "bg-[#0b0f19] text-[#c59b27] font-bold shadow-xs"
+                    : "text-slate-600 hover:text-[#0b0f19] hover:bg-white/80 font-medium"
                 }`}
               >
                 {tr.label}
@@ -304,13 +304,13 @@ export default function FleetSearchFilter({
         </div>
       </div>
 
-      {/* 6. Fuel Type */}
-      <div className="space-y-2 pt-2 border-t border-slate-100">
-        <label id="fleet-filter-fuel-label" className="text-xs font-bold uppercase tracking-wider text-[#0b0f19] flex items-center gap-1.5">
-          <Fuel className="w-3.5 h-3.5 text-amber-700" />
+      {/* 6. Fuel Type - Smooth Wrapped Pills with Proper Spacing & Alignment */}
+      <div className="space-y-2 pt-3 border-t border-slate-100">
+        <label id="fleet-filter-fuel-label" className="text-[11px] font-extrabold uppercase tracking-wider text-[#0b0f19] flex items-center gap-2">
+          <Fuel className="w-3.5 h-3.5 text-amber-700 flex-shrink-0" />
           <span>Fuel Type</span>
         </label>
-        <div role="group" aria-labelledby="fleet-filter-fuel-label" className="grid grid-cols-2 gap-2">
+        <div role="group" aria-labelledby="fleet-filter-fuel-label" className="flex flex-wrap gap-1.5">
           {fuelTypes.map((fuel) => {
             const isSelected = filters.fuelType === fuel.value;
             return (
@@ -319,10 +319,10 @@ export default function FleetSearchFilter({
                 type="button"
                 aria-pressed={isSelected}
                 onClick={() => updateFilter("fuelType", fuel.value)}
-                className={`py-2 px-2 text-xs font-semibold rounded-xl border transition-all text-center ${
+                className={`py-1.5 px-3 text-[11px] rounded-full border transition-all duration-200 text-center ${
                   isSelected
                     ? "bg-[#0b0f19] text-[#c59b27] border-[#0b0f19] shadow-xs font-bold"
-                    : "bg-[#f8fafc] hover:bg-[#fffdf7] hover:border-[#c59b27]/60 text-slate-700 border-slate-200"
+                    : "bg-slate-50 hover:bg-[#fffdf7] hover:border-[#c59b27]/50 text-slate-700 border-slate-200/90 font-medium hover:text-[#0b0f19]"
                 }`}
               >
                 {fuel.label}
@@ -332,13 +332,13 @@ export default function FleetSearchFilter({
         </div>
       </div>
 
-      {/* 7. Seating Capacity */}
-      <div className="space-y-2 pt-2 border-t border-slate-100">
-        <label id="fleet-filter-seats-label" className="text-xs font-bold uppercase tracking-wider text-[#0b0f19] flex items-center gap-1.5">
-          <Users className="w-3.5 h-3.5 text-amber-700" />
+      {/* 7. Seating Capacity - Smooth Wrapped Pills */}
+      <div className="space-y-2 pt-3 border-t border-slate-100">
+        <label id="fleet-filter-seats-label" className="text-[11px] font-extrabold uppercase tracking-wider text-[#0b0f19] flex items-center gap-2">
+          <Users className="w-3.5 h-3.5 text-amber-700 flex-shrink-0" />
           <span>Seating Capacity</span>
         </label>
-        <div role="group" aria-labelledby="fleet-filter-seats-label" className="grid grid-cols-4 gap-1.5">
+        <div role="group" aria-labelledby="fleet-filter-seats-label" className="flex flex-wrap gap-1.5">
           {seatingOptions.map((seat) => {
             const isSelected = filters.seats === seat.value;
             return (
@@ -347,10 +347,10 @@ export default function FleetSearchFilter({
                 type="button"
                 aria-pressed={isSelected}
                 onClick={() => updateFilter("seats", seat.value)}
-                className={`py-2 px-1 text-xs font-semibold rounded-xl border transition-all text-center ${
+                className={`flex-1 min-w-[58px] py-1.5 px-2.5 text-[11px] rounded-full border transition-all duration-200 text-center ${
                   isSelected
                     ? "bg-[#0b0f19] text-[#c59b27] border-[#0b0f19] shadow-xs font-bold"
-                    : "bg-[#f8fafc] hover:bg-[#fffdf7] hover:border-[#c59b27]/60 text-slate-700 border-slate-200"
+                    : "bg-slate-50 hover:bg-[#fffdf7] hover:border-[#c59b27]/50 text-slate-700 border-slate-200/90 font-medium hover:text-[#0b0f19]"
                 }`}
               >
                 {seat.label}
@@ -361,9 +361,9 @@ export default function FleetSearchFilter({
       </div>
 
       {/* 8. Brand */}
-      <div className="space-y-2 pt-2 border-t border-slate-100">
-        <label htmlFor="fleet-filter-brand" className="text-xs font-bold uppercase tracking-wider text-[#0b0f19]">
-          Make / Manufacturer
+      <div className="space-y-2 pt-3 border-t border-slate-100">
+        <label htmlFor="fleet-filter-brand" className="text-[11px] font-extrabold uppercase tracking-wider text-[#0b0f19] flex items-center gap-2">
+          <span>Make / Manufacturer</span>
         </label>
         <select
           id="fleet-filter-brand"
@@ -371,7 +371,7 @@ export default function FleetSearchFilter({
           aria-label="Filter by vehicle make or brand"
           value={filters.brand}
           onChange={(e) => updateFilter("brand", e.target.value)}
-          className="w-full text-xs font-semibold text-slate-800 bg-[#f8fafc] border border-slate-200 rounded-xl px-3 py-2.5 focus:bg-white focus:border-[#c59b27] focus:outline-none transition-colors"
+          className="w-full text-xs font-medium text-slate-800 bg-[#f8fafc] border border-slate-200 rounded-full px-3.5 py-2 focus:bg-white focus:border-[#c59b27] focus:ring-1 focus:ring-[#c59b27]/30 focus:outline-none transition-all cursor-pointer"
         >
           {brands.map((b) => (
             <option key={b.value} value={b.value}>
