@@ -109,31 +109,33 @@ export default function FleetSearchFilter({
 
   return (
     <Component className={containerClasses}>
-      {/* Header */}
-      <div className="flex items-center justify-between pb-4 border-b border-slate-100">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-[#fffdf7] text-[#c59b27] border border-[#e5b94f]/50 flex items-center justify-center shadow-xs">
-            <SlidersHorizontal className="w-4 h-4 text-[#c59b27]" />
+      {/* Header (Desktop only; mobile drawer has its own header) */}
+      {!isMobileModal && (
+        <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="w-8 h-8 rounded-xl bg-[#fffdf7] text-[#c59b27] border border-[#e5b94f]/50 flex items-center justify-center flex-shrink-0 shadow-xs">
+              <SlidersHorizontal className="w-4 h-4 text-[#c59b27]" />
+            </div>
+            <div className="min-w-0">
+              <h3 className="font-extrabold text-[#0b0f19] text-base leading-tight font-heading truncate">
+                Filter Fleet
+              </h3>
+              <p className="text-xs text-slate-500 font-sans truncate">{totalResults} vehicles available</p>
+            </div>
           </div>
-          <div>
-            <h3 className="font-bold text-[#0b0f19] text-base leading-tight font-heading">
-              Filter Fleet
-            </h3>
-            <p className="text-xs text-slate-500 font-sans">{totalResults} vehicles found</p>
-          </div>
-        </div>
 
-        {hasActiveFilters && (
-          <button
-            onClick={onReset}
-            type="button"
-            className="inline-flex items-center gap-1 text-xs font-bold text-[#c59b27] hover:text-[#936e16] hover:underline transition-colors py-1 px-2"
-          >
-            <RotateCcw className="w-3 h-3 text-[#c59b27]" />
-            <span>Reset All</span>
-          </button>
-        )}
-      </div>
+          {hasActiveFilters && (
+            <button
+              onClick={onReset}
+              type="button"
+              className="flex-shrink-0 whitespace-nowrap inline-flex items-center gap-1 text-xs font-bold text-[#c59b27] hover:text-[#936e16] hover:underline transition-colors py-1 px-1.5"
+            >
+              <RotateCcw className="w-3 h-3 text-[#c59b27]" />
+              <span>Reset</span>
+            </button>
+          )}
+        </div>
+      )}
 
       {/* 1. Location Selection */}
       <div className="space-y-2.5">
