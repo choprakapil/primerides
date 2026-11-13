@@ -205,35 +205,67 @@ export default function Navbar() {
         <div className="navbar-actions d-flex align-items-center gap-3">
             {customer ? (
               <div className="position-relative" ref={userDropdownRef}>
-                <button
-                  type="button"
-                  onClick={() => setIsUserDropdownOpen((prev) => !prev)}
-                  className="btn d-flex align-items-center gap-2 fw-bold"
-                  style={{
-                    background: isUserDropdownOpen ? "rgba(198, 159, 70, 0.22)" : "rgba(198, 159, 70, 0.12)",
-                    border: "1.5px solid rgba(198, 159, 70, 0.6)",
-                    color: "var(--text-heading)",
-                    padding: "8px 18px",
-                    borderRadius: "30px",
-                    fontSize: "13px",
-                    cursor: "pointer",
-                    transition: "all 0.25s ease",
-                  }}
-                  aria-expanded={isUserDropdownOpen}
-                  aria-haspopup="true"
-                >
-                  <MotionIcon name="UserCheck" animation="pulse" trigger="always" size={15} color="#c59b27" />
-                  <span>{customer.fullName ? customer.fullName.split(" ")[0] : "Account"}</span>
-                  <i
-                    className="fa-solid fa-chevron-down ms-1"
-                    style={{
-                      fontSize: "10px",
-                      color: "#c59b27",
-                      transition: "transform 0.25s ease",
-                      transform: isUserDropdownOpen ? "rotate(180deg)" : "rotate(0deg)",
-                    }}
-                  />
-                </button>
+                {(() => {
+                  const rawFirstName = customer.fullName ? customer.fullName.trim().split(" ")[0] : "Account";
+                  const formattedName = rawFirstName ? rawFirstName.charAt(0).toUpperCase() + rawFirstName.slice(1) : "Account";
+                  const initial = formattedName.charAt(0).toUpperCase() || "P";
+                  return (
+                    <button
+                      type="button"
+                      onClick={() => setIsUserDropdownOpen((prev) => !prev)}
+                      className="btn d-flex align-items-center gap-2 fw-bold"
+                      style={{
+                        background: isUserDropdownOpen
+                          ? "linear-gradient(135deg, rgba(197, 155, 39, 0.3) 0%, rgba(11, 15, 25, 0.95) 100%)"
+                          : "linear-gradient(135deg, rgba(197, 155, 39, 0.18) 0%, rgba(11, 15, 25, 0.85) 100%)",
+                        border: "1.5px solid rgba(197, 155, 39, 0.7)",
+                        boxShadow: isUserDropdownOpen
+                          ? "0 0 16px rgba(197, 155, 39, 0.4), inset 0 0 8px rgba(197, 155, 39, 0.2)"
+                          : "0 2px 10px rgba(0, 0, 0, 0.3)",
+                        color: "#ffffff",
+                        padding: "6px 16px 6px 8px",
+                        borderRadius: "30px",
+                        fontSize: "13px",
+                        letterSpacing: "0.2px",
+                        cursor: "pointer",
+                        transition: "all 0.25s ease",
+                      }}
+                      aria-expanded={isUserDropdownOpen}
+                      aria-haspopup="true"
+                    >
+                      <span
+                        style={{
+                          width: "26px",
+                          height: "26px",
+                          borderRadius: "50%",
+                          background: "linear-gradient(135deg, #c59b27 0%, #e5b94f 100%)",
+                          color: "#0b0f19",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          fontSize: "12px",
+                          fontWeight: 900,
+                          boxShadow: "0 2px 6px rgba(197, 155, 39, 0.45)",
+                          flexShrink: 0,
+                        }}
+                      >
+                        {initial}
+                      </span>
+                      <span style={{ color: "#ffffff", fontWeight: 700, fontSize: "13px", textShadow: "0 1px 2px rgba(0,0,0,0.4)" }}>
+                        {formattedName}
+                      </span>
+                      <i
+                        className="fa-solid fa-chevron-down ms-1"
+                        style={{
+                          fontSize: "10px",
+                          color: "#c59b27",
+                          transition: "transform 0.25s ease",
+                          transform: isUserDropdownOpen ? "rotate(180deg)" : "rotate(0deg)",
+                        }}
+                      />
+                    </button>
+                  );
+                })()}
 
                 {isUserDropdownOpen && (
                   <div

@@ -34,14 +34,14 @@ export default function CustomerDashboardOverview({
       title: "Travel Mileage & Trip Activity",
       category: "Analytics",
       colSpanClass: "col-12 col-xl-7",
-      component: <CustomerTripStatsChart />,
+      component: <CustomerTripStatsChart recentBookings={recentBookings} totalSpent={stats.totalSpent} />,
     },
     {
       id: "customer-vip-tier",
       title: "VIP Concierge & Loyalty Tier",
       category: "Membership",
       colSpanClass: "col-12 col-xl-5",
-      component: <CustomerVipTierCard />,
+      component: <CustomerVipTierCard stats={stats} />,
     },
   ];
 
