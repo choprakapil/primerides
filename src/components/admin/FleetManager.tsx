@@ -159,44 +159,28 @@ function FleetCarCard({ car, onEdit, onDelete, onPublishToHub }: FleetCarCardPro
   const currentPlan = plans[selectedPlanIdx] || plans[0] || fallbackPlans[0];
 
   return (
-    <div className="group h-full bg-white rounded-3xl border border-slate-300 shadow-sm hover:border-[#c59b27]/80 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col overflow-hidden relative">
-      {/* Top subtle golden glow accent on hover */}
-      <div className="h-1 w-full bg-gradient-to-r from-transparent via-[#c59b27] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 shrink-0" />
-
-      {/* Car Image Preview with Inset Luxury Framing & Vignette */}
-      <div className="relative h-60 w-full overflow-hidden bg-slate-950">
+    <div className="modern-car-card d-flex flex-column h-100 position-relative">
+      {/* Car Image Preview */}
+      <div className="modern-car-img-box position-relative">
         <img
           src={car.primary_image || "/assets/img/cars/1.jpg"}
           alt={car.name}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+          className="modern-car-img"
         />
-        {/* Subtle Luxury Gradient Vignette */}
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-transparent to-black/30 pointer-events-none" />
 
-        {/* Top Floating Badges */}
-        <div className="absolute top-3 left-3 flex flex-wrap items-center gap-1.5 z-10">
+        {/* Floating Modern Badge */}
+        <span className="modern-car-badge position-absolute top-0 start-0 m-2">
+          {car.badge || "Prime Fleet"}
+        </span>
+
+        {/* Hub & Availability Status Pill on Top Right */}
+        <div className="position-absolute top-0 end-0 m-2 d-flex align-items-center gap-1.5 z-10">
           {car.location && (
             <span className="backdrop-blur-md bg-white/95 text-slate-800 border border-slate-200/70 shadow-xs rounded-full px-2.5 py-1 text-[11px] font-bold inline-flex items-center gap-1">
               <MapPin className="w-3 h-3 text-[#c59b27]" />
               <span>{car.location.city}</span>
             </span>
           )}
-          <span
-            className="backdrop-blur-md bg-white/95 text-slate-800 border border-slate-200/70 shadow-xs rounded-full px-2.5 py-1 text-[11px] font-bold inline-flex items-center gap-1"
-            title="Total fleet quantity deployed at this hub"
-          >
-            <Layers className="w-3 h-3 text-[#c59b27]" />
-            <span>{car.fleet_count || 1} Units</span>
-          </span>
-          {car.badge && (
-            <span className="backdrop-blur-md bg-gradient-to-r from-amber-500 to-amber-600 text-white font-extrabold text-[10.5px] uppercase tracking-wider rounded-full px-2.5 py-1 shadow-xs border border-amber-300/40">
-              {car.badge}
-            </span>
-          )}
-        </div>
-
-        {/* Top Right Status Badge */}
-        <div className="absolute top-3 right-3 z-10">
           <span
             className={`backdrop-blur-md px-2.5 py-1 rounded-full text-[11px] font-bold shadow-xs inline-flex items-center gap-1.5 ${
               car.is_available
@@ -210,141 +194,90 @@ function FleetCarCard({ car, onEdit, onDelete, onPublishToHub }: FleetCarCardPro
             <span>{car.is_available ? "Available" : "Inactive"}</span>
           </span>
         </div>
-
-        {/* Bottom Image Watermark Trim */}
-        <div className="absolute bottom-3 left-3 right-3 z-10 flex items-center justify-between text-white pointer-events-none">
-          <span className="text-[10.5px] font-black uppercase tracking-widest text-[#f7d58b] drop-shadow-md">
-            {car.brand} &bull; {car.category?.name || "Luxury"}
-          </span>
-          {car.engine_hp ? (
-            <span className="backdrop-blur-md bg-black/60 text-white/90 border border-white/20 px-2 py-0.5 rounded-full text-[10px] font-bold shadow-xs">
-              {car.engine_hp} HP
-            </span>
-          ) : null}
-        </div>
       </div>
 
       {/* Card Body */}
-      <div className="p-5 flex flex-col flex-1 gap-3.5">
-        {/* Car Title */}
+      <div className="modern-car-body d-flex flex-column flex-grow-1 justify-content-between">
         <div>
-          <h3
-            className="font-heading text-xl font-black text-[#1c274c] leading-snug tracking-tight group-hover:text-[#c59b27] transition-colors truncate"
-            title={car.name}
-          >
+          {/* Brand & Category Subtitle */}
+          <div className="d-flex align-items-center gap-1 text-[11px] font-bold text-uppercase text-muted mb-1">
+            <span className="text-[#c59b27]">{car.brand}</span>
+            <span>•</span>
+            <span>{car.category?.name || "Luxury"}</span>
+            <span>•</span>
+            <span>{car.fleet_count || 1} Units</span>
+          </div>
+
+          {/* Car Title */}
+          <h3 className="modern-car-name mb-2" title={car.name}>
             {car.name}
           </h3>
-        </div>
 
-        {/* Specs Bar: Full text visible, zero truncation, spacious and clean */}
-        <div className="bg-slate-50 border border-slate-200/90 rounded-xl px-3.5 py-2.5 flex items-center justify-between text-xs text-slate-700">
-          <div className="flex items-center gap-1.5 font-semibold whitespace-nowrap">
-            <Users className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
-            <span>{car.seats} Seats</span>
-          </div>
-          <span className="text-slate-300">•</span>
-          <div className="flex items-center gap-1.5 font-semibold whitespace-nowrap">
-            <Gauge className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-            <span>{car.transmission}</span>
-          </div>
-          <span className="text-slate-300">•</span>
-          <div className="flex items-center gap-1.5 font-semibold whitespace-nowrap">
-            <Fuel className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-            <span>{car.fuel_type}</span>
-          </div>
-        </div>
-
-        {/* Elevated Rate & Security Deposit Box */}
-        <div className="bg-gradient-to-br from-slate-50 via-white to-amber-50/30 rounded-2xl p-3.5 border border-slate-200/90 shadow-2xs flex items-center justify-between gap-3">
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-[#c59b27] shrink-0" />
-              <span className="text-[10px] uppercase font-black text-slate-400 tracking-wider truncate">
-                DAILY TIER ({currentPlan.free_km >= 1000 ? `${currentPlan.free_km / 1000}k KM` : `${currentPlan.free_km} KM`})
-              </span>
-            </div>
-            <div className="flex items-baseline gap-1.5 mt-0.5 whitespace-nowrap">
-              <span className="text-2xl font-black text-[#1c274c] tracking-tight font-heading">
-                ₹{Number(currentPlan.price).toLocaleString("en-IN")}
-              </span>
-              <span className="text-xs text-slate-400 font-bold whitespace-nowrap">/ day</span>
-            </div>
-          </div>
-
-          <div className="text-right border-l border-slate-200/80 pl-3.5 shrink-0">
-            <span className="text-[10px] uppercase font-black text-slate-400 tracking-wider block">
-              SECURITY DEPOSIT
+          {/* Specs Row: Transmission, Fuel, Seats */}
+          <div className="modern-car-specs d-flex align-items-center gap-3 mb-2">
+            <span className="spec-item d-flex align-items-center gap-1">
+              <i className="fa-solid fa-gear text-muted"></i>
+              <span>{car.transmission}</span>
             </span>
-            <div className="mt-0.5">
-              <span className="text-base font-black text-[#c59b27] font-heading block">
-                ₹{Number(deposit).toLocaleString("en-IN")}
-              </span>
-              <span className="text-[9.5px] font-bold text-emerald-600 inline-flex items-center gap-0.5 whitespace-nowrap">
-                <Check className="w-2.5 h-2.5 shrink-0" /> 100% Refundable
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* KM Packages Interactive Selector */}
-        <div className="space-y-1.5 pt-0.5">
-          <div className="flex items-center justify-between text-[11px]">
-            <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider flex items-center gap-1">
-              <Sparkles className="w-3 h-3 text-[#c59b27]" />
-              KM Rental Packages
+            <span className="spec-item d-flex align-items-center gap-1">
+              <i className="fa-solid fa-gas-pump text-muted"></i>
+              <span>{car.fuel_type}</span>
             </span>
-            <span className="text-[11px] font-bold text-slate-600 bg-slate-100 border border-slate-200/60 px-2 py-0.5 rounded-md">
-              Extra: <strong className="text-[#1c274c]">₹{currentPlan.extra_km_rate || 7}/km</strong>
+            <span className="spec-item d-flex align-items-center gap-1">
+              <i className="fa-solid fa-user-group text-muted"></i>
+              <span>{car.seats} Seats</span>
             </span>
           </div>
 
-          <div className="grid grid-cols-4 gap-1.5">
-            {plans.slice(0, 4).map((plan, idx) => {
+          {/* Price Line */}
+          <div className="modern-car-price mb-2">
+            <span className="price-val">₹{Number(currentPlan.price).toLocaleString("en-IN")}</span>
+            <span className="price-unit"> / {currentPlan.free_km} km</span>
+            <span className="ms-2 text-xs text-muted font-normal">(Dep: ₹{deposit.toLocaleString("en-IN")})</span>
+          </div>
+
+          {/* KM Packages Interactive Selector */}
+          <div className="modern-km-packages d-flex align-items-center gap-1 mb-3">
+            {plans.slice(0, 3).map((plan, idx) => {
               const isSelected = selectedPlanIdx === idx;
               return (
                 <button
                   key={idx}
                   type="button"
+                  className={`km-pill-btn ${isSelected ? "active" : ""}`}
+                  aria-pressed={isSelected}
                   onClick={() => setSelectedPlanIdx(idx)}
-                  className={`py-2 px-1 text-center rounded-xl transition-all duration-200 cursor-pointer ${
-                    isSelected
-                      ? "bg-[#1c274c] text-white shadow-md ring-2 ring-[#c59b27]"
-                      : "bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200/80"
-                  }`}
-                  title={`${plan.free_km} km: ₹${Number(plan.price).toLocaleString("en-IN")}`}
                 >
-                  <span className={`block text-[10px] font-bold leading-tight ${isSelected ? "text-amber-200" : "text-slate-500"}`}>
-                    {plan.free_km >= 1000 ? `${plan.free_km / 1000}k km` : `${plan.free_km} km`}
+                  <span className={`km-checkbox ${isSelected ? "checked" : ""}`} aria-hidden="true">
+                    {isSelected && <i className="fa-solid fa-check" />}
                   </span>
-                  <span className={`block text-xs font-black mt-0.5 leading-tight ${isSelected ? "text-white" : "text-slate-900"}`}>
-                    ₹{plan.price >= 10000 ? `${Math.round(plan.price / 1000)}k` : Number(plan.price).toLocaleString("en-IN")}
-                  </span>
+                  <span>{plan.free_km} KM</span>
                 </button>
               );
             })}
           </div>
         </div>
 
-        {/* Card Footer Actions - Fully visible, responsive, zero clipping */}
-        <div className="pt-3.5 mt-auto border-t border-slate-100 flex items-center gap-2">
+        {/* Card Footer Actions */}
+        <div className="pt-2 border-top border-slate-100 d-flex align-items-center gap-2">
           <button
             type="button"
             onClick={() => onEdit(car)}
-            className="flex-1 h-10 bg-gradient-to-r from-[#1c274c] to-[#253360] hover:from-[#111827] hover:to-[#1c274c] text-white text-xs font-bold px-3.5 rounded-xl shadow-xs hover:shadow transition-all duration-200 flex items-center justify-center gap-1.5 cursor-pointer min-w-0"
+            className="modern-card-btn flex-grow-1 d-flex align-items-center justify-content-center gap-1.5 text-xs text-decoration-none"
+            style={{ padding: "8px 14px", borderRadius: "12px", fontSize: "12px" }}
           >
-            <Edit2 className="w-3.5 h-3.5 text-[#f7d58b] shrink-0" />
-            <span className="truncate">Edit Vehicle</span>
+            <Edit2 className="w-3.5 h-3.5 shrink-0" />
+            <span>Edit Vehicle</span>
           </button>
 
           <button
             type="button"
             onClick={() => onPublishToHub(car)}
+            className="btn btn-outline-secondary py-2 px-2.5 rounded-3 text-xs d-flex align-items-center justify-content-center"
             title="Deploy instance to another regional hub"
             aria-label="Deploy to another regional hub"
-            className="w-10 h-10 rounded-xl border border-slate-200 hover:border-indigo-300 bg-white hover:bg-indigo-50/80 text-slate-700 hover:text-indigo-600 flex items-center justify-center transition-all duration-200 shadow-2xs shrink-0 cursor-pointer"
           >
-            <Layers className="w-4 h-4 text-indigo-500" />
-            <span className="sr-only">Hub</span>
+            <Layers className="w-3.5 h-3.5" />
           </button>
 
           <a
@@ -353,10 +286,9 @@ function FleetCarCard({ car, onEdit, onDelete, onPublishToHub }: FleetCarCardPro
             rel="noopener noreferrer"
             title="Preview on public live website"
             aria-label="Preview on live website"
-            className="w-10 h-10 rounded-xl border border-slate-200 hover:border-[#c59b27] bg-white hover:bg-amber-50/80 text-slate-700 hover:text-[#c59b27] flex items-center justify-center transition-all duration-200 shadow-2xs shrink-0 cursor-pointer"
+            className="btn btn-outline-warning py-2 px-2.5 rounded-3 text-xs d-flex align-items-center justify-content-center text-dark"
           >
-            <ExternalLink className="w-4 h-4 text-slate-400 group-hover:text-[#c59b27]" />
-            <span className="sr-only">Live</span>
+            <ExternalLink className="w-3.5 h-3.5" />
           </a>
 
           <button
@@ -364,9 +296,9 @@ function FleetCarCard({ car, onEdit, onDelete, onPublishToHub }: FleetCarCardPro
             onClick={() => onDelete(car.id, car.name)}
             aria-label={`Delete ${car.name}`}
             title={`Remove ${car.name}`}
-            className="w-10 h-10 rounded-xl border border-red-200 hover:border-red-400 bg-red-50/80 hover:bg-red-500 text-red-600 hover:text-white flex items-center justify-center transition-all duration-200 shadow-2xs shrink-0 cursor-pointer"
+            className="btn btn-outline-danger py-2 px-2.5 rounded-3 text-xs d-flex align-items-center justify-content-center"
           >
-            <Trash2 className="w-4 h-4" />
+            <Trash2 className="w-3.5 h-3.5" />
           </button>
         </div>
       </div>
