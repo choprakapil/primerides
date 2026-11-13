@@ -6,6 +6,7 @@ import { getCurrentCustomer } from "@/server/auth/customer";
 import CarBookingCard from "@/components/CarBookingCard";
 import CarGallery from "@/components/fleet/CarGallery";
 import TrustBar from "@/components/TrustBar";
+import { formatCarDisplayName } from "@/components/fleet/types";
 import {
   ChevronLeft,
   Fuel,
@@ -340,64 +341,112 @@ export default async function CarDetailPage({
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {otherCars.map((other) => (
-                <div
-                  key={other.id}
-                  className="bg-white rounded-3xl border border-slate-200/90 shadow-[0_4px_20px_rgba(0,0,0,0.04)] overflow-hidden hover:shadow-[0_12px_35px_rgba(0,0,0,0.08)] transition-all flex flex-col justify-between"
-                >
-                  <div>
-                    <div className="h-48 w-full bg-slate-100 overflow-hidden relative">
+              {otherCars.map((other) => {
+                const displayName = formatCarDisplayName(other.brand, other.name);
+                const startingPlan = other.rental_plans?.[0];
+                const otherCity = other.location?.city || car.location?.city || "Delhi NCR";
+
+                return (
+                  <div
+                    key={other.id}
+                    className="bg-white rounded-2xl border border-slate-200/90 shadow-[0_4px_20px_rgba(0,0,0,0.04)] hover:shadow-[0_14px_35px_rgba(15,23,42,0.08)] hover:border-amber-300 transition-all duration-300 overflow-hidden flex flex-col group"
+                  >
+                    {/* Image Stage */}
+                    <Link
+                      href={`/cars/${other.slug}`}
+                      className="relative h-48 w-full bg-slate-900 overflow-hidden block"
+                    >
                       <img
                         src={other.primary_image || "/assets/img/cars/1.jpg"}
-                        alt={other.name}
-                        className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                        alt={`${displayName} Rental Car`}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       />
-                      {other.badge && (
-                        <span className="absolute top-3 left-3 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-400 text-black shadow-xs">
-                          {other.badge}
+                      {/* Top Badges */}
+                      <div className="absolute top-3 left-3 flex flex-wrap gap-1.5 pointer-events-none">
+                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#090e1a]/85 text-[#f7d58b] backdrop-blur-md shadow-xs border border-[#c59b27]/30 flex items-center gap-1">
+                          <Sparkles className="w-3 h-3 text-[#c59b27]" />
+                          <span>Prime Certified</span>
                         </span>
-                      )}
-                    </div>
+                        {other.badge && (
+                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-400 text-slate-950 shadow-xs">
+                            {other.badge}
+                          </span>
+                        )}
+                      </div>
+                      {/* Location Pill */}
+                      <div className="absolute bottom-3 right-3 pointer-events-none">
+                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-white/95 text-slate-800 backdrop-blur-md shadow-xs border border-slate-200 flex items-center gap-1">
+                          <MapPin className="w-3 h-3 text-[#c59b27]" />
+                          <span>{otherCity}</span>
+                        </span>
+                      </div>
+                    </Link>
 
-                    <div className="p-5 space-y-2">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                        {other.brand}
-                      </span>
-                      <h4 className="text-lg font-bold text-[#090e1a] font-heading">
-                        {other.name}
-                      </h4>
-                      <div className="flex items-center gap-3 text-xs text-slate-500 pt-1">
-                        <span>{other.transmission}</span>
-                        <span>•</span>
-                        <span>{other.fuel_type}</span>
-                        <span>•</span>
-                        <span>{other.seats} Seats</span>
+                    {/* Card Body - Controlled, Compact & Luxury Spacing */}
+                    <div className="p-4 sm:p-5 flex flex-col space-y-3">
+                      <div>
+                        {/* Brand & Category Subtitle */}
+                        <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">
+                          <span className="text-[#c59b27]">{other.brand}</span>
+                          <span>•</span>
+                          <span>{other.category?.name || "Luxury Class"}</span>
+                        </div>
+
+                        {/* Title */}
+                        <Link
+                          href={`/cars/${other.slug}`}
+                          className="text-base sm:text-lg font-bold text-slate-950 hover:text-amber-700 transition-colors block leading-snug line-clamp-1"
+                        >
+                          {displayName}
+                        </Link>
+
+                        {/* Dynamic Specs Pill Grid */}
+                        <div className="grid grid-cols-3 gap-2 py-2.5 mt-2.5 border-y border-slate-100 text-[11px] text-slate-600">
+                          <div className="flex items-center gap-1.5">
+                            <Users className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                            <span className="font-semibold">{other.seats} Seats</span>
+                          </div>
+                          <div className="flex items-center gap-1.5 truncate">
+                            <Gauge className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                            <span className="font-semibold truncate">
+                              {other.transmission.toLowerCase().includes("auto") ? "Auto" : "Manual"}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            <Fuel className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                            <span className="font-semibold truncate">{other.fuel_type}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Price & Action Row */}
+                      <div className="pt-1 flex items-end justify-between gap-3">
+                        <div>
+                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                            Starting Package
+                          </span>
+                          <div className="flex items-baseline gap-1">
+                            <span className="text-xl font-black text-slate-950 tracking-tight">
+                              ₹{Number(other.price_per_day).toLocaleString("en-IN")}
+                            </span>
+                            <span className="text-[11px] text-slate-500 font-semibold">
+                              / {startingPlan?.name || "300 km"}
+                            </span>
+                          </div>
+                        </div>
+
+                        <Link
+                          href={`/cars/${other.slug}`}
+                          className="modern-card-btn text-xs py-2 px-3.5 flex items-center gap-1.5 text-decoration-none shadow-xs shrink-0"
+                        >
+                          <span>Explore</span>
+                          <ArrowRight className="w-3.5 h-3.5 arrow-icon" />
+                        </Link>
                       </div>
                     </div>
                   </div>
-
-                  <div className="p-5 pt-0 border-t border-slate-100 flex items-center justify-between gap-3 mt-4">
-                    <div>
-                      <span className="text-[10px] text-slate-400 block uppercase font-semibold">From</span>
-                      <span className="text-base font-extrabold text-[#090e1a]">
-                        ₹{Number(other.price_per_day).toLocaleString("en-IN")}
-                      </span>
-                      <span className="text-[10px] text-slate-500"> / day</span>
-                    </div>
-
-                    <Link
-                      href={`/cars/${other.slug}`}
-                      className="px-4 py-2 rounded-xl text-white font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 shadow-sm transition-all hover:scale-105"
-                      style={{
-                        background: "linear-gradient(135deg, #d8a834 0%, #c59b27 100%)",
-                      }}
-                    >
-                      <span>Explore</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </Link>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}
