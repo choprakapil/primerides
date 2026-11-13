@@ -55,6 +55,16 @@ export default function FleetSearchResults({
   const [loading, setLoading] = useState(false);
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
 
+  // Close mobile filter drawer on Escape key or outside interaction
+  useEffect(() => {
+    if (!isMobileDrawerOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsMobileDrawerOpen(false);
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isMobileDrawerOpen]);
+
   // Sync state if searchParams change dynamically (e.g., client navigation from footer or header)
   useEffect(() => {
     const rawCat = searchParams?.get("category") || searchParams?.get("filter") || searchParams?.get("type");
@@ -220,7 +230,7 @@ export default function FleetSearchResults({
       : "All Cities";
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+    <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
       {/* Top Header Bar */}
       <div className="mb-8">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-4 border-b border-slate-200/80">
@@ -410,7 +420,7 @@ export default function FleetSearchResults({
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
               {sortedCars.map((car) => (
                 <CarSearchCard
                   key={car.id}

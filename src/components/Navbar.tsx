@@ -62,6 +62,8 @@ export default function Navbar() {
 
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
   const userDropdownRef = useRef<HTMLDivElement>(null);
+  const navDrawerRef = useRef<HTMLElement>(null);
+  const navToggleRef = useRef<HTMLButtonElement>(null);
 
   // Close dropdown on click outside
   useEffect(() => {
@@ -73,6 +75,28 @@ export default function Navbar() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  // Close mobile navigation drawer on click outside
+  useEffect(() => {
+    if (!isMobileMenuOpen) return;
+    const handleDrawerClickOutside = (event: MouseEvent | TouchEvent) => {
+      const target = event.target as Node;
+      if (
+        navDrawerRef.current &&
+        !navDrawerRef.current.contains(target) &&
+        navToggleRef.current &&
+        !navToggleRef.current.contains(target)
+      ) {
+        setIsMobileMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleDrawerClickOutside);
+    document.addEventListener("touchstart", handleDrawerClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleDrawerClickOutside);
+      document.removeEventListener("touchstart", handleDrawerClickOutside);
+    };
+  }, [isMobileMenuOpen]);
 
   // Close dropdown on route change
   useEffect(() => {
@@ -640,6 +664,7 @@ export default function Navbar() {
             <i className="fa-brands fa-whatsapp" aria-hidden="true" />
           </a>
           <button
+            ref={navToggleRef}
             className={`nav-menu-toggle ${isMobileMenuOpen ? "is-open" : ""}`}
             type="button"
             onClick={() => setIsMobileMenuOpen((prev) => !prev)}
@@ -660,6 +685,7 @@ export default function Navbar() {
         aria-hidden="true"
       />
       <aside
+        ref={navDrawerRef}
         className={`nav-drawer ${isMobileMenuOpen ? "is-open" : ""}`}
         id="navbarDrawer"
         aria-label="Main navigation"

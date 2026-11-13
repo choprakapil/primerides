@@ -1185,3 +1185,17 @@ input:-webkit-autofill:active {
   65% { transform: scale(0.95) rotate(-4deg); }
   100% { transform: scale(1) rotate(0deg); }
 }
+
+/* PrimeRides Luxury Gold Color Overrides (Prevents Amber from rendering reddish) */
+.text-amber-700 {
+  color: #b88d22 !important;
+}
+.text-amber-800 {
+  color: #936e16 !important;
+}
+.hover\:text-amber-700:hover {
+  color: #b88d22 !important;
+}
+.hover\:text-amber-800:hover {
+  color: #936e16 !important;
+}

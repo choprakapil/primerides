@@ -352,16 +352,16 @@ export default async function BlogPostPage({
           <div className="pt-8 border-t border-slate-200 space-y-6">
             <div className="flex items-center justify-between">
               <div>
-                <span className="text-[10px] font-bold uppercase tracking-widest text-amber-700 block">
+                <span className="text-[10px] font-extrabold uppercase tracking-widest text-[#936e16] block">
                   Keep Exploring
                 </span>
-                <h3 className="text-xl font-bold text-slate-900 font-heading">
+                <h3 className="text-xl font-extrabold text-[#0b0f19] font-heading">
                   More Travel Guides &amp; Itineraries
                 </h3>
               </div>
               <Link
                 href="/blogs"
-                className="text-xs font-bold text-amber-700 hover:text-amber-800 flex items-center gap-1"
+                className="text-xs font-bold text-[#c59b27] hover:text-[#936e16] flex items-center gap-1 transition-colors"
               >
                 <span>View All Articles</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -372,19 +372,19 @@ export default async function BlogPostPage({
               {relatedBlogs.map((b) => (
                 <div
                   key={b.id}
-                  className="bg-white rounded-2xl border border-slate-200/90 p-4 shadow-sm hover:shadow-md transition-all flex gap-4 items-center group"
+                  className="bg-white rounded-2xl border border-slate-200/90 p-4 shadow-sm hover:shadow-md hover:border-amber-300 transition-all flex gap-4 items-center group"
                 >
                   <img
                     src={b.featuredImage || "/assets/img/blog/1.jpg"}
                     alt={b.title || "Related Travel Guide Article"}
-                    className="w-24 h-20 object-cover rounded-xl shrink-0"
+                    className="w-24 h-20 object-cover rounded-xl shrink-0 group-hover:scale-105 transition-transform duration-300"
                   />
-                  <div className="space-y-1">
-                    <span className="text-[10px] font-bold uppercase text-amber-700">
+                  <div className="space-y-1 min-w-0">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#936e16] block">
                       {b.categoryName}
                     </span>
-                    <h4 className="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-amber-700 transition-colors line-clamp-2">
-                      <Link href={`/blogs/${b.slug}`}>{b.title}</Link>
+                    <h4 className="text-xs sm:text-sm font-bold text-[#0b0f19] group-hover:text-[#c59b27] transition-colors line-clamp-2 leading-snug">
+                      <Link href={`/blogs/${b.slug}`} className="!text-[#0b0f19] hover:!text-[#c59b27] transition-colors">{b.title}</Link>
                     </h4>
                     <span className="text-[11px] text-slate-400 block">
                       {b.readTime}

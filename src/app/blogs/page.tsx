@@ -1,7 +1,8 @@
 import React from "react";
 import PageHeader from "@/components/PageHeader";
-import BlogSection from "@/components/BlogSection";
+import BlogsCatalog from "@/components/blog/BlogsCatalog";
 import TrustBar from "@/components/TrustBar";
+import { getBlogs } from "@/server/cms";
 
 export const metadata = {
   title: "Road Trip Blogs & Travel Guides - Primerides Delhi NCR",
@@ -9,7 +10,9 @@ export const metadata = {
     "Read inspiring road trip itineraries, mountain expedition guides, vehicle comparisons, and Delhi NCR self-drive travel tips from Primerides.",
 };
 
-export default function BlogsPage() {
+export default async function BlogsPage() {
+  const blogs = await getBlogs(100);
+
   return (
     <>
       <PageHeader
@@ -18,7 +21,7 @@ export default function BlogsPage() {
         breadcrumb="Blogs"
         bgImage="/assets/img/slider/3.jpg"
       />
-      <BlogSection />
+      <BlogsCatalog initialBlogs={blogs} />
       <TrustBar />
     </>
   );

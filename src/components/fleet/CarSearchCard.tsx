@@ -117,7 +117,7 @@ export default function CarSearchCard({ car, startDate, endDate }: CarSearchCard
 
           <Link
             href={bookingUrl}
-            className="text-base sm:text-lg font-bold text-slate-950 hover:text-amber-700 transition-colors block leading-snug line-clamp-1 font-heading"
+            className="text-base sm:text-lg font-bold !text-[#0b0f19] hover:!text-[#c59b27] transition-colors block leading-snug line-clamp-1 font-heading"
           >
             {car.name}
           </Link>
