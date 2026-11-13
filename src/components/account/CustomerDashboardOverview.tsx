@@ -92,7 +92,7 @@ export default function CustomerDashboardOverview({
                 <div className="avatar avatar-md rounded-circle bg-purple-100 text-purple-700 d-flex align-items-center justify-content-center">
                   <CalendarCheck className="w-5 h-5" />
                 </div>
-                <TrendArrowBadge value="+3 Bookings" period="history" pastelTheme="lavender" />
+                <TrendArrowBadge value={stats.totalBookings > 0 ? `${stats.totalBookings} Bookings` : "New Customer"} period="history" pastelTheme="lavender" />
               </div>
               <div className="text-muted text-xs font-semibold text-uppercase tracking-wider">
                 Total Reservations
