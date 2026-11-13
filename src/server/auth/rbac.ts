@@ -123,21 +123,45 @@ export function hasAdminPermission(
 /**
  * Resolves current admin user from Authorization header OR HTTP-only cookie 'primerides_admin_token'.
  */
-export async function getCurrentAdmin(): Promise<CurrentAdmin | null> {
+export async function getCurrentAdmin(
+  req?: Request | { headers?: Headers | { get(name: string): string | null }; cookies?: any }
+): Promise<CurrentAdmin | null> {
   try {
     let token: string | undefined;
 
     // A. Check Authorization Bearer Header
-    const headerList = await headers();
-    const authHeader = headerList.get("authorization");
+    let authHeader: string | null | undefined = null;
+    if (req && "headers" in req && req.headers) {
+      if (typeof (req.headers as any).get === "function") {
+        authHeader = (req.headers as any).get("authorization");
+      }
+    } else {
+      try {
+        const headerList = await headers();
+        authHeader = headerList.get("authorization");
+      } catch {
+        // Outside Next.js request context (e.g. testing)
+      }
+    }
+
     if (authHeader && authHeader.startsWith("Bearer ")) {
       token = authHeader.substring(7);
     }
 
     // B. Check Cookie if no Bearer header
     if (!token) {
-      const cookieStore = await cookies();
-      token = cookieStore.get("primerides_admin_token")?.value;
+      if (req && "cookies" in req && req.cookies) {
+        if (typeof (req.cookies as any).get === "function") {
+          token = (req.cookies as any).get("primerides_admin_token")?.value;
+        }
+      } else {
+        try {
+          const cookieStore = await cookies();
+          token = cookieStore.get("primerides_admin_token")?.value;
+        } catch {
+          // Outside Next.js request context
+        }
+      }
     }
 
     if (!token) return null;
@@ -184,9 +208,10 @@ export async function getCurrentAdmin(): Promise<CurrentAdmin | null> {
  * Guard that enforces an admin is authenticated with the specified permission.
  */
 export async function requireAdminPermission(
-  permission: AdminPermission | AdminPermission[]
+  permission: AdminPermission | AdminPermission[],
+  req?: Request | { headers?: Headers | { get(name: string): string | null }; cookies?: any }
 ): Promise<CurrentAdmin> {
-  const admin = await getCurrentAdmin();
+  const admin = await getCurrentAdmin(req);
   if (!admin) {
     throw new Error("UNAUTHORIZED: Please sign in as an administrator.");
   }

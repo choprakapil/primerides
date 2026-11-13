@@ -43,7 +43,6 @@ export default async function CustomerLoginPage({
                 type="tel"
                 name="phone"
                 required
-                defaultValue="+91 99999 99999"
                 className="form-control ps-5"
                 placeholder="+91 98765 43210"
               />
@@ -58,9 +57,8 @@ export default async function CustomerLoginPage({
                 type="password"
                 name="password"
                 required
-                defaultValue="Customer@123"
                 className="form-control ps-5"
-                placeholder="••••••••"
+                placeholder="Enter your password"
               />
             </div>
           </div>
@@ -72,9 +70,9 @@ export default async function CustomerLoginPage({
                 Remember me
               </label>
             </div>
-            <a href="/" className="text-primary text-sm text-decoration-none fw-medium">
-              Back to site
-            </a>
+            <Link href="/account/forgot-password" className="text-primary text-sm text-decoration-none fw-medium">
+              Forgot password?
+            </Link>
           </div>
 
           <button type="submit" className="btn btn-primary w-100 py-2.5 fw-semibold shadow-sm">
@@ -83,8 +81,14 @@ export default async function CustomerLoginPage({
         </form>
 
         <div className="text-center mt-4 pt-3 border-top">
+          <p className="text-muted mb-2" style={{ fontSize: "13px" }}>
+            Don&apos;t have an account?{" "}
+            <Link href="/account/register" className="text-primary fw-bold text-decoration-none">
+              Create Account
+            </Link>
+          </p>
           <p className="text-muted mb-0" style={{ fontSize: "13px" }}>
-            Need a luxury car?{' '}
+            Need a luxury car?{" "}
             <Link href="/cars" className="text-primary fw-semibold text-decoration-none">
               Browse Fleet
             </Link>

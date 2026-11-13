@@ -224,14 +224,14 @@ export default function TestimonialsManager({
         eyebrow="CMS & Content"
         title="Customer Testimonials & Reviews"
         description="Curate verified client impressions, star ratings, and featured endorsements displayed across the homepage showcase."
-        icon={<MessageSquare className="w-5 h-5 text-[#5955D1]" />}
+        icon={<MessageSquare className="w-5 h-5 text-[#c59b27]" />}
         actions={
           <div className="flex items-center gap-2">
             <AdminButton
               variant="secondary"
               onClick={refreshList}
               disabled={isLoading}
-              icon={<RefreshCw className={`w-3.5 h-3.5 ${isLoading ? "animate-spin text-[#5955D1]" : ""}`} />}
+              icon={<RefreshCw className={`w-3.5 h-3.5 ${isLoading ? "animate-spin text-[#c59b27]" : ""}`} />}
             >
               Refresh
             </AdminButton>
@@ -329,10 +329,13 @@ export default function TestimonialsManager({
 
           <div className="position-relative" style={{ minWidth: "240px" }}>
             <input
+              id="admin-search-testimonials"
+              name="admin-search-testimonials"
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search client or text..."
+              aria-label="Search testimonials by client or review text"
               className="form-control form-control-sm ps-5"
             />
             <Search className="w-4 h-4 text-muted position-absolute top-50 start-0 translate-middle-y ms-2.5 pointer-events-none" />
@@ -364,7 +367,7 @@ export default function TestimonialsManager({
                   <div className="flex items-center gap-2.5">
                     <img
                       src={item.avatar_url || "/assets/img/team/1.jpg"}
-                      alt={item.client_name}
+                      alt={`${item.client_name} Avatar`}
                       className="w-10 h-10 rounded-full object-cover border border-[#e8edf2] shrink-0"
                       onError={(e) => {
                         (e.target as HTMLElement).style.display = "none";
@@ -400,7 +403,7 @@ export default function TestimonialsManager({
                       key={i}
                       className={`w-3.5 h-3.5 ${
                         i < item.rating
-                          ? "fill-amber-400 text-amber-400"
+                          ? "fill-amber-500 text-amber-700"
                           : "fill-slate-200 text-slate-200"
                       }`}
                     />
@@ -465,7 +468,7 @@ export default function TestimonialsManager({
               value={formData.client_name}
               onChange={(e) => setFormData({ ...formData, client_name: e.target.value })}
               placeholder="e.g. Dr. Aryan Sharma"
-              className="w-full h-[40px] px-3.5 rounded-xl border border-slate-300 text-xs text-[#1c274c] focus:outline-none focus:border-[#5955D1] focus:ring-2 focus:ring-[#5955D1]/20"
+              className="w-full h-[40px] px-3.5 rounded-xl border border-slate-300 text-xs text-[#1c274c] focus:outline-none focus:border-[#c59b27] focus:ring-2 focus:ring-[#c59b27]/20"
             />
           </div>
 
@@ -479,7 +482,7 @@ export default function TestimonialsManager({
                 value={formData.role_title}
                 onChange={(e) => setFormData({ ...formData, role_title: e.target.value })}
                 placeholder="e.g. Trip to Manali • Fortuner 4x4"
-                className="w-full h-[40px] px-3.5 rounded-xl border border-slate-300 text-xs text-[#1c274c] focus:outline-none focus:border-[#5955D1] focus:ring-2 focus:ring-[#5955D1]/20"
+                className="w-full h-[40px] px-3.5 rounded-xl border border-slate-300 text-xs text-[#1c274c] focus:outline-none focus:border-[#c59b27] focus:ring-2 focus:ring-[#c59b27]/20"
               />
             </div>
 
@@ -490,7 +493,7 @@ export default function TestimonialsManager({
               <select
                 value={formData.rating}
                 onChange={(e) => setFormData({ ...formData, rating: parseInt(e.target.value, 10) })}
-                className="w-full h-[40px] px-3.5 rounded-xl border border-slate-300 text-xs text-[#1c274c] focus:outline-none focus:border-[#5955D1] focus:ring-2 focus:ring-[#5955D1]/20 bg-white"
+                className="w-full h-[40px] px-3.5 rounded-xl border border-slate-300 text-xs text-[#1c274c] focus:outline-none focus:border-[#c59b27] focus:ring-2 focus:ring-[#c59b27]/20 bg-white"
               >
                 <option value={5}>⭐⭐⭐⭐⭐ (5 Stars - Exceptional)</option>
                 <option value={4}>⭐⭐⭐⭐ (4 Stars - Great)</option>
@@ -510,7 +513,7 @@ export default function TestimonialsManager({
               value={formData.avatar_url}
               onChange={(e) => setFormData({ ...formData, avatar_url: e.target.value })}
               placeholder="/assets/img/team/1.jpg or https://..."
-              className="w-full h-[40px] px-3.5 rounded-xl border border-slate-300 text-xs text-[#1c274c] focus:outline-none focus:border-[#5955D1] focus:ring-2 focus:ring-[#5955D1]/20"
+              className="w-full h-[40px] px-3.5 rounded-xl border border-slate-300 text-xs text-[#1c274c] focus:outline-none focus:border-[#c59b27] focus:ring-2 focus:ring-[#c59b27]/20"
             />
           </div>
 
@@ -533,7 +536,7 @@ export default function TestimonialsManager({
                 type="checkbox"
                 checked={formData.is_featured}
                 onChange={(e) => setFormData({ ...formData, is_featured: e.target.checked })}
-                className="rounded border-slate-300 text-[#5955D1] focus:ring-0 w-4 h-4 cursor-pointer"
+                className="rounded border-slate-300 text-[#c59b27] focus:ring-0 w-4 h-4 cursor-pointer"
               />
               <span className="text-xs font-bold text-[#1c274c]">
                 Feature on Public Homepage Carousel

@@ -384,7 +384,7 @@ export default function CmsManager({
               {blogs.length}
             </div>
             <div className="text-[11.5px] text-slate-500 mt-1 font-medium flex items-center gap-1.5">
-              <Link href="/blogs" target="_blank" className="text-[#5955D1] font-bold hover:underline flex items-center gap-1">
+              <Link href="/blogs" target="_blank" className="text-[#c59b27] font-bold hover:underline flex items-center gap-1">
                 <span>View live articles</span>
                 <ExternalLink className="w-3 h-3" />
               </Link>
@@ -409,7 +409,7 @@ export default function CmsManager({
               {leadCount}
             </div>
             <div className="text-[11.5px] text-slate-500 mt-1 font-medium">
-              <Link href="/admin/bookings" className="text-[#5955D1] font-bold hover:underline flex items-center gap-1">
+              <Link href="/admin/bookings" className="text-[#c59b27] font-bold hover:underline flex items-center gap-1">
                 <span>Manage inquiries in Bookings</span>
                 <ArrowRight className="w-3 h-3" />
               </Link>
@@ -418,7 +418,7 @@ export default function CmsManager({
         </div>
 
         <div
-          className="bg-gradient-to-br from-[#1c274c] to-[#1e293b] text-white border border-[#5955D1]/30 p-5 shadow-[0_4px_20px_rgba(0,0,0,0.15)] transition-all duration-200 flex flex-col justify-between"
+          className="bg-gradient-to-br from-[#1c274c] to-[#1e293b] text-white border border-[#c59b27]/30 p-5 shadow-[0_4px_20px_rgba(0,0,0,0.15)] transition-all duration-200 flex flex-col justify-between"
           style={{ borderRadius: "20px" }}
         >
           <div className="flex items-center justify-between">
@@ -426,7 +426,7 @@ export default function CmsManager({
               <Sparkles className="w-3.5 h-3.5" />
               <span>CMS Architecture</span>
             </span>
-            <span className="px-2 py-0.5 rounded-full text-[9.5px] font-mono font-bold bg-[#5955D1]/25 text-[#f7d58b] border border-[#5955D1]/40">
+            <span className="px-2 py-0.5 rounded-full text-[9.5px] font-mono font-bold bg-[#c59b27]/25 text-[#f7d58b] border border-[#c59b27]/40">
               v2.4 Ready
             </span>
           </div>
@@ -569,8 +569,11 @@ export default function CmsManager({
             <div className="relative flex-1 max-w-md">
               <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
               <input
+                id="admin-search-faqs"
+                name="admin-search-faqs"
                 type="text"
                 placeholder="Search FAQs by question, category, or answer..."
+                aria-label="Search FAQs by question, category, or answer"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="form-control form-control-sm ps-5 rounded-pill"
@@ -646,7 +649,7 @@ export default function CmsManager({
                     setSearchQuery("");
                     setSelectedCategory("all");
                   }}
-                  className="mt-4 px-4 py-1.5 rounded-full text-xs font-bold bg-[#5955D1] text-white hover:bg-[#a68019] transition-colors"
+                  className="mt-4 px-4 py-1.5 rounded-full text-xs font-bold bg-[#c59b27] text-white hover:bg-[#a68019] transition-colors"
                 >
                   Reset Filters
                 </button>
@@ -758,7 +761,7 @@ export default function CmsManager({
                   <Link
                     href={`/blogs/${b.slug}`}
                     target="_blank"
-                    className="inline-flex items-center gap-1 px-3 py-1 text-xs font-bold text-[#5955D1] bg-[#5955D1]/10 hover:bg-[#5955D1]/20 transition-colors"
+                    className="inline-flex items-center gap-1 px-3 py-1 text-xs font-bold text-[#c59b27] bg-[#c59b27]/10 hover:bg-[#c59b27]/20 transition-colors"
                     
                   >
                     <span>Read Live</span>
@@ -778,7 +781,7 @@ export default function CmsManager({
         <div className="space-y-6">
           {/* CMS v2 Architecture Notification */}
           <div
-            className="p-5 bg-gradient-to-r from-amber-500/10 via-amber-400/5 to-transparent border border-[#5955D1]/30 flex flex-col md:flex-row items-start md:items-center justify-between gap-4"
+            className="p-5 bg-gradient-to-r from-amber-500/10 via-amber-400/5 to-transparent border border-[#c59b27]/30 flex flex-col md:flex-row items-start md:items-center justify-between gap-4"
             style={{ borderRadius: "20px" }}
           >
             <div className="flex items-start gap-3">
@@ -833,7 +836,7 @@ export default function CmsManager({
                     type="checkbox"
                     checked={promoBarActive}
                     onChange={(e) => setPromoBarActive(e.target.checked)}
-                    className="rounded border-slate-300 text-[#5955D1] focus:ring-0 w-4 h-4 cursor-pointer"
+                    className="rounded border-slate-300 text-[#c59b27] focus:ring-0 w-4 h-4 cursor-pointer"
                   />
                   <span className="text-xs font-bold text-[#1c274c]">
                     {promoBarActive ? "Active / Visible" : "Hidden"}
@@ -850,7 +853,7 @@ export default function CmsManager({
                   value={promoBarText}
                   onChange={(e) => setPromoBarText(e.target.value)}
                   placeholder="e.g. Free White-Glove Handover on bookings above 3 days..."
-                  className="w-full h-[40px] px-4 rounded-xl border border-slate-300 text-xs text-[#1c274c] focus:outline-none focus:border-[#5955D1] focus:ring-2 focus:ring-[#5955D1]/20"
+                  className="w-full h-[40px] px-4 rounded-xl border border-slate-300 text-xs text-[#1c274c] focus:outline-none focus:border-[#c59b27] focus:ring-2 focus:ring-[#c59b27]/20"
                 />
 
                 {/* Live Preview Box */}
@@ -888,7 +891,7 @@ export default function CmsManager({
                     value={heroTitle}
                     onChange={(e) => setHeroTitle(e.target.value)}
                     placeholder="Drive Exceptional. Luxury Self-Drive Rentals in Delhi NCR & Lucknow."
-                    className="w-full h-[40px] px-4 rounded-xl border border-slate-300 text-xs text-[#1c274c] focus:outline-none focus:border-[#5955D1] focus:ring-2 focus:ring-[#5955D1]/20"
+                    className="w-full h-[40px] px-4 rounded-xl border border-slate-300 text-xs text-[#1c274c] focus:outline-none focus:border-[#c59b27] focus:ring-2 focus:ring-[#c59b27]/20"
                   />
                 </div>
 
@@ -900,7 +903,7 @@ export default function CmsManager({
                     rows={2}
                     value={heroBannerText}
                     onChange={(e) => setHeroBannerText(e.target.value)}
-                    className="w-full p-3 rounded-xl border border-slate-300 text-xs text-[#1c274c] focus:outline-none focus:border-[#5955D1] focus:ring-2 focus:ring-[#5955D1]/20 leading-relaxed"
+                    className="w-full p-3 rounded-xl border border-slate-300 text-xs text-[#1c274c] focus:outline-none focus:border-[#c59b27] focus:ring-2 focus:ring-[#c59b27]/20 leading-relaxed"
                   />
                 </div>
               </div>
@@ -1087,7 +1090,7 @@ export default function CmsManager({
                     onClick={() => setNewFaq({ ...newFaq, category: cat })}
                     className={`px-2.5 py-1 text-[11px] font-medium rounded-lg border transition-all cursor-pointer ${
                       isSelected
-                        ? "bg-[#eeedfc] text-[#b0871d] border-[#5955D1]/60 font-semibold shadow-sm"
+                        ? "bg-[#fdfaf2] text-[#b0871d] border-[#c59b27]/60 font-semibold shadow-sm"
                         : "bg-slate-50 text-slate-600 border-[#e8edf2] hover:bg-slate-100 hover:text-slate-900"
                     }`}
                   >
@@ -1132,12 +1135,12 @@ export default function CmsManager({
           {(newFaq.question || newFaq.answer) && (
             <div className="pt-2">
               <label className="block text-xs font-bold text-slate-700 mb-1.5 flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-[#5955D1]" />
+                <Sparkles className="w-3.5 h-3.5 text-[#c59b27]" />
                 Live Customer Card Preview
               </label>
               <div className="p-4 rounded-xl bg-slate-50 border border-[#e8edf2] text-xs space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#eeedfc] text-[#b0871d] border border-[#5955D1]/30">
+                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#fdfaf2] text-[#b0871d] border border-[#c59b27]/30">
                     {newFaq.category}
                   </span>
                   <span className="text-[10px] text-emerald-600 font-semibold flex items-center gap-1">

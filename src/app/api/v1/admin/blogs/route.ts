@@ -7,13 +7,23 @@ export async function GET(req: NextRequest) {
   try {
     await requireAdminPermission(ADMIN_PERMISSIONS.CONTENT_MANAGE);
 
-    const blogs = await prisma.blog.findMany({
-      where: { deleted_at: null },
-      include: { category: true },
-      orderBy: { published_at: "desc" },
-    });
+    const { searchParams } = new URL(req.url);
+    const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
+    const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") || "20", 10)));
+    const skip = (page - 1) * limit;
 
-    return apiSuccess(blogs, "Admin blogs retrieved.");
+    const [blogs, total] = await Promise.all([
+      prisma.blog.findMany({
+        where: { deleted_at: null },
+        include: { category: true },
+        orderBy: { published_at: "desc" },
+        take: limit,
+        skip,
+      }),
+      prisma.blog.count({ where: { deleted_at: null } }),
+    ]);
+
+    return apiSuccess({ blogs, pagination: { total, page, limit, pages: Math.ceil(total / limit) } }, "Admin blogs retrieved.");
   } catch (error: any) {
     if (error.message?.includes("Unauthorized") || error.message?.includes("Forbidden")) {
       return apiError(error.message, 403);

@@ -22,7 +22,7 @@ export default function SlideToast() {
         const icons = {
           success: <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />,
           error: <AlertCircle className="w-5 h-5 text-red-500 shrink-0" />,
-          warning: <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0" />,
+          warning: <AlertTriangle className="w-5 h-5 text-amber-700 shrink-0" />,
           info: <Info className="w-5 h-5 text-blue-500 shrink-0" />,
         };
 
@@ -37,7 +37,7 @@ export default function SlideToast() {
             </div>
             <button
               onClick={() => removeToast(toast.id)}
-              className="ml-3 text-slate-400 hover:text-slate-700 transition-colors"
+              className="ml-3 text-slate-500 hover:text-slate-800 transition-colors"
             >
               <X className="w-4 h-4" />
             </button>

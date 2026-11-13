@@ -17,23 +17,33 @@ export async function GET(req: NextRequest) {
       return apiError("Forbidden: You lack admins.manage permission.", 403);
     }
 
-    const staffList = await prisma.adminUser.findMany({
-      where: { deleted_at: null },
-      select: {
-        id: true,
-        username: true,
-        email: true,
-        name: true,
-        role: true,
-        permissions: true,
-        is_active: true,
-        created_at: true,
-        updated_at: true,
-      },
-      orderBy: { created_at: "desc" },
-    });
+    const { searchParams } = new URL(req.url);
+    const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
+    const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") || "20", 10)));
+    const skip = (page - 1) * limit;
 
-    return apiSuccess(staffList, "Staff accounts retrieved successfully.");
+    const [staffList, total] = await Promise.all([
+      prisma.adminUser.findMany({
+        where: { deleted_at: null },
+        select: {
+          id: true,
+          username: true,
+          email: true,
+          name: true,
+          role: true,
+          permissions: true,
+          is_active: true,
+          created_at: true,
+          updated_at: true,
+        },
+        orderBy: { created_at: "desc" },
+        take: limit,
+        skip,
+      }),
+      prisma.adminUser.count({ where: { deleted_at: null } }),
+    ]);
+
+    return apiSuccess({ staffList, pagination: { total, page, limit, pages: Math.ceil(total / limit) } }, "Staff accounts retrieved successfully.");
   } catch (err: any) {
     return apiError(err.message || "Failed to fetch staff accounts", 500);
   }

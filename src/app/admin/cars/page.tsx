@@ -3,11 +3,19 @@ import { prisma } from "@/server/db/client";
 import { getCurrentAdmin, hasAdminPermission, ADMIN_PERMISSIONS } from "@/server/auth/rbac";
 import ForbiddenCard from "@/components/admin/ForbiddenCard";
 import FleetManager from "@/components/admin/FleetManager";
+import { PageContainer } from "@/components/admin/ui";
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export default async function AdminCarsPage() {
   const admin = await getCurrentAdmin();
   if (!admin || !hasAdminPermission(admin, ADMIN_PERMISSIONS.FLEET_MANAGE)) {
-    return <ForbiddenCard permissionRequired="fleet.manage" moduleName="Fleet & Luxury Vehicles" />;
+    return (
+      <PageContainer>
+        <ForbiddenCard permissionRequired="fleet.manage" moduleName="Fleet & Luxury Vehicles" />
+      </PageContainer>
+    );
   }
 
   const [cars, categories, locations] = await Promise.all([

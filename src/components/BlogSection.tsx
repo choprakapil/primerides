@@ -2,9 +2,14 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { BLOG_POSTS } from "@/data/blogs";
+import { BLOG_POSTS, BlogPost } from "@/data/blogs";
 
-export default function BlogSection() {
+export interface BlogSectionProps {
+  blogs?: BlogPost[];
+}
+
+export default function BlogSection({ blogs }: BlogSectionProps = {}) {
+  const posts = blogs && blogs.length > 0 ? blogs : BLOG_POSTS;
   const [currentIndex, setCurrentIndex] = useState(0);
   const [visibleCount, setVisibleCount] = useState(3);
   const [isPaused, setIsPaused] = useState(false);
@@ -26,7 +31,7 @@ export default function BlogSection() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const maxIndex = Math.max(0, BLOG_POSTS.length - visibleCount);
+  const maxIndex = Math.max(0, posts.length - visibleCount);
 
   useEffect(() => {
     if (isPaused || maxIndex === 0) return;
@@ -150,7 +155,7 @@ export default function BlogSection() {
               willChange: "transform",
             }}
           >
-            {BLOG_POSTS.map((b, idx) => (
+            {posts.map((b, idx) => (
               <div
                 key={idx}
                 className="flex-shrink-0"
@@ -169,7 +174,7 @@ export default function BlogSection() {
                   <div className="position-relative overflow-hidden" style={{ height: "220px" }}>
                     <img
                       src={b.img}
-                      alt={b.title}
+                      alt={b.title || "PrimeRides Travel Editorial"}
                       className="w-100 h-100"
                       style={{ objectFit: "cover", transition: "transform 0.5s ease" }}
                     />

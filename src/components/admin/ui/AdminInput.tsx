@@ -94,22 +94,22 @@ export const AdminInput = React.forwardRef<HTMLInputElement, AdminInputProps>(
         helperText={helperText}
       >
         <div
-          className={`flex items-center h-10 rounded-xl border bg-white overflow-hidden transition-all duration-150 ${
-            disabled ? "bg-slate-50 opacity-60 cursor-not-allowed" : ""
+          className={`flex items-center h-9.5 rounded-xl border bg-slate-50 hover:bg-slate-100/70 focus-within:bg-white overflow-hidden transition-all duration-150 ${
+            disabled ? "bg-slate-100 opacity-60 cursor-not-allowed" : ""
           } ${
             error
-              ? "border-red-300 focus-within:border-red-500 focus-within:ring-2 focus-within:ring-red-400/20"
+              ? "border-red-400 focus-within:border-red-500 focus-within:ring-2 focus-within:ring-red-400/20"
               : success
-              ? "border-emerald-300 focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-400/20"
-              : "border-[#e8edf2] focus-within:border-[#5955D1] focus-within:ring-2 focus-within:ring-[#5955D1]/20 shadow-sm"
+              ? "border-emerald-400 focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-400/20"
+              : "border-slate-400 hover:border-slate-500 focus-within:border-[#c59b27] focus-within:ring-2 focus-within:ring-[#c59b27]/25 shadow-2xs"
           }`}
         >
           {prefixAddon ? (
-            <span className="h-full px-3.5 bg-slate-50 border-r border-[#e8edf2] text-xs sm:text-[13px] font-bold text-[#5955D1] flex items-center justify-center shrink-0 select-none">
+            <span className="h-full px-3.5 bg-slate-100 border-r border-slate-300 text-xs sm:text-[13px] font-bold text-[#c59b27] flex items-center justify-center shrink-0 select-none">
               {prefixAddon}
             </span>
           ) : icon ? (
-            <span className="h-full px-3 bg-slate-50/80 border-r border-[#e8edf2] text-slate-500 flex items-center justify-center shrink-0 select-none">
+            <span className="h-full px-3 bg-slate-100 border-r border-slate-300 text-slate-500 flex items-center justify-center shrink-0 select-none">
               {icon}
             </span>
           ) : null}
@@ -123,7 +123,7 @@ export const AdminInput = React.forwardRef<HTMLInputElement, AdminInputProps>(
           />
 
           {suffixAddon && (
-            <span className="h-full px-3 bg-slate-50 border-l border-[#e8edf2] text-xs font-semibold text-slate-500 flex items-center justify-center shrink-0 select-none">
+            <span className="h-full px-3 bg-slate-100 border-l border-slate-300 text-xs font-semibold text-slate-500 flex items-center justify-center shrink-0 select-none">
               {suffixAddon}
             </span>
           )}
@@ -156,12 +156,12 @@ export const AdminSelect = React.forwardRef<HTMLSelectElement, AdminSelectProps>
         helperText={helperText}
       >
         <div
-          className={`flex items-center h-10 rounded-xl border bg-white overflow-hidden transition-all duration-150 ${
-            disabled ? "bg-slate-50 opacity-60 cursor-not-allowed" : ""
+          className={`flex items-center h-9.5 rounded-xl border bg-slate-50 hover:bg-slate-100/70 focus-within:bg-white overflow-hidden transition-all duration-150 ${
+            disabled ? "bg-slate-100 opacity-60 cursor-not-allowed" : ""
           } ${
             error
-              ? "border-red-300 focus-within:border-red-500 focus-within:ring-2 focus-within:ring-red-400/20"
-              : "border-[#e8edf2] focus-within:border-[#5955D1] focus-within:ring-2 focus-within:ring-[#5955D1]/20 shadow-sm"
+              ? "border-red-400 focus-within:border-red-500 focus-within:ring-2 focus-within:ring-red-400/20"
+              : "border-slate-400 hover:border-slate-500 focus-within:border-[#c59b27] focus-within:ring-2 focus-within:ring-[#c59b27]/25 shadow-2xs"
           }`}
         >
           <select
@@ -201,12 +201,12 @@ export const AdminTextarea = React.forwardRef<HTMLTextAreaElement, AdminTextarea
         helperText={helperText}
       >
         <div
-          className={`p-2.5 rounded-md border bg-white transition-all duration-150 ${
-            disabled ? "bg-slate-50 opacity-60 cursor-not-allowed" : ""
+          className={`p-2.5 rounded-xl border bg-slate-50 hover:bg-slate-100/70 focus-within:bg-white transition-all duration-150 ${
+            disabled ? "bg-slate-100 opacity-60 cursor-not-allowed" : ""
           } ${
             error
-              ? "border-red-300 focus-within:border-red-500 focus-within:ring-1 focus-within:ring-red-400"
-              : "border-[#e8edf2] focus-within:border-[#5955D1] focus-within:ring-1 focus-within:ring-[#5955D1]"
+              ? "border-red-400 focus-within:border-red-500 focus-within:ring-1 focus-within:ring-red-400"
+              : "border-slate-400 hover:border-slate-500 focus-within:border-[#c59b27] focus-within:ring-2 focus-within:ring-[#c59b27]/25 shadow-2xs"
           }`}
         >
           <textarea
@@ -242,11 +242,11 @@ export const AdminCheckbox = React.forwardRef<HTMLInputElement, AdminCheckboxPro
           ref={ref}
           id={checkboxId}
           type="checkbox"
-          className="mt-0.5 h-4 w-4 rounded border-[#e8edf2] text-[#5955D1] focus:ring-[#5955D1] cursor-pointer"
+          className="mt-0.5 h-4 w-4 rounded border-[#e8edf2] text-[#c59b27] focus:ring-[#c59b27] cursor-pointer"
           {...props}
         />
         <div className="text-xs">
-          <span className="font-semibold text-[#1c274c] group-hover:text-[#5955D1] transition-colors">
+          <span className="font-semibold text-[#1c274c] group-hover:text-[#c59b27] transition-colors">
             {label}
           </span>
           {description && (

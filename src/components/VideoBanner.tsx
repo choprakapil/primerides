@@ -2,8 +2,13 @@
 
 import React, { useState } from "react";
 
-export default function VideoBanner() {
+interface VideoBannerProps {
+  videoUrl?: string;
+}
+
+export default function VideoBanner({ videoUrl }: VideoBannerProps) {
   const [showVideo, setShowVideo] = useState(false);
+  const activeVideo = videoUrl || "https://www.youtube-nocookie.com/embed/L_LUpnjgPso?autoplay=1";
 
   return (
     <>
@@ -85,8 +90,8 @@ export default function VideoBanner() {
               <div className="modal-body p-0">
                 <div className="ratio ratio-16x9 rounded-4 overflow-hidden shadow-2xl">
                   <iframe
-                    src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1"
-                    title="Primerides Self Drive Experience"
+                    src={activeVideo}
+                    title="PrimeRides Self Drive Experience"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowFullScreen
                   ></iframe>

@@ -24,12 +24,10 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json().catch(() => ({}));
-    const {
-      bookingId,
-      razorpay_order_id,
-      razorpay_payment_id,
-      razorpay_signature,
-    } = body;
+    const bookingId = body.bookingId;
+    const razorpay_order_id = body.razorpay_order_id || body.razorpayOrderId;
+    const razorpay_payment_id = body.razorpay_payment_id || body.razorpayPaymentId;
+    const razorpay_signature = body.razorpay_signature || body.razorpaySignature;
 
     if (!bookingId || !razorpay_order_id || !razorpay_payment_id) {
       return apiError("Missing required payment verification fields.", 400);

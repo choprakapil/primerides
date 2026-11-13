@@ -30,13 +30,15 @@ export async function hasVerifiedDrivingLicense(customerId: number): Promise<boo
 /**
  * Retrieves all documents for a customer with signed private URLs.
  */
-export async function getCustomerDocumentsWithSignedUrls(customerId: number) {
+export async function getCustomerDocumentsWithSignedUrls(customerId: number, limit = 20, skip = 0) {
   const docs = await prisma.identityDocument.findMany({
     where: {
       customer_id: customerId,
       deleted_at: null,
     },
     orderBy: { created_at: "desc" },
+    take: limit,
+    skip,
   });
 
   return docs.map((doc) => ({
@@ -48,7 +50,7 @@ export async function getCustomerDocumentsWithSignedUrls(customerId: number) {
 /**
  * Retrieves documents for Admin review with signed URLs and customer metadata.
  */
-export async function getAdminDocumentsWithSignedUrls(statusFilter?: string, customerId?: number) {
+export async function getAdminDocumentsWithSignedUrls(statusFilter?: string, customerId?: number, limit = 50, skip = 0) {
   const whereClause: any = { deleted_at: null };
   if (statusFilter && statusFilter !== "all") {
     whereClause.status = statusFilter;
@@ -71,6 +73,8 @@ export async function getAdminDocumentsWithSignedUrls(statusFilter?: string, cus
       },
     },
     orderBy: { created_at: "desc" },
+    take: limit,
+    skip,
   });
 
   return docs.map((doc) => ({

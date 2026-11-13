@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/server/db/client";
 import { getCurrentCustomer } from "@/server/auth/customer";
-import { savePrivateDocument } from "@/server/storage";
+import { savePrivateDocument, deletePrivateDocument } from "@/server/storage";
 import { getCustomerDocumentsWithSignedUrls, ALLOWED_DOC_TYPES } from "@/server/kyc";
 import { apiError, apiSuccess, apiCreated, apiUnauthorized } from "@/server/utils/api-response";
 import { uploadRateLimiter } from "@/lib/rateLimit";
@@ -12,7 +12,7 @@ import { uploadRateLimiter } from "@/lib/rateLimit";
  */
 export async function GET(req: NextRequest) {
   try {
-    const customer = await getCurrentCustomer();
+    const customer = await getCurrentCustomer(req);
     if (!customer) return apiUnauthorized("Please sign in to view documents.");
 
     const documents = await getCustomerDocumentsWithSignedUrls(customer.id);
@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
   const rateLimitResult = await uploadRateLimiter(req);
   if (rateLimitResult) return rateLimitResult;
   try {
-    const customer = await getCurrentCustomer();
+    const customer = await getCurrentCustomer(req);
     if (!customer) return apiUnauthorized("Please sign in to upload documents.");
 
     let type: string | null = null;
@@ -101,6 +101,8 @@ export async function POST(req: NextRequest) {
 
     let doc;
     if (existingDoc) {
+      const oldStorageKey = existingDoc.storage_key;
+
       doc = await prisma.identityDocument.update({
         where: { id: existingDoc.id },
         data: {
@@ -114,6 +116,13 @@ export async function POST(req: NextRequest) {
           verified_by: null,
         },
       });
+
+      // Prune orphaned previous file from storage (e.g. previously rejected or replaced document)
+      if (oldStorageKey && oldStorageKey !== saveResult.storageKey) {
+        await deletePrivateDocument(oldStorageKey).catch((delErr) => {
+          console.warn("[Documents] Could not prune old document file:", oldStorageKey, delErr);
+        });
+      }
     } else {
       doc = await prisma.identityDocument.create({
         data: {

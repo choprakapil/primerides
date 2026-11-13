@@ -74,7 +74,7 @@ export default function Footer() {
               <Link href="/" className="d-inline-block mb-4">
                 <img
                   src="/assets/img/PRLogo.png"
-                  alt="Primerides"
+                  alt="PrimeRides Luxury Self-Drive Rentals Logo"
                   style={{ maxHeight: "48px", filter: "brightness(0) invert(1)" }}
                 />
               </Link>
@@ -164,23 +164,28 @@ export default function Footer() {
               <h4>Fleet Categories</h4>
               <ul className="footer-links list-unstyled">
                 <li>
-                  <Link href="/cars?filter=hatchback">
+                  <Link href="/cars?category=hatchback">
                     <i className="fa-solid fa-chevron-right" style={{ fontSize: "10px" }}></i> Economy Hatchbacks
                   </Link>
                 </li>
                 <li>
-                  <Link href="/cars?filter=compact-suv">
+                  <Link href="/cars?category=compact-suv">
                     <i className="fa-solid fa-chevron-right" style={{ fontSize: "10px" }}></i> Compact Urban SUVs
                   </Link>
                 </li>
                 <li>
-                  <Link href="/cars?filter=adventure">
+                  <Link href="/cars?category=adventure">
                     <i className="fa-solid fa-chevron-right" style={{ fontSize: "10px" }}></i> Adventure 4x4 Thar
                   </Link>
                 </li>
                 <li>
-                  <Link href="/cars?filter=suv">
+                  <Link href="/cars?category=suv">
                     <i className="fa-solid fa-chevron-right" style={{ fontSize: "10px" }}></i> 7-Seater Innova / Fortuner
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/cars?category=luxury">
+                    <i className="fa-solid fa-chevron-right" style={{ fontSize: "10px" }}></i> Luxury Sedans
                   </Link>
                 </li>
               </ul>

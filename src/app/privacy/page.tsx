@@ -1,205 +1,218 @@
-import type { Metadata } from "next";
+import React from "react";
 import Link from "next/link";
+import PageHeader from "@/components/PageHeader";
+import { getPageMeta } from "@/server/seo";
 
-export const metadata: Metadata = {
-  title: "Privacy Policy — PrimeRides Self Drive",
-  description:
-    "PrimeRides privacy policy: how we collect, use, store, and protect your personal data including name, phone, ID documents, and payment information.",
-};
+export async function generateMetadata() {
+  const customMeta = await getPageMeta("/privacy");
+  return {
+    title: customMeta?.meta_title || "Privacy Policy — PrimeRides Data Protection",
+    description:
+      customMeta?.meta_description ||
+      "PrimeRides privacy policy: how we collect, use, store, and protect your personal data including name, phone, ID documents, and payment information.",
+    keywords: customMeta?.meta_keywords ? customMeta.meta_keywords.split(",") : undefined,
+    openGraph: {
+      title: customMeta?.og_title || customMeta?.meta_title || "Privacy Policy — PrimeRides",
+      description: customMeta?.og_description || customMeta?.meta_description || "",
+      images: customMeta?.og_image ? [customMeta.og_image] : undefined,
+    },
+  };
+}
 
-const sections = [
+const PRIVACY_SECTIONS = [
   {
     id: "data-collected",
     title: "1. Data We Collect",
     content: [
-      "Account information: full name, email address, mobile number, and password (stored as a secure hash — never in plain text).",
-      "Identity documents: driving licence (front and back), Aadhaar card, and passport — collected only for KYC verification before vehicle handover.",
-      "Booking data: dates, vehicle preferences, pickup/drop locations, KM packages selected, payment amounts, and booking codes.",
-      "Payment information: transaction references and payment gateway confirmation IDs. We do not store full card numbers or CVV.",
-      "Device & usage data: IP address, browser type, and pages visited — used for security, analytics, and fraud prevention.",
+      "Account information: full name, email address, mobile number, and password (stored as a secure salted hash — never in plain text).",
+      "Identity documents: driving licence (front and back), Aadhaar card, or passport — collected solely for KYC verification prior to vehicle dispatch.",
+      "Booking data: rental dates, vehicle category, pickup/drop locations, KM packages selected, and transaction payment IDs.",
+      "Payment safety: We partner with RBI-licensed payment gateways (e.g. Razorpay). PrimeRides never stores credit/debit card numbers or CVV codes.",
+      "Device & telemetry data: IP address, device model, and crash logs — strictly utilized for fraud prevention and service stability.",
     ],
   },
   {
     id: "use-of-data",
     title: "2. How We Use Your Data",
     content: [
-      "To process and manage your reservations and rental agreements.",
-      "To verify your identity and driving eligibility before vehicle handover (KYC gate).",
-      "To send booking confirmations, status updates, and operational alerts via SMS/WhatsApp/email.",
-      "To prevent fraud, investigate disputes, and enforce our Terms & Conditions.",
-      "To improve our fleet, pricing, and customer experience through aggregated (anonymised) analytics.",
-      "We do NOT sell your personal data to third parties. Ever.",
+      "To process, execute, and verify your self-drive vehicle reservation.",
+      "To perform identity validation and ensure driver eligibility prior to vehicle handover.",
+      "To dispatch real-time booking vouchers, vehicle status updates, and emergency roadside alerts via SMS and WhatsApp.",
+      "To prevent unauthorized vehicle use, investigate damage disputes, and enforce traffic compliance.",
+      "We strictly adhere to a zero-spam policy: We NEVER sell or broker personal contact information to third-party advertisers.",
     ],
   },
   {
     id: "data-sharing",
-    title: "3. Data Sharing",
+    title: "3. Authorized Data Sharing",
     content: [
-      "Payment processors (e.g., Razorpay): we share booking amount and customer reference to initiate and verify payments.",
-      "SMS/WhatsApp gateways: we share your phone number to deliver booking notifications.",
-      "Legal authorities: we may disclose data if required by court order, law enforcement, or to protect the safety of others.",
-      "We do not share your data with advertisers, data brokers, or any other commercial third parties.",
+      "Payment Gateways: Customer identification and booking sums are shared securely with encrypted payment gateways.",
+      "SMS & Communication Gateways: Mobile numbers are transmitted to licensed telecom aggregators solely for transactional alert delivery.",
+      "Law Enforcement: Records may be disclosed when required by court orders, statutory regulations, or to report vehicle theft.",
+      "No Commercial Third Parties: We do not license or disclose customer profiles to marketing agencies.",
     ],
   },
   {
     id: "data-retention",
-    title: "4. Data Retention",
+    title: "4. Data Retention & Safeguards",
     content: [
-      "Account data is retained for as long as your account is active or until you request deletion.",
-      "KYC documents are retained for 3 years after your last trip to comply with Indian regulatory requirements.",
-      "Booking and financial records are retained for 7 years for tax and audit compliance.",
-      "You may request deletion of your personal data by contacting info@primerides.in. Legally required retention periods may prevent full deletion.",
+      "Customer account profiles remain active until deletion is requested by the registered account owner.",
+      "KYC documentation is retained in compliance with Indian regulatory and transport authority guidelines.",
+      "Financial and booking transaction records are maintained for statutory audit and tax filing compliance.",
+      "You may request deletion of discretionary personal data by writing to privacy@primerides.in.",
     ],
   },
   {
     id: "data-security",
-    title: "5. Data Security",
+    title: "5. Security Infrastructure",
     content: [
-      "Passwords are hashed using Argon2id — a memory-hard cryptographic algorithm. We cannot reverse your password.",
-      "All data is transmitted over HTTPS (TLS 1.2+). We do not transmit personal data over unencrypted connections.",
-      "Access to customer data is restricted to authorised PrimeRides staff with role-based permissions and full audit logging.",
-      "Identity documents are stored with access controls. Staff can only view documents they are authorised to review.",
+      "All web and mobile sessions are encrypted end-to-end via TLS 1.3 cryptographic protocols.",
+      "Customer credentials and tokens are secured using industry-standard hashing algorithms.",
+      "Access to administrative portals requires verified multi-factor staff authentication and audit logging.",
+      "Curbside vehicle condition inspection media is archived in access-controlled cloud repositories.",
     ],
   },
   {
     id: "your-rights",
-    title: "6. Your Rights",
+    title: "6. Your Privacy Rights",
     content: [
-      "Access: You may request a copy of the personal data we hold about you.",
-      "Correction: You may update your profile information directly from your account dashboard.",
-      "Deletion: You may request account deletion by contacting us at info@primerides.in.",
-      "Objection: You may object to specific uses of your data (e.g., marketing communications) by contacting us.",
-      "We will respond to all data requests within 30 days.",
-    ],
-  },
-  {
-    id: "cookies",
-    title: "7. Cookies & Session Data",
-    content: [
-      "We use HTTP-only, Secure, SameSite=Lax session cookies to keep you logged in. These cookies cannot be accessed by client-side JavaScript.",
-      "We use no third-party advertising cookies or cross-site tracking cookies.",
-      "You can disable cookies in your browser settings, but this will prevent you from logging into your account.",
-    ],
-  },
-  {
-    id: "changes",
-    title: "8. Changes to This Policy",
-    content: [
-      "We may update this privacy policy from time to time. Changes will be posted on this page with an updated revision date.",
-      "Continued use of PrimeRides services after changes constitutes acceptance of the updated policy.",
-      "For material changes, we will notify you via email or an in-app notification.",
+      "Access & Correction: You may review and update your profile details anytime via your PrimeRides customer dashboard.",
+      "Data Portability: You may request an export of your historical reservation records.",
+      "Consent Withdrawal: You may opt out of promotional communications with a single tap or email request.",
+      "Our compliance grievance desk responds to all formal privacy inquiries within 48 business hours.",
     ],
   },
 ];
 
-export default function PrivacyPage() {
+export default async function PrivacyPage() {
   return (
-    <main className="min-h-screen bg-[#f8f9fc]">
-      {/* Hero */}
-      <section
-        className="py-16 md:py-20"
-        style={{
-          background: "linear-gradient(135deg, #090e1a 0%, #131b2e 60%, #1a2540 100%)",
-        }}
-      >
-        <div className="container mx-auto px-4 max-w-4xl text-center">
-          <span className="inline-block px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest text-amber-400 bg-amber-400/10 border border-amber-400/30 mb-5">
-            Legal
-          </span>
-          <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-4 tracking-tight">
-            Privacy Policy
-          </h1>
-          <p className="text-slate-400 text-sm max-w-xl mx-auto leading-relaxed">
-            We take your privacy seriously. This policy explains how PrimeRides collects, uses, and protects your personal information.
-          </p>
-          <p className="text-slate-500 text-xs mt-4">Last updated: September 2026</p>
-        </div>
-      </section>
+    <>
+      <PageHeader
+        title="Privacy Policy"
+        subtitle="Data Protection & Security"
+        breadcrumb="Privacy"
+        bgImage="/assets/img/slider/1.jpg"
+      />
 
-      {/* Content */}
-      <section className="py-12 md:py-16">
-        <div className="container mx-auto px-4 max-w-4xl">
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            {/* Table of Contents */}
-            <aside className="hidden lg:block">
-              <div className="sticky top-6 bg-white rounded-2xl border border-slate-200/80 p-4 shadow-sm">
-                <p className="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-3">Sections</p>
-                <nav className="space-y-1">
-                  {sections.map((s) => (
+      <section className="section-padding bg-light">
+        <div className="container">
+          <div className="row g-4">
+            {/* Table of Contents Sticky Sidebar */}
+            <div className="col-lg-4">
+              <div
+                className="bg-white p-4 rounded-4 shadow-sm position-sticky"
+                style={{ top: "100px", border: "1px solid var(--border-color, #e2e8f0)" }}
+              >
+                <div className="d-flex align-items-center gap-2 mb-3 pb-2 border-bottom">
+                  <i className="fa-solid fa-shield-halved" style={{ color: "var(--primary-color, #c59b27)" }}></i>
+                  <h6 className="fw-bold mb-0 text-dark">Privacy Sections</h6>
+                </div>
+                <nav className="d-flex flex-column gap-2">
+                  {PRIVACY_SECTIONS.map((s) => (
                     <a
                       key={s.id}
                       href={`#${s.id}`}
-                      className="block text-xs text-slate-600 hover:text-amber-600 transition-colors py-1"
+                      className="text-decoration-none text-secondary fs-14 py-1 d-flex align-items-center justify-content-between hover-gold"
                     >
-                      {s.title}
+                      <span>{s.title}</span>
+                      <i className="fa-solid fa-chevron-right fs-12 text-muted"></i>
                     </a>
                   ))}
                 </nav>
-              </div>
-            </aside>
 
-            {/* Main Content */}
-            <div className="lg:col-span-3 space-y-8">
-              {/* Commitment banner */}
-              <div className="flex items-start gap-4 p-5 bg-emerald-50 border border-emerald-200 rounded-2xl">
-                <div className="w-10 h-10 rounded-xl bg-emerald-100 border border-emerald-200 flex items-center justify-center shrink-0">
-                  <svg className="w-5 h-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.955 11.955 0 013 10c0 5.592 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.572-.598-3.75h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
-                  </svg>
+                <div className="mt-4 pt-3 border-top">
+                  <div className="d-flex align-items-center gap-2 text-muted fs-13 mb-2">
+                    <i className="fa-solid fa-clock text-warning"></i>
+                    <span>Updated: September 2026</span>
+                  </div>
+                  <Link href="/terms" className="btn btn-outline-dark btn-sm w-100 rounded-pill mt-2">
+                    View Terms &amp; Conditions &rarr;
+                  </Link>
+                </div>
+              </div>
+            </div>
+
+            {/* Main Privacy Content */}
+            <div className="col-lg-8">
+              {/* Commitment Banner */}
+              <div
+                className="p-4 rounded-4 shadow-sm mb-4 d-flex align-items-start gap-3"
+                style={{ background: "#ecfdf5", border: "1px solid #a7f3d0" }}
+              >
+                <div
+                  className="rounded-circle d-flex align-items-center justify-content-center shrink-0"
+                  style={{ width: "42px", height: "42px", background: "#d1fae5", color: "#059669", fontSize: "18px" }}
+                >
+                  <i className="fa-solid fa-lock"></i>
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-emerald-800">Our Privacy Commitment</p>
-                  <p className="text-xs text-emerald-700 mt-1 leading-relaxed">
-                    PrimeRides never sells your personal data. We collect only what is necessary to provide safe, reliable, and legal vehicle rentals. Your data stays with us.
+                  <h6 className="fw-bold text-success mb-1">Our Privacy Commitment</h6>
+                  <p className="text-secondary fs-14 mb-0" style={{ color: "#065f46" }}>
+                    PrimeRides never sells your personal data. We collect only what is strictly necessary to provide safe, verified, and legal vehicle mobility services across Delhi NCR and Lucknow.
                   </p>
                 </div>
               </div>
 
-              {sections.map((section) => (
-                <div
-                  key={section.id}
-                  id={section.id}
-                  className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-sm scroll-mt-6"
-                >
-                  <h2 className="text-base font-extrabold text-[#090e1a] mb-4 pb-3 border-b border-slate-100">
-                    {section.title}
-                  </h2>
-                  <ul className="space-y-3">
-                    {section.content.map((item, i) => (
-                      <li key={i} className="flex items-start gap-3 text-sm text-slate-700 leading-relaxed">
-                        <span className="w-1.5 h-1.5 rounded-full bg-amber-500 mt-2 shrink-0" />
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
+              <div className="d-flex flex-column gap-4">
+                {PRIVACY_SECTIONS.map((section) => (
+                  <div
+                    key={section.id}
+                    id={section.id}
+                    className="bg-white p-4 rounded-4 shadow-sm"
+                    style={{ border: "1px solid var(--border-color, #e2e8f0)" }}
+                  >
+                    <h5 className="fw-bold text-dark pb-2 mb-3 border-bottom d-flex align-items-center gap-2">
+                      <span
+                        className="rounded-circle d-inline-flex align-items-center justify-content-center"
+                        style={{
+                          width: "8px",
+                          height: "8px",
+                          background: "var(--primary-color, #c59b27)",
+                        }}
+                      />
+                      {section.title}
+                    </h5>
+                    <ul className="list-unstyled mb-0 d-flex flex-column gap-2">
+                      {section.content.map((item, idx) => (
+                        <li key={idx} className="d-flex align-items-start gap-2 text-secondary fs-14">
+                          <i
+                            className="fa-solid fa-check mt-1"
+                            style={{ color: "var(--primary-color, #c59b27)", fontSize: "12px" }}
+                          ></i>
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
 
-              {/* Contact */}
-              <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-sm text-center space-y-3">
-                <p className="text-sm text-slate-700">
-                  Questions about your data or this policy?
-                </p>
-                <div className="flex flex-wrap items-center justify-center gap-3">
-                  <Link
-                    href="/contact"
-                    className="inline-flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold text-white"
-                    style={{ background: "linear-gradient(135deg, #d8a834 0%, #c59b27 100%)" }}
-                  >
-                    Contact Us
-                  </Link>
-                  <Link
-                    href="/terms"
-                    className="inline-flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors"
-                  >
-                    Terms & Conditions
-                  </Link>
+                {/* Assistance Bar */}
+                <div
+                  className="p-4 rounded-4 shadow-sm text-center"
+                  style={{
+                    background: "linear-gradient(135deg, #090e1a 0%, #151e32 100%)",
+                    border: "1px solid rgba(197, 155, 39, 0.3)",
+                    color: "#fff",
+                  }}
+                >
+                  <h5 className="fw-bold mb-2">Questions Regarding Your Personal Data?</h5>
+                  <p className="text-white-50 fs-14 mb-3">
+                    Our Data Protection Officer and compliance desk are available at privacy@primerides.in.
+                  </p>
+                  <div className="d-flex justify-content-center gap-3 flex-wrap">
+                    <Link href="/contact" className="btn-prime py-2 px-4 rounded-pill fs-14 text-decoration-none">
+                      Contact Data Concierge &rarr;
+                    </Link>
+                    <Link href="/terms" className="btn btn-outline-light py-2 px-4 rounded-pill fs-14">
+                      Review Rental Terms
+                    </Link>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </section>
-    </main>
+    </>
   );
 }

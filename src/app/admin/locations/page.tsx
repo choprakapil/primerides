@@ -3,6 +3,7 @@ import { prisma } from "@/server/db/client";
 import { getCurrentAdmin, hasAdminPermission, ADMIN_PERMISSIONS } from "@/server/auth/rbac";
 import ForbiddenCard from "@/components/admin/ForbiddenCard";
 import LocationsManager from "@/components/admin/LocationsManager";
+import { PageContainer } from "@/components/admin/ui";
 
 export const dynamic = "force-dynamic";
 
@@ -17,10 +18,12 @@ export default async function AdminLocationsPage() {
     !hasAdminPermission(admin, [ADMIN_PERMISSIONS.FLEET_MANAGE, ADMIN_PERMISSIONS.BOOKINGS_VIEW])
   ) {
     return (
-      <ForbiddenCard
-        permissionRequired="fleet.manage or bookings.view"
-        moduleName="Rental Locations & Operational Hubs"
-      />
+      <PageContainer>
+        <ForbiddenCard
+          permissionRequired="fleet.manage or bookings.view"
+          moduleName="Rental Locations & Operational Hubs"
+        />
+      </PageContainer>
     );
   }
 

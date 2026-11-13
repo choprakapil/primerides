@@ -39,8 +39,32 @@ const DATA_12M: DataPoint[] = [
 export default function RevenueTrendAreaChart() {
   const [period, setPeriod] = useState<"7D" | "30D" | "12M">("7D");
   const [hoverIndex, setHoverIndex] = useState<number | null>(null);
+  const [chartData, setChartData] = useState<{
+    data7D: DataPoint[];
+    data30D: DataPoint[];
+    data12M: DataPoint[];
+  }>({
+    data7D: DATA_7D,
+    data30D: DATA_30D,
+    data12M: DATA_12M,
+  });
 
-  const activeData = period === "7D" ? DATA_7D : period === "30D" ? DATA_30D : DATA_12M;
+  React.useEffect(() => {
+    fetch("/api/v1/admin/dashboard/revenue")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((json) => {
+        if (json?.data) {
+          setChartData({
+            data7D: json.data.data7D || DATA_7D,
+            data30D: json.data.data30D || DATA_30D,
+            data12M: json.data.data12M || DATA_12M,
+          });
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const activeData = period === "7D" ? chartData.data7D : period === "30D" ? chartData.data30D : chartData.data12M;
 
   // Chart Dimensions
   const width = 600;

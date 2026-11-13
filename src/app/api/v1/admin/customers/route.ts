@@ -41,54 +41,63 @@ export async function GET(req: NextRequest) {
       ];
     }
 
-    const customers = await prisma.customerUser.findMany({
-      where: whereClause,
-      select: {
-        id: true,
-        phone: true,
-        email: true,
-        full_name: true,
-        avatar_url: true,
-        is_verified: true,
-        created_at: true,
-        updated_at: true,
-        bookings: {
-          select: {
-            id: true,
-            booking_code: true,
-            status: true,
-            start_date: true,
-            end_date: true,
-            total_amount: true,
-            created_at: true,
-            car: {
-              select: {
-                id: true,
-                brand: true,
-                name: true,
-                primary_image: true,
+    const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
+    const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") || "20", 10)));
+    const skip = (page - 1) * limit;
+
+    const [customers, total] = await Promise.all([
+      prisma.customerUser.findMany({
+        where: whereClause,
+        select: {
+          id: true,
+          phone: true,
+          email: true,
+          full_name: true,
+          avatar_url: true,
+          is_verified: true,
+          created_at: true,
+          updated_at: true,
+          bookings: {
+            select: {
+              id: true,
+              booking_code: true,
+              status: true,
+              start_date: true,
+              end_date: true,
+              total_amount: true,
+              created_at: true,
+              car: {
+                select: {
+                  id: true,
+                  brand: true,
+                  name: true,
+                  primary_image: true,
+                },
               },
             },
+            orderBy: { created_at: "desc" },
           },
-          orderBy: { created_at: "desc" },
-        },
-        documents: {
-          select: {
-            id: true,
-            type: true,
-            status: true,
-            storage_key: true,
-            mime_type: true,
-            file_name: true,
-            rejection_reason: true,
-            verified_at: true,
-            created_at: true,
+          documents: {
+            select: {
+              id: true,
+              type: true,
+              status: true,
+              storage_key: true,
+              mime_type: true,
+              file_name: true,
+              rejection_reason: true,
+              verified_at: true,
+              created_at: true,
+            },
+            orderBy: { created_at: "desc" },
           },
-          orderBy: { created_at: "desc" },
         },
-      },
-      orderBy: { created_at: "desc" },
-    });
+        orderBy: { created_at: "desc" },
+        take: limit,
+        skip,
+      }),
+      prisma.customerUser.count({ where: whereClause }),
+    ]);
 
 interface CustomerQueryResult {
   id: number;

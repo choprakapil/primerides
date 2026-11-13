@@ -3,6 +3,7 @@ import "./globals.css";
 import "motion-icons-react/style.css";
 import ConditionalLayout from "@/components/ConditionalLayout";
 import { Analytics } from "@vercel/analytics/next";
+import AnalyticsScripts from "@/components/analytics/AnalyticsScripts";
 
 export const viewport: Viewport = {
   themeColor: "#090e1a",
@@ -10,8 +11,10 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://primerides.in";
+
 export const metadata: Metadata = {
-  metadataBase: new URL("https://primerides-taupe.vercel.app"),
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "PrimeRides™ | Premium Self-Drive Car Rental Delhi NCR & Lucknow",
     template: "%s | PrimeRides™",
@@ -28,7 +31,7 @@ export const metadata: Metadata = {
     "Unlimited KM Self Drive Car",
     "Luxury Car Rental Delhi",
   ],
-  authors: [{ name: "PrimeRides India", url: "https://primerides-taupe.vercel.app" }],
+  authors: [{ name: "PrimeRides India", url: SITE_URL }],
   creator: "PrimeRides",
   publisher: "PrimeRides",
   formatDetection: {
@@ -49,7 +52,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_IN",
-    url: "https://primerides-taupe.vercel.app",
+    url: SITE_URL,
     siteName: "PrimeRides™",
     title: "PrimeRides™ | Premium Self-Drive Car Rental Delhi NCR & Lucknow",
     description:
@@ -106,6 +109,7 @@ export default function RootLayout({
       </head>
       <body>
         <ConditionalLayout>{children}</ConditionalLayout>
+        <AnalyticsScripts />
         <Analytics />
       </body>
     </html>

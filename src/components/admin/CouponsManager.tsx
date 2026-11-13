@@ -47,6 +47,10 @@ export interface SerializedCoupon {
   valid_until: string | null;
   usage_limit: number | null;
   used_count: number;
+  per_user_limit?: number | null;
+  new_users_only?: boolean;
+  applicable_platforms?: string;
+  show_in_slider?: boolean;
   is_active: boolean;
   created_at: string;
   updated_at: string;
@@ -93,6 +97,10 @@ export default function CouponsManager({ initialCoupons, canManage }: CouponsMan
     min_booking_amount: 3000,
     max_discount_amount: 1500,
     usage_limit: 100,
+    per_user_limit: 1,
+    new_users_only: false,
+    applicable_platforms: ["web", "android", "ios"],
+    show_in_slider: false,
     valid_until: "",
   });
 
@@ -216,6 +224,10 @@ export default function CouponsManager({ initialCoupons, canManage }: CouponsMan
             valid_until: created.valid_until,
             usage_limit: created.usage_limit,
             used_count: 0,
+            per_user_limit: created.per_user_limit,
+            new_users_only: created.new_users_only,
+            applicable_platforms: created.applicable_platforms,
+            show_in_slider: created.show_in_slider,
             is_active: created.is_active,
             created_at: created.created_at,
             updated_at: created.updated_at,
@@ -234,6 +246,10 @@ export default function CouponsManager({ initialCoupons, canManage }: CouponsMan
           min_booking_amount: 3000,
           max_discount_amount: 1500,
           usage_limit: 100,
+          per_user_limit: 1,
+          new_users_only: false,
+          applicable_platforms: ["web", "android", "ios"],
+          show_in_slider: false,
           valid_until: "",
         });
       } else {
@@ -348,8 +364,11 @@ export default function CouponsManager({ initialCoupons, canManage }: CouponsMan
           <div className="relative flex-1 max-w-md">
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
+              id="admin-search-coupons"
+              name="admin-search-coupons"
               type="text"
               placeholder="Search coupon code or description..."
+              aria-label="Search coupon code or description"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-9 pr-4 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#C5A880]/50"
@@ -460,6 +479,28 @@ export default function CouponsManager({ initialCoupons, canManage }: CouponsMan
                             {coupon.description}
                           </p>
                         )}
+                        <div className="flex flex-wrap items-center gap-1 mt-1.5">
+                          {coupon.new_users_only && (
+                            <span className="text-[10px] font-semibold px-1.5 py-0.5 bg-purple-50 text-purple-700 border border-purple-200 rounded">
+                              ✨ New Users Only
+                            </span>
+                          )}
+                          {coupon.show_in_slider && (
+                            <span className="text-[10px] font-semibold px-1.5 py-0.5 bg-amber-50 text-amber-800 border border-amber-200 rounded">
+                              🌟 Homepage Slider
+                            </span>
+                          )}
+                          {coupon.per_user_limit ? (
+                            <span className="text-[10px] text-gray-600 bg-gray-100 px-1.5 py-0.5 rounded border border-gray-200">
+                              {coupon.per_user_limit}x/user
+                            </span>
+                          ) : null}
+                          {coupon.applicable_platforms && coupon.applicable_platforms !== "web,android,ios" && (
+                            <span className="text-[10px] text-indigo-700 bg-indigo-50 px-1.5 py-0.5 rounded border border-indigo-200">
+                              📱 {coupon.applicable_platforms.split(",").map(p => p === "web" ? "Web" : p === "android" ? "Android" : "iOS").join(" • ")}
+                            </span>
+                          )}
+                        </div>
                       </td>
 
                       {/* Discount Value */}
@@ -698,7 +739,7 @@ export default function CouponsManager({ initialCoupons, canManage }: CouponsMan
             </div>
           </div>
 
-          {/* Minimum Spend & Usage Limit */}
+          {/* Minimum Spend & Total Usage Limit */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">
@@ -732,17 +773,97 @@ export default function CouponsManager({ initialCoupons, canManage }: CouponsMan
             </div>
           </div>
 
-          {/* Expiry Date */}
+          {/* Per-User Limit & Expiry Date */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">
+                Max Uses Per Customer
+              </label>
+              <input
+                type="number"
+                min={1}
+                placeholder="e.g. 1 (Default)"
+                value={formData.per_user_limit || ""}
+                onChange={(e) => setFormData({ ...formData, per_user_limit: e.target.value ? Number(e.target.value) : 1 })}
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-[#C5A880]/50 focus:outline-none"
+              />
+              <p className="text-[11px] text-gray-400 mt-0.5">Prevents a customer from redeeming multiple times</p>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">
+                Validity Expiration Date (Optional)
+              </label>
+              <input
+                type="date"
+                value={formData.valid_until}
+                onChange={(e) => setFormData({ ...formData, valid_until: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-[#C5A880]/50 focus:outline-none"
+              />
+            </div>
+          </div>
+
+          {/* Platform Targeting Checkboxes */}
           <div>
-            <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">
-              Validity Expiration Date (Optional)
+            <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
+              Eligible Platforms
             </label>
-            <input
-              type="date"
-              value={formData.valid_until}
-              onChange={(e) => setFormData({ ...formData, valid_until: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-[#C5A880]/50 focus:outline-none"
-            />
+            <div className="grid grid-cols-3 gap-2">
+              {[
+                { id: "web", label: "Website", icon: "🌐" },
+                { id: "android", label: "Android App", icon: "🤖" },
+                { id: "ios", label: "iOS App", icon: "🍏" },
+              ].map((p) => {
+                const isSelected = formData.applicable_platforms.includes(p.id);
+                return (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => {
+                      const current = formData.applicable_platforms;
+                      const next = isSelected
+                        ? current.filter((x) => x !== p.id)
+                        : [...current, p.id];
+                      // Ensure at least one platform selected
+                      if (next.length > 0) {
+                        setFormData({ ...formData, applicable_platforms: next });
+                      }
+                    }}
+                    className={`py-2 px-3 rounded-lg border text-xs font-medium flex items-center justify-center gap-1.5 transition-all ${
+                      isSelected
+                        ? "bg-[#C5A880]/15 border-[#C5A880] text-[#8C6D3F] font-semibold"
+                        : "border-gray-200 text-gray-600 hover:bg-gray-50"
+                    }`}
+                  >
+                    <span>{p.icon}</span>
+                    <span>{p.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Promotion Options: New Users Only & Show in Slider */}
+          <div className="space-y-2 pt-1 border-t border-gray-100">
+            <label className="flex items-center gap-2 cursor-pointer text-xs font-medium text-gray-700">
+              <input
+                type="checkbox"
+                checked={formData.new_users_only}
+                onChange={(e) => setFormData({ ...formData, new_users_only: e.target.checked })}
+                className="rounded border-gray-300 text-[#C5A880] focus:ring-[#C5A880]"
+              />
+              <span>Restrict to First-Time Customers Only (0 prior completed bookings)</span>
+            </label>
+
+            <label className="flex items-center gap-2 cursor-pointer text-xs font-medium text-gray-700">
+              <input
+                type="checkbox"
+                checked={formData.show_in_slider}
+                onChange={(e) => setFormData({ ...formData, show_in_slider: e.target.checked })}
+                className="rounded border-gray-300 text-[#C5A880] focus:ring-[#C5A880]"
+              />
+              <span>🌟 Show this coupon in Homepage Slider &amp; Promotional Offers Banner</span>
+            </label>
           </div>
 
           {/* Live Preview Pill */}

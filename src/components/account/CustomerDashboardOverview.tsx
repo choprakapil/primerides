@@ -7,6 +7,7 @@ import CustomerTripStatsChart from "./charts/CustomerTripStatsChart";
 import CustomerVipTierCard from "./charts/CustomerVipTierCard";
 import TrendArrowBadge from "../admin/ui/TrendArrowBadge";
 import { CalendarCheck, Car, ShieldCheck, CreditCard, ArrowRight, CheckCircle2, Clock, AlertCircle, XCircle, Navigation } from "lucide-react";
+import { formatIstDate } from "@/lib/dates";
 
 interface CustomerDashboardOverviewProps {
   customer: any;
@@ -201,14 +202,14 @@ export default function CustomerDashboardOverview({
                   <div>
                     <small className="text-muted d-block text-[10px] font-bold text-uppercase">START</small>
                     <span className="fw-semibold text-dark text-sm">
-                      {new Date(activeBooking.start_date).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
+                      {formatIstDate(activeBooking.start_date, { day: "numeric", month: "short" })}
                     </span>
                   </div>
                   <ArrowRight className="w-4 h-4 text-muted" />
                   <div>
                     <small className="text-muted d-block text-[10px] font-bold text-uppercase">RETURN</small>
                     <span className="fw-semibold text-dark text-sm">
-                      {new Date(activeBooking.end_date).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
+                      {formatIstDate(activeBooking.end_date, { day: "numeric", month: "short" })}
                     </span>
                   </div>
                 </div>
@@ -282,10 +283,10 @@ export default function CustomerDashboardOverview({
                       </td>
                       <td className="py-3 px-4">
                         <div className="text-dark fw-medium text-xs">
-                          {new Date(b.start_date).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
+                          {formatIstDate(b.start_date, { day: "numeric", month: "short" })}
                         </div>
                         <small className="text-muted">
-                          to {new Date(b.end_date).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
+                          to {formatIstDate(b.end_date, { day: "numeric", month: "short" })}
                         </small>
                       </td>
                       <td className="py-3 px-4 text-muted">

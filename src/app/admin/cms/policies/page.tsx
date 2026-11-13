@@ -33,6 +33,7 @@ export default function AdminCmsPoliciesPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>("rental-terms");
 
   useEffect(() => {
@@ -50,6 +51,7 @@ export default function AdminCmsPoliciesPage() {
   const handleSave = async () => {
     setIsSaving(true);
     setIsSaved(false);
+    setErrorMsg(null);
     try {
       const res = await fetch("/api/v1/admin/cms/policies", {
         method: "PUT",
@@ -63,7 +65,7 @@ export default function AdminCmsPoliciesPage() {
       setIsSaved(true);
       setTimeout(() => setIsSaved(false), 3000);
     } catch (err: any) {
-      alert("Error saving policies: " + (err.message || "Unknown error"));
+      setErrorMsg(err.message || "Failed to save policies");
     } finally {
       setIsSaving(false);
     }
@@ -126,13 +128,13 @@ export default function AdminCmsPoliciesPage() {
         eyebrow="Compliance & Legal"
         title="Rental Policies & Terms Management"
         description="Configure mandatory self-drive agreements, security deposit refund terms, cancellation windows, and FASTag rules."
-        icon={<Shield className="w-5 h-5 text-[#5955D1]" />}
+        icon={<Shield className="w-5 h-5 text-[#c59b27]" />}
         actions={
           <div className="flex items-center gap-3">
             <Link
               href="/faq"
               target="_blank"
-              className="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-bold rounded-lg border border-[#e8edf2] text-slate-700 bg-white hover:bg-slate-50 hover:text-[#5955D1] transition-all shadow-xs"
+              className="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-bold rounded-lg border border-[#e8edf2] text-slate-700 bg-white hover:bg-slate-50 hover:text-[#c59b27] transition-all shadow-xs"
             >
               <ExternalLink className="w-3.5 h-3.5" />
               <span>Preview Customer FAQs &amp; Policies</span>
@@ -140,7 +142,7 @@ export default function AdminCmsPoliciesPage() {
             <AdminButton
               onClick={handleSave}
               disabled={isSaving}
-              className="inline-flex items-center gap-2 bg-[#5955D1] hover:bg-[#b0871e] text-white px-4 py-2 text-xs font-bold rounded-lg shadow-sm disabled:opacity-50"
+              className="inline-flex items-center gap-2 bg-[#c59b27] hover:bg-[#b0871e] text-white px-4 py-2 text-xs font-bold rounded-lg shadow-sm disabled:opacity-50"
             >
               <Save className="w-4 h-4" />
               <span>{isSaving ? "Saving to Storage..." : "Save Policies & Disclosures"}</span>
@@ -148,6 +150,14 @@ export default function AdminCmsPoliciesPage() {
           </div>
         }
       />
+
+      {errorMsg && (
+        <div className="mb-6 p-4 rounded-xl bg-red-50 border border-red-200 text-red-800 flex items-center gap-3 shadow-xs">
+          <div className="text-sm">
+            <strong>Save Error:</strong> {errorMsg}
+          </div>
+        </div>
+      )}
 
       {isSaved && (
         <div className="mb-6 p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 flex items-center gap-3 shadow-xs animate-in fade-in">
@@ -171,7 +181,7 @@ export default function AdminCmsPoliciesPage() {
               type="text"
               value={policies.eyebrow}
               onChange={(e) => setPolicies({ ...policies, eyebrow: e.target.value })}
-              className="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-[#5955D1]"
+              className="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-[#c59b27]"
             />
           </div>
           <div className="space-y-1.5">
@@ -180,7 +190,7 @@ export default function AdminCmsPoliciesPage() {
               type="text"
               value={policies.title}
               onChange={(e) => setPolicies({ ...policies, title: e.target.value })}
-              className="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-[#5955D1]"
+              className="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-[#c59b27]"
             />
           </div>
           <div className="space-y-1.5 md:col-span-2">
@@ -189,7 +199,7 @@ export default function AdminCmsPoliciesPage() {
               rows={2}
               value={policies.description}
               onChange={(e) => setPolicies({ ...policies, description: e.target.value })}
-              className="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-[#5955D1]"
+              className="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-[#c59b27]"
             />
           </div>
         </div>
@@ -212,7 +222,7 @@ export default function AdminCmsPoliciesPage() {
             <AdminCard
               key={clause.id}
               className={`border transition-all rounded-3 overflow-hidden bg-white shadow-xs ${
-                isExpanded ? "border-[#5955D1] ring-1 ring-[#5955D1]/20" : "border-[#e8edf2] hover:border-slate-300"
+                isExpanded ? "border-[#c59b27] ring-1 ring-[#c59b27]/20" : "border-[#e8edf2] hover:border-slate-300"
               }`}
             >
               {/* Clause Header / Summary Bar */}
@@ -221,7 +231,7 @@ export default function AdminCmsPoliciesPage() {
                 className="p-4 sm:p-5 flex items-center justify-between cursor-pointer select-none bg-slate-50/40 hover:bg-slate-50 transition-colors"
               >
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-9 h-9 rounded-xl bg-amber-50 text-[#5955D1] border border-amber-200/80 flex items-center justify-center font-bold text-xs shrink-0">
+                  <div className="w-9 h-9 rounded-xl bg-amber-50 text-[#c59b27] border border-amber-200/80 flex items-center justify-center font-bold text-xs shrink-0">
                     {cIdx + 1}
                   </div>
                   <div className="min-w-0">
@@ -258,7 +268,7 @@ export default function AdminCmsPoliciesPage() {
                         type="text"
                         value={clause.title}
                         onChange={(e) => updateClause(clause.id, { title: e.target.value })}
-                        className="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-[#5955D1]"
+                        className="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-[#c59b27]"
                       />
                     </div>
                     <div className="space-y-1.5">
@@ -267,7 +277,7 @@ export default function AdminCmsPoliciesPage() {
                         type="text"
                         value={clause.revision}
                         onChange={(e) => updateClause(clause.id, { revision: e.target.value })}
-                        className="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-[#5955D1]"
+                        className="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-[#c59b27]"
                       />
                     </div>
                     <div className="space-y-1.5 sm:col-span-3">
@@ -276,7 +286,7 @@ export default function AdminCmsPoliciesPage() {
                         rows={2}
                         value={clause.content}
                         onChange={(e) => updateClause(clause.id, { content: e.target.value })}
-                        className="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-[#5955D1]"
+                        className="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-[#c59b27]"
                       />
                     </div>
                   </div>
@@ -288,7 +298,7 @@ export default function AdminCmsPoliciesPage() {
                       <button
                         type="button"
                         onClick={() => addPointToClause(clause.id)}
-                        className="inline-flex items-center gap-1.5 text-xs font-bold text-[#5955D1] hover:text-[#b0871e]"
+                        className="inline-flex items-center gap-1.5 text-xs font-bold text-[#c59b27] hover:text-[#b0871e]"
                       >
                         <Plus className="w-3.5 h-3.5" />
                         <span>Add Specification Point</span>
@@ -305,7 +315,7 @@ export default function AdminCmsPoliciesPage() {
                             type="text"
                             value={point}
                             onChange={(e) => updatePoint(clause.id, pIdx, e.target.value)}
-                            className="flex-1 px-3 py-2 text-xs border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-[#5955D1]"
+                            className="flex-1 px-3 py-2 text-xs border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-[#c59b27]"
                           />
                           <button
                             type="button"
@@ -327,7 +337,7 @@ export default function AdminCmsPoliciesPage() {
                         type="checkbox"
                         checked={clause.isActive}
                         onChange={(e) => updateClause(clause.id, { isActive: e.target.checked })}
-                        className="w-4 h-4 text-[#5955D1] rounded accent-[#5955D1]"
+                        className="w-4 h-4 text-[#c59b27] rounded accent-[#c59b27]"
                       />
                       <span>Active in Customer Disclosures</span>
                     </label>

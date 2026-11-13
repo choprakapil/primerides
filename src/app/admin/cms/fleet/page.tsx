@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   Car,
@@ -12,6 +12,7 @@ import {
   Shield,
   Gauge,
   Sliders,
+  AlertCircle,
 } from "lucide-react";
 import {
   AdminCard,
@@ -20,16 +21,27 @@ import {
   PageContainer,
   PageHeader,
 } from "@/components/admin/ui";
+import { FleetCmsConfig, DEFAULT_FLEET_CMS_CONFIG } from "@/types/siteSettings";
 
 export default function AdminCmsFleetPage() {
+  const [fleetPageData, setFleetPageData] = useState<FleetCmsConfig>(DEFAULT_FLEET_CMS_CONFIG);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  const [fleetPageData, setFleetPageData] = useState({
-    eyebrow: "PREMIUM SELF-DRIVE COLLECTION",
-    title: "Explore Our Luxury Fleet",
-    subtitle:
-      "From mountain-dominating 4x4 SUVs to executive long-wheelbase sedans, choose your ideal drive with unlimited kilometers and zero security deposit.",
-  });
+  // Load persisted fleet config
+  useEffect(() => {
+    fetch("/api/v1/admin/cms/fleet")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((json) => {
+        if (json?.data) {
+          setFleetPageData(json.data);
+        }
+      })
+      .catch((err) => console.error("Failed to load fleet config:", err))
+      .finally(() => setIsLoading(false));
+  }, []);
 
   const categories = [
     {
@@ -69,9 +81,28 @@ export default function AdminCmsFleetPage() {
     { tier: "Unlimited KM", extraKm: "Zero", desc: "Total peace of mind with 100% unrestricted driving freedom." },
   ];
 
-  const handleSave = () => {
-    setIsSaved(true);
-    setTimeout(() => setIsSaved(false), 3000);
+  const handleSave = async () => {
+    setIsSaving(true);
+    setIsSaved(false);
+    setErrorMsg(null);
+
+    try {
+      const res = await fetch("/api/v1/admin/cms/fleet", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(fleetPageData),
+      });
+
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Failed to save fleet configuration");
+
+      setIsSaved(true);
+      setTimeout(() => setIsSaved(false), 3000);
+    } catch (err: any) {
+      setErrorMsg(err.message || "Failed to save fleet catalog details.");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -80,13 +111,13 @@ export default function AdminCmsFleetPage() {
         eyebrow="CMS & Content"
         title="Fleet Page Management"
         description="Configure the public fleet catalog page headlines, vehicle category spotlights, and KM plan rules."
-        icon={<Car className="w-5 h-5 text-[#5955D1]" />}
+        icon={<Car className="w-5 h-5 text-[#c59b27]" />}
         actions={
           <div className="flex items-center gap-3">
             <Link
               href="/cars"
               target="_blank"
-              className="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-bold rounded-lg border border-[#e8edf2] text-slate-700 bg-white hover:bg-slate-50 hover:text-[#5955D1] transition-all shadow-xs"
+              className="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-bold rounded-lg border border-[#e8edf2] text-slate-700 bg-white hover:bg-slate-50 hover:text-[#c59b27] transition-all shadow-xs"
             >
               <ExternalLink className="w-3.5 h-3.5" />
               <span>Preview Live Fleet Page</span>
@@ -95,15 +126,16 @@ export default function AdminCmsFleetPage() {
               href="/admin/cars"
               className="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-bold rounded-lg border border-amber-300 text-amber-900 bg-amber-50 hover:bg-amber-100 transition-all shadow-xs"
             >
-              <Sliders className="w-3.5 h-3.5 text-[#5955D1]" />
+              <Sliders className="w-3.5 h-3.5 text-[#c59b27]" />
               <span>Manage Vehicle Inventory</span>
             </Link>
             <AdminButton
               onClick={handleSave}
-              className="inline-flex items-center gap-2 bg-[#5955D1] hover:bg-[#b0871e] text-white px-4 py-2 text-xs font-bold rounded-lg shadow-sm"
+              disabled={isSaving}
+              className="inline-flex items-center gap-2 bg-[#c59b27] hover:bg-[#b0871e] text-white px-4 py-2 text-xs font-bold rounded-lg shadow-sm disabled:opacity-50"
             >
               <Save className="w-4 h-4" />
-              <span>Save Fleet Page Config</span>
+              <span>{isSaving ? "Saving to Storage..." : "Save Fleet Page Config"}</span>
             </AdminButton>
           </div>
         }
@@ -113,8 +145,15 @@ export default function AdminCmsFleetPage() {
         <div className="mb-6 p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 flex items-center gap-3 shadow-xs">
           <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
           <div className="text-sm">
-            <strong>Fleet Page Saved!</strong> Header copy and category representations updated.
+            <strong>Fleet Page Saved!</strong> Header copy and category representations persisted successfully.
           </div>
+        </div>
+      )}
+
+      {errorMsg && (
+        <div className="mb-6 p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 flex items-center gap-3 shadow-xs">
+          <AlertCircle className="w-5 h-5 text-rose-600 shrink-0" />
+          <div className="text-sm">{errorMsg}</div>
         </div>
       )}
 
@@ -133,7 +172,7 @@ export default function AdminCmsFleetPage() {
                 type="text"
                 value={fleetPageData.eyebrow}
                 onChange={(e) => setFleetPageData({ ...fleetPageData, eyebrow: e.target.value })}
-                className="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-[#5955D1]"
+                className="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-[#c59b27]"
               />
             </div>
             <div className="space-y-1.5 md:col-span-2">
@@ -142,7 +181,7 @@ export default function AdminCmsFleetPage() {
                 type="text"
                 value={fleetPageData.title}
                 onChange={(e) => setFleetPageData({ ...fleetPageData, title: e.target.value })}
-                className="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-[#5955D1]"
+                className="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-[#c59b27]"
               />
             </div>
             <div className="space-y-1.5 md:col-span-2">
@@ -151,7 +190,7 @@ export default function AdminCmsFleetPage() {
                 rows={3}
                 value={fleetPageData.subtitle}
                 onChange={(e) => setFleetPageData({ ...fleetPageData, subtitle: e.target.value })}
-                className="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-[#5955D1]"
+                className="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-[#c59b27]"
               />
             </div>
           </div>
@@ -174,9 +213,9 @@ export default function AdminCmsFleetPage() {
                   </AdminBadge>
                 </div>
                 <p className="text-xs text-slate-500">{c.desc}</p>
-                <div className="text-[11px] font-semibold text-[#5955D1] pt-2 border-t border-slate-100 flex items-center justify-between">
+                <div className="text-[11px] font-semibold text-[#c59b27] pt-2 border-t border-slate-100 flex items-center justify-between">
                   <span>{c.count}</span>
-                  <Link href="/admin/cars" className="text-slate-600 hover:text-[#5955D1] flex items-center gap-1">
+                  <Link href="/admin/cars" className="text-slate-600 hover:text-[#c59b27] flex items-center gap-1">
                     <span>Manage</span>
                     <ArrowRight className="w-3 h-3" />
                   </Link>
@@ -189,7 +228,7 @@ export default function AdminCmsFleetPage() {
         {/* KM Plan Tiers Info */}
         <AdminCard className="p-5 bg-white border border-[#e8edf2] rounded-3 shadow-xs space-y-3">
           <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
-            <Gauge className="w-4 h-4 text-[#5955D1]" />
+            <Gauge className="w-4 h-4 text-[#c59b27]" />
             <h3 className="font-bold text-sm text-slate-900">Standard Kilometre Package Tiers</h3>
           </div>
 
@@ -197,7 +236,7 @@ export default function AdminCmsFleetPage() {
             {kmTiers.map((tier, idx) => (
               <div key={idx} className="p-3 rounded-xl bg-slate-50 border border-[#e8edf2] space-y-1">
                 <span className="font-bold text-xs text-slate-900 block">{tier.tier}</span>
-                <span className="text-[11px] text-[#5955D1] font-semibold block">Extra KM: {tier.extraKm}</span>
+                <span className="text-[11px] text-[#c59b27] font-semibold block">Extra KM: {tier.extraKm}</span>
                 <p className="text-[11px] text-slate-500 leading-tight">{tier.desc}</p>
               </div>
             ))}

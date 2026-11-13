@@ -33,5 +33,20 @@
   "securityDepositDefault": 3000,
   "googleMapsEmbedUrl": "https://maps.google.com/?q=Indira+Gandhi+International+Airport+Delhi",
   "whatsappInquiryTemplate": "Hi PrimeRides, I am interested in reserving a self-drive luxury car in Delhi NCR / Lucknow.",
-  "siteName": "PrimeRides Self-Drive Mobility"
+  "legalCorporateName": "PrimeRides Mobility Solutions Private Limited",
+  "sacCode": "996601",
+  "gstRatePercentage": 18,
+  "cgstRatePercentage": 9,
+  "sgstRatePercentage": 9,
+  "igstRatePercentage": 18,
+  "taxInvoiceAddress": "Indira Gandhi International Airport, Terminal 3 VIP Valet, New Delhi 110037",
+  "taxInvoiceState": "07 - Delhi",
+  "siteName": "PrimeRides Self-Drive Mobility",
+  "mobileApps": {
+    "iosMinVersion": "1.0.0",
+    "androidMinVersion": "1.0.0",
+    "appStoreUrl": "https://apps.apple.com/app/primerides",
+    "playStoreUrl": "https://play.google.com/store/apps/details?id=in.primerides.app",
+    "maintenanceMode": false
+  }
 }

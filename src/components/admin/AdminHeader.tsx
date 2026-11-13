@@ -1,68 +1,144 @@
 "use client";
 
-import React from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useAdminLayout } from "./AdminLayoutContext";
+import {
+  Search,
+  ExternalLink,
+  Bell,
+  X,
+} from "lucide-react";
+
+/* ── Search route map ─────────────────────────────── */
+const searchRoutes = [
+  { label: "Dashboard",           href: "/admin",              keywords: ["dashboard", "home", "overview"] },
+  { label: "Fleet Inventory",     href: "/admin/cars",         keywords: ["car", "fleet", "vehicle", "inventory"] },
+  { label: "Rental Hubs",         href: "/admin/locations",    keywords: ["location", "hub", "branch", "city"] },
+  { label: "Reservations",        href: "/admin/bookings",     keywords: ["booking", "reservation", "trip"] },
+  { label: "Accounts & Reports",  href: "/admin/accounts",     keywords: ["account", "report", "revenue", "finance"] },
+  { label: "Coupons & Offers",    href: "/admin/coupons",      keywords: ["coupon", "offer", "discount", "promo"] },
+  { label: "Customers",           href: "/admin/customers",    keywords: ["customer", "member", "user"] },
+  { label: "KYC Documents",       href: "/admin/documents",    keywords: ["kyc", "document", "identity", "license"] },
+  { label: "Leads & CRM",         href: "/admin/leads",        keywords: ["lead", "crm", "contact", "enquiry"] },
+  { label: "CMS & Content",       href: "/admin/cms/homepage", keywords: ["cms", "content", "page", "blog", "seo"] },
+  { label: "Staff & RBAC",        href: "/admin/staff",        keywords: ["staff", "rbac", "role", "permission"] },
+  { label: "Site Settings",       href: "/admin/settings",     keywords: ["setting", "config", "smtp", "payment"] },
+  { label: "Audit Activity",      href: "/admin/audit",        keywords: ["audit", "log", "activity", "history"] },
+];
 
 export default function AdminHeader() {
-  const { toggleCollapse, isCollapsed } = useAdminLayout();
+  const router = useRouter();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
+
+  // Filter results
+  const filteredResults = searchQuery.trim().length > 0
+    ? searchRoutes.filter((r) => {
+        const q = searchQuery.toLowerCase();
+        return r.label.toLowerCase().includes(q) ||
+          r.keywords.some((k) => k.includes(q));
+      })
+    : [];
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+        setIsSearchFocused(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  const handleSearchNav = (href: string) => {
+    setSearchQuery("");
+    setIsSearchFocused(false);
+    router.push(href);
+  };
 
   return (
-    <header className="app-header">
-      <div className="app-header-inner">
-        <button
-          className={`app-toggler ${isCollapsed ? "active" : ""}`}
-          type="button"
-          onClick={toggleCollapse}
-          aria-label="Toggle navigation sidebar"
-        >
-          <span></span>
-          <span></span>
-          <span></span>
-        </button>
-
-        <div className="app-header-start d-none d-md-flex align-items-center gap-3">
-          <div className="position-relative" style={{ width: "280px" }}>
-            <i className="fi fi-rr-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+    <header className="topbar">
+      <div className="topbar-inner">
+        {/* ── Left: Search ──────────────────────────── */}
+        <div className="topbar-start">
+          <div className="topbar-search" ref={searchRef}>
+            <Search className="topbar-search-icon" />
             <input
+              id="admin-global-search"
+              name="admin-global-search"
               type="text"
-              className="form-control form-control-fill ps-5"
-              placeholder="Search operations, reservations..."
+              autoComplete="off"
+              className="topbar-search-input"
+              placeholder="Search pages, fleet, bookings..."
+              aria-label="Search operations, reservations, and fleet"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onFocus={() => setIsSearchFocused(true)}
             />
+            {searchQuery && (
+              <button
+                type="button"
+                className="topbar-search-clear"
+                onClick={() => { setSearchQuery(""); }}
+                aria-label="Clear search"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
+            {/* Dropdown */}
+            {isSearchFocused && filteredResults.length > 0 && (
+              <div className="topbar-search-dropdown">
+                {filteredResults.map((r) => (
+                  <button
+                    key={r.href}
+                    type="button"
+                    className="topbar-search-result"
+                    onClick={() => handleSearchNav(r.href)}
+                  >
+                    <Search className="w-3.5 h-3.5 text-muted flex-shrink-0" />
+                    <span>{r.label}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+            {isSearchFocused && searchQuery.trim().length > 0 && filteredResults.length === 0 && (
+              <div className="topbar-search-dropdown">
+                <div className="topbar-search-empty">No results for &ldquo;{searchQuery}&rdquo;</div>
+              </div>
+            )}
           </div>
 
-          <div className="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill d-none d-lg-inline-flex align-items-center gap-2">
-            <span className="spinner-grow spinner-grow-sm text-success" style={{ width: "7px", height: "7px" }} role="status"></span>
-            <span className="fw-semibold" style={{ fontSize: "11px", letterSpacing: "0.5px" }}>
-              FLEET LIVE • NCR & LUCKNOW
-            </span>
+          {/* Fleet Live badge */}
+          <div className="topbar-live-badge">
+            <span className="topbar-live-dot" />
+            <span>FLEET LIVE · NCR &amp; LUCKNOW</span>
           </div>
         </div>
 
-        <div className="app-header-end d-flex align-items-center gap-3">
+        {/* ── Right: Actions ────────────────────────── */}
+        <div className="topbar-end">
           <a
             href="/"
             target="_blank"
             rel="noopener noreferrer"
-            className="btn btn-light btn-sm border d-flex align-items-center gap-2 text-dark px-3 shadow-sm"
+            className="topbar-btn"
           >
-            <i className="fi fi-rr-arrow-up-right-from-square"></i>
-            <span className="d-none d-sm-inline fw-medium">Live Website</span>
+            <ExternalLink className="w-4 h-4" />
+            <span className="d-none d-sm-inline">Live Website</span>
           </a>
 
-          <div className="vr my-2"></div>
+          <div className="topbar-divider" />
 
-          <div className="d-flex align-items-center gap-2">
-            <div className="text-end d-none d-lg-block">
-              <div className="fw-bold text-dark lh-sm" style={{ fontSize: "13px" }}>Master Operations</div>
-              <small className="text-muted" style={{ fontSize: "11px" }}>Superadmin</small>
+          <div className="topbar-profile">
+            <div className="topbar-profile-text">
+              <span className="topbar-profile-name">Master Operations</span>
+              <span className="topbar-profile-role">Superadmin</span>
             </div>
-            <div
-              className="avatar avatar-sm rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold shadow-sm"
-              style={{ width: "36px", height: "36px", fontSize: "13px" }}
-            >
-              OP
-            </div>
+            <div className="topbar-avatar">OP</div>
           </div>
         </div>
       </div>

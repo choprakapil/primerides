@@ -28,6 +28,12 @@ import {
   Gauge,
   Fuel,
   AlertCircle,
+  RotateCcw,
+  Plus,
+  User,
+  MapPin,
+  CheckCircle,
+  FileText,
 } from "lucide-react";
 import {
   PageContainer,
@@ -39,6 +45,7 @@ import {
   AdminTextarea,
   AdminEmptyState,
 } from "@/components/admin/ui";
+import { formatIstDate } from "@/lib/dates";
 
 const QUICK_CANCEL_REASONS = [
   "Customer requested cancellation via phone",
@@ -46,6 +53,14 @@ const QUICK_CANCEL_REASONS = [
   "Customer no-show at pickup hub",
   "Payment unfulfilled / card decline",
   "Driving license invalid / KYC declined",
+];
+
+const QUICK_REFUND_REASONS = [
+  "Customer requested cancellation & refund",
+  "Vehicle unavailable / breakdown replacement",
+  "Goodwill customer satisfaction refund",
+  "Excess security deposit return",
+  "Mutual agreement / schedule conflict",
 ];
 
 const QUICK_STATUS_NOTES = [
@@ -107,6 +122,8 @@ export interface BookingRow {
   coupon_code?: string | null;
   total_amount?: number | string | null;
   totalPaid?: number;
+  totalRefunded?: number;
+  refundableBalance?: number;
   isPaid?: boolean;
   payments?: Array<{
     id: number;
@@ -146,14 +163,47 @@ export interface LeadRow {
   created_at: string;
 }
 
+export interface AvailableCarPlan {
+  id: number;
+  name: string;
+  plan_type: string;
+  price: number;
+  free_km?: number | null;
+  extra_km_rate?: number | null;
+  security_deposit?: number | null;
+  duration_days?: number | null;
+}
+
+export interface AvailableCar {
+  id: number;
+  name: string;
+  brand: string;
+  fuel_type: string;
+  transmission: string;
+  price_per_day: number;
+  location_id?: number | null;
+  fleet_count?: number;
+  rental_plans: AvailableCarPlan[];
+}
+
+export interface AvailableLocation {
+  id: number;
+  name: string;
+  city: string;
+}
+
 interface BookingsManagerProps {
   initialBookings: BookingRow[];
   initialLeads: LeadRow[];
+  availableCars?: AvailableCar[];
+  availableLocations?: AvailableLocation[];
 }
 
 export default function BookingsManager({
   initialBookings,
   initialLeads,
+  availableCars = [],
+  availableLocations = [],
 }: BookingsManagerProps) {
   const [activeTab, setActiveTab] = useState<"bookings" | "leads">("bookings");
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -243,6 +293,374 @@ export default function BookingsManager({
   const [handoverPaymentMethod, setHandoverPaymentMethod] = useState("cash");
   const [handoverPaymentRef, setHandoverPaymentRef] = useState("");
   const [handoverError, setHandoverError] = useState<string | null>(null);
+
+  // Dedicated Gateway Refund Modal State
+  const [refundingBooking, setRefundingBooking] = useState<BookingRow | null>(null);
+  const [refundAmountInput, setRefundAmountInput] = useState<string>("");
+  const [refundReasonInput, setRefundReasonInput] = useState<string>("");
+  const [refundCancelBooking, setRefundCancelBooking] = useState<boolean>(true);
+  const [refundPenaltyInput, setRefundPenaltyInput] = useState<string>("0");
+  const [refundIsSubmitting, setRefundIsSubmitting] = useState<boolean>(false);
+  const [refundError, setRefundError] = useState<string | null>(null);
+
+  const openRefundModal = (b: BookingRow) => {
+    setRefundingBooking(b);
+    const balance = b.refundableBalance !== undefined ? b.refundableBalance : (b.totalPaid || 0);
+    setRefundAmountInput(String(balance));
+    setRefundReasonInput("");
+    setRefundCancelBooking(b.status !== "cancelled");
+    setRefundPenaltyInput("0");
+    setRefundError(null);
+  };
+
+  const handleProcessRefund = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!refundingBooking) return;
+    setRefundError(null);
+
+    const amt = parseFloat(refundAmountInput);
+    if (isNaN(amt) || amt <= 0) {
+      setRefundError("Please enter a valid positive refund amount.");
+      return;
+    }
+
+    const maxBal = refundingBooking.refundableBalance !== undefined
+      ? refundingBooking.refundableBalance
+      : (refundingBooking.totalPaid || 0);
+
+    if (amt > maxBal) {
+      setRefundError(`Refund amount cannot exceed available balance of ₹${maxBal.toLocaleString("en-IN")}.`);
+      return;
+    }
+
+    setRefundIsSubmitting(true);
+    try {
+      const res = await fetch(`/api/v1/admin/bookings/${refundingBooking.id}/refund`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          refundAmount: amt,
+          reason: refundReasonInput || "Admin initiated refund",
+          cancelBooking: refundCancelBooking,
+          penaltyAmount: parseFloat(refundPenaltyInput) || 0,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to process gateway refund.");
+      }
+
+      alert(data.message || `Successfully refunded ₹${amt.toLocaleString("en-IN")}`);
+      setRefundingBooking(null);
+      await refreshBookings();
+    } catch (err: any) {
+      setRefundError(err.message || "Failed to process gateway refund.");
+    } finally {
+      setRefundIsSubmitting(false);
+    }
+  };
+
+  // ---------------------------------------------------------------------------
+  // Walk-In / Office Counter Booking State & Handlers
+  // ---------------------------------------------------------------------------
+  const [carsList, setCarsList] = useState<AvailableCar[]>(availableCars || []);
+  const [locationsList, setLocationsList] = useState<AvailableLocation[]>(availableLocations || []);
+
+  useEffect(() => {
+    if (availableCars && availableCars.length > 0) setCarsList(availableCars);
+  }, [availableCars]);
+
+  useEffect(() => {
+    if (availableLocations && availableLocations.length > 0) setLocationsList(availableLocations);
+  }, [availableLocations]);
+
+  const [isWalkinModalOpen, setIsWalkinModalOpen] = useState(false);
+  const [walkinFullName, setWalkinFullName] = useState("");
+  const [walkinPhone, setWalkinPhone] = useState("");
+  const [walkinEmail, setWalkinEmail] = useState("");
+  const [walkinCarId, setWalkinCarId] = useState<number | "">("");
+  const [walkinPlanId, setWalkinPlanId] = useState<number | "">("");
+  const [walkinLocationId, setWalkinLocationId] = useState<number | "">("");
+  const [walkinStartDate, setWalkinStartDate] = useState("");
+  const [walkinEndDate, setWalkinEndDate] = useState("");
+  const [walkinPickupLocation, setWalkinPickupLocation] = useState("");
+  const [walkinDropLocation, setWalkinDropLocation] = useState("");
+  const [walkinWithChauffeur, setWalkinWithChauffeur] = useState(false);
+  const [walkinCouponCode, setWalkinCouponCode] = useState("");
+  const [walkinStatus, setWalkinStatus] = useState<"confirmed" | "pending">("confirmed");
+  const [walkinNotes, setWalkinNotes] = useState("");
+  const [walkinDlNumber, setWalkinDlNumber] = useState("");
+  const [walkinVerifyDlInPerson, setWalkinVerifyDlInPerson] = useState(true);
+  const [walkinCollectPaymentNow, setWalkinCollectPaymentNow] = useState(true);
+  const [walkinPaymentAmount, setWalkinPaymentAmount] = useState("");
+  const [walkinPaymentMethod, setWalkinPaymentMethod] = useState("cash");
+  const [walkinPaymentRef, setWalkinPaymentRef] = useState("");
+  const [walkinIsSubmitting, setWalkinIsSubmitting] = useState(false);
+  const [walkinError, setWalkinError] = useState<string | null>(null);
+
+  // Success modal for quick transition to vehicle handover
+  const [createdWalkinBooking, setCreatedWalkinBooking] = useState<BookingRow | null>(null);
+
+  // Filter cars stationed at selected location
+  const locationFilteredCars = useMemo(() => {
+    if (!walkinLocationId) return carsList;
+    return carsList.filter((c) => !c.location_id || c.location_id === Number(walkinLocationId));
+  }, [carsList, walkinLocationId]);
+
+  // Real-time multi-unit inventory availability check for selected dates across online & offline bookings
+  const carAvailabilityMap = useMemo(() => {
+    const map: Record<number, { available: number; total: number; isSoldOut: boolean }> = {};
+    const s = walkinStartDate ? new Date(walkinStartDate).getTime() : null;
+    const e = walkinEndDate ? new Date(walkinEndDate).getTime() : null;
+    const hasValidDates = s && e && !isNaN(s) && !isNaN(e) && e > s;
+
+    carsList.forEach((car) => {
+      const total = car.fleet_count || 1;
+      if (!hasValidDates) {
+        map[car.id] = { available: total, total, isSoldOut: false };
+        return;
+      }
+
+      // Count overlapping bookings for this vehicle across online and offline bookings
+      const overlapping = bookings.filter((b) => {
+        if (b.status === "cancelled" || b.status === "expired") return false;
+        const matchesCar = b.car_name === car.name || (b.car && b.car.name === car.name);
+        if (!matchesCar) return false;
+
+        const bStart = new Date(b.start_date).getTime();
+        const bEnd = new Date(b.end_date).getTime();
+        return bStart < e && bEnd > s;
+      }).length;
+
+      const available = Math.max(0, total - overlapping);
+      map[car.id] = {
+        available,
+        total,
+        isSoldOut: available === 0,
+      };
+    });
+
+    return map;
+  }, [carsList, bookings, walkinStartDate, walkinEndDate]);
+
+  const selectedCar = useMemo(() => {
+    if (walkinCarId) {
+      const found = locationFilteredCars.find((c) => c.id === Number(walkinCarId));
+      if (found) return found;
+    }
+    return locationFilteredCars[0] || null;
+  }, [locationFilteredCars, walkinCarId]);
+
+  const selectedPlan = useMemo(() => {
+    if (!selectedCar) return null;
+    return selectedCar.rental_plans.find((p) => p.id === Number(walkinPlanId)) || selectedCar.rental_plans[0] || null;
+  }, [selectedCar, walkinPlanId]);
+
+  const calculatedEstimate = useMemo(() => {
+    if (!selectedCar || !walkinStartDate || !walkinEndDate) return null;
+    const s = new Date(walkinStartDate).getTime();
+    const e = new Date(walkinEndDate).getTime();
+    if (isNaN(s) || isNaN(e) || e <= s) return null;
+
+    const diffHours = (e - s) / (1000 * 60 * 60);
+    const diffDays = Math.max(1, Math.ceil(diffHours / 24));
+
+    const planPrice = selectedPlan ? Number(selectedPlan.price) : Number(selectedCar.price_per_day);
+    const baseRental = planPrice * diffDays;
+    const chauffeurCost = walkinWithChauffeur ? 1000 * diffDays : 0;
+    const subtotal = baseRental + chauffeurCost;
+    const gst = Math.round(subtotal * 0.18);
+    const deposit = Number(selectedPlan?.security_deposit || 5000);
+    const grandTotal = subtotal + gst + deposit;
+
+    return {
+      diffDays,
+      diffHours: Math.round(diffHours),
+      baseRental,
+      chauffeurCost,
+      subtotal,
+      gst,
+      deposit,
+      grandTotal,
+    };
+  }, [selectedCar, selectedPlan, walkinStartDate, walkinEndDate, walkinWithChauffeur]);
+
+  const openWalkinModal = () => {
+    const now = new Date();
+    now.setMinutes(0, 0, 0);
+    now.setHours(now.getHours() + 1);
+    const startStr = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+
+    const end = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+    const endStr = new Date(end.getTime() - end.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+
+    const defaultLoc = locationsList[0];
+    const defaultLocId = defaultLoc ? defaultLoc.id : "";
+    const filtered = defaultLocId ? carsList.filter((c) => !c.location_id || c.location_id === defaultLocId) : carsList;
+    const firstCar = filtered[0] || carsList[0];
+    const defaultCarId = firstCar ? firstCar.id : "";
+    const defaultPlanId = firstCar?.rental_plans?.[0]?.id || "";
+
+    setWalkinFullName("");
+    setWalkinPhone("");
+    setWalkinEmail("");
+    setWalkinLocationId(defaultLocId);
+    setWalkinStartDate(startStr);
+    setWalkinEndDate(endStr);
+    setWalkinPickupLocation(defaultLoc?.name || "PrimeRides Office Hub");
+    setWalkinDropLocation(defaultLoc?.name || "PrimeRides Office Hub");
+    setWalkinCarId(defaultCarId);
+    setWalkinPlanId(defaultPlanId);
+    setWalkinWithChauffeur(false);
+    setWalkinCouponCode("");
+    setWalkinStatus("confirmed");
+    setWalkinNotes("");
+    setWalkinDlNumber("");
+    setWalkinVerifyDlInPerson(true);
+    setWalkinCollectPaymentNow(true);
+
+    const initialPlan = firstCar?.rental_plans?.[0];
+    const estimatedDeposit = initialPlan?.security_deposit || 5000;
+    const estimatedBase = initialPlan?.price || firstCar?.price_per_day || 0;
+    const estTotal = Math.round(Number(estimatedBase) * 1.18 + Number(estimatedDeposit));
+
+    setWalkinPaymentAmount(estTotal > 0 ? String(estTotal) : "");
+    setWalkinPaymentMethod("cash");
+    setWalkinPaymentRef(`WALKIN_CASH_${Date.now().toString().slice(-6)}`);
+    setWalkinError(null);
+    setIsWalkinModalOpen(true);
+  };
+
+  const handleWalkinSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setWalkinError(null);
+
+    if (!walkinFullName.trim() || !walkinPhone.trim()) {
+      setWalkinError("Customer name and phone number are required.");
+      return;
+    }
+
+    if (!walkinCarId) {
+      setWalkinError("Please select a vehicle.");
+      return;
+    }
+
+    if (!walkinStartDate || !walkinEndDate) {
+      setWalkinError("Pickup and drop-off dates are required.");
+      return;
+    }
+
+    if (new Date(walkinStartDate) >= new Date(walkinEndDate)) {
+      setWalkinError("Drop-off date/time must be strictly after pickup date/time.");
+      return;
+    }
+
+    if (walkinCollectPaymentNow && (!walkinPaymentAmount || Number(walkinPaymentAmount) <= 0)) {
+      setWalkinError("Please enter the collected payment amount or uncheck payment collection.");
+      return;
+    }
+
+    setWalkinIsSubmitting(true);
+    try {
+      const selectedLoc = locationsList.find((l) => l.id === Number(walkinLocationId));
+      const pickupLoc = walkinPickupLocation.trim() || selectedLoc?.name || "PrimeRides Office Hub";
+      const dropLoc = walkinDropLocation.trim() || selectedLoc?.name || "PrimeRides Office Hub";
+
+      const payload = {
+        fullName: walkinFullName.trim(),
+        phone: walkinPhone.trim(),
+        email: walkinEmail.trim() || undefined,
+        carId: Number(walkinCarId),
+        rentalPlanId: walkinPlanId ? Number(walkinPlanId) : undefined,
+        locationId: walkinLocationId ? Number(walkinLocationId) : undefined,
+        startDate: new Date(walkinStartDate).toISOString(),
+        endDate: new Date(walkinEndDate).toISOString(),
+        pickupLocation: pickupLoc,
+        dropLocation: dropLoc,
+        withChauffeur: walkinWithChauffeur,
+        couponCode: walkinCouponCode.trim() || undefined,
+        status: walkinStatus,
+        notes: walkinNotes.trim() || undefined,
+        drivingLicenseNumber: walkinDlNumber.trim() || undefined,
+        verifyDlInPerson: walkinVerifyDlInPerson,
+        initialPayment:
+          walkinCollectPaymentNow && Number(walkinPaymentAmount) > 0
+            ? {
+                amount: Number(walkinPaymentAmount),
+                method: walkinPaymentMethod,
+                reference: walkinPaymentRef.trim() || `WALKIN_${Date.now()}`,
+              }
+            : undefined,
+      };
+
+      const res = await fetch("/api/v1/admin/bookings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const json = await res.json();
+      if (!res.ok || !json.success) {
+        throw new Error(json.error || "Failed to create walk-in booking.");
+      }
+
+      setIsWalkinModalOpen(false);
+      await refreshBookings();
+
+      const newBooking = json.data;
+      const totalAmt = Number(newBooking.total_amount || 0);
+      const paidAmt = (newBooking.payments || [])
+        .filter((p: any) => p.status === "captured" || p.status === "successful")
+        .reduce((sum: number, p: any) => sum + Number(p.amount || 0), 0);
+
+      const bookingRow: BookingRow = {
+        id: newBooking.id,
+        booking_code: newBooking.booking_code,
+        customer_id: newBooking.customer_id,
+        full_name: newBooking.full_name,
+        phone: newBooking.phone,
+        email: newBooking.email,
+        car_name: newBooking.car_name,
+        car: newBooking.car ? { name: newBooking.car.name, brand: newBooking.car.brand } : null,
+        location: newBooking.location ? { name: newBooking.location.name, city: newBooking.location.city } : null,
+        start_date: typeof newBooking.start_date === "string" ? newBooking.start_date : new Date(newBooking.start_date).toISOString(),
+        end_date: typeof newBooking.end_date === "string" ? newBooking.end_date : new Date(newBooking.end_date).toISOString(),
+        with_chauffeur: newBooking.with_chauffeur,
+        base_amount: Number(newBooking.base_amount || 0),
+        coupon_code: newBooking.coupon_code || null,
+        discount_amount: Number(newBooking.discount_amount || 0),
+        total_amount: totalAmt,
+        totalPaid: paidAmt,
+        isPaid: paidAmt >= totalAmt && totalAmt > 0,
+        payments: (newBooking.payments || []).map((p: any) => ({
+          id: p.id,
+          amount: Number(p.amount || 0),
+          gateway: p.gateway,
+          status: p.status,
+          payment_method: p.payment_method,
+          transaction_ref: p.transaction_ref,
+          created_at: typeof p.created_at === "string" ? p.created_at : new Date(p.created_at).toISOString(),
+        })),
+        status: newBooking.status,
+        admin_notes: newBooking.admin_notes,
+        price_snapshot: newBooking.price_snapshot
+          ? {
+              plan_name: newBooking.price_snapshot.plan_name,
+              free_km: newBooking.price_snapshot.free_km,
+              security_deposit: Number(newBooking.price_snapshot.security_deposit || 5000),
+            }
+          : null,
+        hasVerifiedDL: !!newBooking.hasVerifiedDL || walkinVerifyDlInPerson,
+      };
+
+      setCreatedWalkinBooking(bookingRow);
+    } catch (err: any) {
+      setWalkinError(err.message || "Failed to create walk-in booking.");
+    } finally {
+      setWalkinIsSubmitting(false);
+    }
+  };
 
   // Lead Inspection Modal
   const [inspectingLead, setInspectingLead] = useState<LeadRow | null>(null);
@@ -448,28 +866,39 @@ export default function BookingsManager({
         description="Manage live trip reservations, handover verification gates, and customer inquiries."
         icon={<CalendarCheck className="w-5 h-5" />}
         actions={
-          <ul className="nav nav-pills nav-pills-custom p-1 bg-light rounded-pill mb-0">
-            <li className="nav-item">
-              <button
-                type="button"
-                onClick={() => setActiveTab("bookings")}
-                className={`nav-link ${activeTab === "bookings" ? "active" : ""}`}
-              >
-                <Car className="w-3.5 h-3.5 me-1.5" />
-                <span>Reservations ({bookings.length})</span>
-              </button>
-            </li>
-            <li className="nav-item">
-              <button
-                type="button"
-                onClick={() => setActiveTab("leads")}
-                className={`nav-link ${activeTab === "leads" ? "active" : ""}`}
-              >
-                <MessageSquare className="w-3.5 h-3.5 me-1.5" />
-                <span>Contact Leads ({leads.length})</span>
-              </button>
-            </li>
-          </ul>
+          <div className="flex flex-wrap items-center gap-2.5">
+            <ul className="nav nav-pills nav-pills-custom p-1 bg-light rounded-pill mb-0">
+              <li className="nav-item">
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("bookings")}
+                  className={`nav-link ${activeTab === "bookings" ? "active" : ""}`}
+                >
+                  <Car className="w-3.5 h-3.5 me-1.5" />
+                  <span>Reservations ({bookings.length})</span>
+                </button>
+              </li>
+              <li className="nav-item">
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("leads")}
+                  className={`nav-link ${activeTab === "leads" ? "active" : ""}`}
+                >
+                  <MessageSquare className="w-3.5 h-3.5 me-1.5" />
+                  <span>Contact Leads ({leads.length})</span>
+                </button>
+              </li>
+            </ul>
+
+            <AdminButton
+              variant="primary"
+              icon={<Plus className="w-4 h-4" />}
+              onClick={openWalkinModal}
+              className="!h-9 !px-3.5 !text-xs font-semibold shadow-sm"
+            >
+              + Walk-In / Office Booking
+            </AdminButton>
+          </div>
         }
       />
 
@@ -484,7 +913,7 @@ export default function BookingsManager({
               </strong>
               <p className="mt-0.5 text-slate-700">{handoverBlockedMessage}</p>
               <p className="text-[11px] text-slate-500 mt-1">
-                Go to <strong className="text-[#5955D1]">KYC Documents</strong> in the sidebar to review and approve the customer's driving license before authorizing vehicle release.
+                Go to <strong className="text-[#c59b27]">KYC Documents</strong> in the sidebar to review and approve the customer's driving license before authorizing vehicle release.
               </p>
             </div>
           </div>
@@ -620,15 +1049,18 @@ export default function BookingsManager({
               <div className="relative w-full sm:w-72">
                 <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                 <input
+                  id="admin-search-bookings"
+                  name="admin-search-bookings"
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search code, customer, car..."
+                  aria-label="Search bookings by code, customer, or car"
                   className="form-control form-control-sm ps-5"
                 />
                 <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1">
                   {isSearching && (
-                    <RefreshCw className="w-3.5 h-3.5 text-[#5955D1] animate-spin" />
+                    <RefreshCw className="w-3.5 h-3.5 text-[#c59b27] animate-spin" />
                   )}
                   {searchQuery && (
                     <button
@@ -681,7 +1113,7 @@ export default function BookingsManager({
                 className="btn btn-sm btn-white border shadow-sm d-inline-flex align-items-center gap-1.5"
                 title="Refresh reservations from server"
               >
-                <RefreshCw className={`w-3.5 h-3.5 ${isSearching ? "animate-spin text-[#5955D1]" : "text-slate-500"}`} />
+                <RefreshCw className={`w-3.5 h-3.5 ${isSearching ? "animate-spin text-[#c59b27]" : "text-slate-500"}`} />
                 <span className="hidden sm:inline">Refresh</span>
               </button>
             </div>
@@ -697,7 +1129,7 @@ export default function BookingsManager({
               </span>
               <button
                 onClick={() => { setSearchQuery(""); setStatusFilter("all"); setDateFrom(""); setDateTo(""); }}
-                className="text-[#5955D1] hover:underline font-bold cursor-pointer"
+                className="text-[#c59b27] hover:underline font-bold cursor-pointer"
               >
                 Reset All Filters
               </button>
@@ -725,8 +1157,288 @@ export default function BookingsManager({
                 <p className="text-slate-500">Bookings submitted on Web or Mobile will stream here.</p>
               </div>
             ) : (
-              <div className="overflow-x-auto min-w-0">
-                <table className="table table-hover align-middle mb-0">
+              <>
+                {/* Tablet Portrait & Mobile Responsive Card Fallback (< 1200px / xl) */}
+                <div className="block xl:hidden space-y-3.5">
+                  {filteredBookings.map((b) => {
+                    const isProcessing = actionLoadingId === b.id;
+                    const rentalDays = Math.max(
+                      1,
+                      Math.round(
+                        (new Date(b.end_date).getTime() - new Date(b.start_date).getTime()) /
+                          (1000 * 60 * 60 * 24)
+                      )
+                    );
+                    const canRefund = (b.refundableBalance !== undefined ? b.refundableBalance > 0 : (b.totalPaid && b.totalPaid > 0));
+
+                    return (
+                      <div
+                        key={b.id}
+                        className="bg-white rounded-2xl border border-[#e8edf2] p-4 shadow-xs hover:shadow-md hover:border-[#c59b27]/40 transition-all space-y-3"
+                      >
+                        {/* Header: Code + Badges */}
+                        <div className="flex items-center justify-between gap-2 flex-wrap pb-2 border-b border-slate-100">
+                          <div className="flex items-center gap-1.5">
+                            <span className="font-mono text-[#c59b27] font-extrabold text-xs tracking-wide select-all">
+                              {b.booking_code}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => copyBookingCode(b.booking_code)}
+                              className="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
+                              title="Copy booking code"
+                            >
+                              {copiedCode === b.booking_code ? (
+                                <Check className="w-3.5 h-3.5 text-emerald-600" />
+                              ) : (
+                                <Copy className="w-3.5 h-3.5" />
+                              )}
+                            </button>
+                          </div>
+
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            {/* Payment Status Pill */}
+                            {b.isPaid ? (
+                              <span className="px-2 py-0.5 text-[9.5px] font-extrabold bg-emerald-100 text-emerald-800 rounded-md border border-emerald-200">
+                                PAID
+                              </span>
+                            ) : (
+                              <span className="px-2 py-0.5 text-[9.5px] font-extrabold bg-amber-100 text-amber-800 rounded-md border border-amber-200">
+                                UNPAID
+                              </span>
+                            )}
+
+                            {/* Booking Status Badge */}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setEditingStatusBooking(b);
+                                setSelectedNewStatus(b.status);
+                                setStatusUpdateNote(b.admin_notes || "");
+                              }}
+                              className={`px-2.5 py-0.5 text-[10px] font-bold uppercase border rounded-md cursor-pointer transition-all hover:scale-105 ${
+                                b.status === "confirmed"
+                                  ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                                  : b.status === "active"
+                                    ? "bg-sky-50 text-sky-700 border-sky-200"
+                                    : b.status === "completed"
+                                      ? "bg-slate-100 text-slate-700 border-[#e8edf2]"
+                                      : b.status === "cancelled"
+                                        ? "bg-red-50 text-red-700 border-red-200"
+                                        : "bg-amber-50 text-amber-700 border-amber-200"
+                              }`}
+                              title="Click to edit status"
+                            >
+                              {b.status}
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Customer & Vehicle Info */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                          {/* Customer */}
+                          <div>
+                            <p className="font-bold text-[#1c274c] text-xs">{b.full_name}</p>
+                            <a
+                              href={`tel:${b.phone}`}
+                              className="text-[11px] text-slate-600 hover:text-[#c59b27] flex items-center gap-1.5 mt-1 font-mono transition-colors"
+                            >
+                              <Phone className="w-3 h-3 text-slate-400 shrink-0" />
+                              <span>{b.phone}</span>
+                            </a>
+                            {b.email && (
+                              <p className="text-[11px] text-slate-500 flex items-center gap-1.5 mt-0.5 truncate">
+                                <Mail className="w-3 h-3 text-slate-400 shrink-0" />
+                                <span className="font-mono text-slate-600 truncate">{b.email}</span>
+                              </p>
+                            )}
+                          </div>
+
+                          {/* Vehicle & Hub */}
+                          <div>
+                            <p className="font-bold text-[#1c274c] text-xs">
+                              {b.car?.brand ? `${b.car.brand} ` : ""}{b.car_name || b.car?.name || "Luxury Vehicle"}
+                            </p>
+                            <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold bg-[#fdfaf2] text-[#c59b27] border border-[#c59b27]/30 rounded-full">
+                                <Car className="w-2.5 h-2.5 shrink-0" />
+                                <span>{b.location?.city || "Delhi NCR"} Hub</span>
+                              </span>
+                              {b.with_chauffeur ? (
+                                <span className="inline-flex items-center px-1.5 py-0.5 text-[9.5px] font-semibold bg-purple-50 text-purple-700 border border-purple-200 rounded-full">
+                                  Chauffeur
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center px-1.5 py-0.5 text-[9.5px] font-semibold bg-slate-50 text-slate-600 border border-[#e8edf2] rounded-full">
+                                  Self-Drive
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Rental Window & KYC */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-slate-100 text-xs">
+                          <div>
+                            <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">Rental Window</span>
+                            <div className="flex items-center gap-1 text-[#1c274c] font-bold text-xs mt-0.5">
+                              <span>{formatIstDate(b.start_date)}</span>
+                              <span className="text-slate-400">→</span>
+                              <span>{formatIstDate(b.end_date)}</span>
+                            </div>
+                            <span className="text-slate-500 font-medium text-[10.5px]">
+                              {rentalDays} Day Rental
+                            </span>
+                          </div>
+
+                          <div>
+                            <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">KYC Verification</span>
+                            <div className="mt-0.5">
+                              {b.hasVerifiedDL ? (
+                                <span className="px-2 py-0.5 text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 inline-flex items-center gap-1 rounded-md">
+                                  <ShieldCheck className="w-3 h-3 text-emerald-600" />
+                                  Verified DL (Ready)
+                                </span>
+                              ) : (
+                                <span className="px-2 py-0.5 text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200 inline-flex items-center gap-1 rounded-md">
+                                  <ShieldAlert className="w-3 h-3 text-amber-600" />
+                                  Unverified (DL Required)
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Tariff & KM Plan */}
+                        <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-2 flex-wrap">
+                          <div>
+                            <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">Total Tariff</span>
+                            <span className="text-[#1c274c] font-black text-sm block tracking-tight">
+                              ₹{Number(b.total_amount || 0).toLocaleString("en-IN")}
+                            </span>
+                            <span className="text-[10px] text-slate-500 font-medium">
+                              {b.price_snapshot?.plan_name || "KM Package"}
+                              {b.price_snapshot?.free_km ? ` • ${b.price_snapshot.free_km} km` : ""}
+                            </span>
+                          </div>
+
+                          {b.coupon_code && Number(b.discount_amount || 0) > 0 && (
+                            <span className="inline-flex items-center gap-1 text-emerald-800 text-[10px] font-bold bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded">
+                              🏷️ {b.coupon_code} (-₹{Number(b.discount_amount).toLocaleString("en-IN")})
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Actions Strip */}
+                        <div className="pt-3 border-t border-slate-100 flex items-center gap-2 flex-wrap">
+                          {b.status === "pending" && (
+                            <AdminButton
+                              variant="primary"
+                              size="sm"
+                              className="!h-7 !px-2.5 !text-[11px] justify-center shadow-sm"
+                              isLoading={isProcessing}
+                              onClick={() => handleStatusChange(b.id, "confirmed")}
+                            >
+                              Confirm
+                            </AdminButton>
+                          )}
+
+                          {b.status === "confirmed" && (
+                            <AdminButton
+                              variant="success"
+                              size="sm"
+                              className="!h-7 !px-2.5 !text-[11px] justify-center shadow-sm"
+                              icon={<Key className="w-3 h-3" />}
+                              isLoading={isProcessing}
+                              onClick={() => {
+                                setHandoverBooking(b);
+                                setHandoverOdometer("");
+                                setHandoverFuel("100% (Full)");
+                                setHandoverInspection("Vehicle exterior & interior inspected. Pristine condition, keys handed over.");
+                                const total = Number(b.total_amount || 0);
+                                const bal = total - Number(b.totalPaid || 0);
+                                setHandoverPaymentAmount(bal > 0 ? String(bal) : "");
+                                setHandoverPaymentMethod("cash");
+                                setHandoverPaymentRef(bal > 0 ? `POS_RECEIPT_${Date.now().toString().slice(-6)}` : "");
+                                setHandoverError(null);
+                              }}
+                              title="Authorizes vehicle release"
+                            >
+                              Handover
+                            </AdminButton>
+                          )}
+
+                          {b.status === "active" && (
+                            <AdminButton
+                              variant="secondary"
+                              size="sm"
+                              className="!h-7 !px-2.5 !text-[11px] justify-center shadow-sm whitespace-nowrap"
+                              isLoading={isProcessing}
+                              onClick={() => handleStatusChange(b.id, "completed")}
+                            >
+                              Complete Trip
+                            </AdminButton>
+                          )}
+
+                          <AdminButton
+                            variant="secondary"
+                            size="sm"
+                            className="!h-7 !px-2.5 !text-[11px] justify-center shadow-sm"
+                            icon={<Edit3 className="w-3 h-3 text-[#c59b27]" />}
+                            onClick={() => {
+                              setEditingStatusBooking(b);
+                              setSelectedNewStatus(b.status);
+                              setStatusUpdateNote(b.admin_notes || "");
+                            }}
+                            title="Change status or add internal admin notes"
+                          >
+                            Status
+                          </AdminButton>
+
+                          <a
+                            href={`/api/v1/bookings/${b.id}/invoice`}
+                            download={`Invoice-${b.booking_code.replace(/[^a-zA-Z0-9_-]/g, "_")}.pdf`}
+                            className="inline-flex items-center gap-1.5 h-7 px-2.5 text-[11px] justify-center rounded-lg font-medium border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 hover:text-slate-900 shadow-xs transition-colors shrink-0"
+                            title="Download official GST Tax Invoice (PDF)"
+                          >
+                            <FileText className="w-3 h-3 text-purple-600 shrink-0" />
+                            <span>Invoice</span>
+                          </a>
+
+                          {canRefund && (
+                            <AdminButton
+                              variant="secondary"
+                              size="sm"
+                              className="!h-7 !px-2.5 !text-[11px] justify-center shadow-sm !text-amber-800 hover:!text-amber-900 !border-amber-300 hover:!bg-amber-50"
+                              icon={<RotateCcw className="w-3 h-3 text-amber-700" />}
+                              onClick={() => openRefundModal(b)}
+                              title={`Issue gateway refund (Available: ₹${(b.refundableBalance ?? b.totalPaid ?? 0).toLocaleString("en-IN")})`}
+                            >
+                              Refund
+                            </AdminButton>
+                          )}
+
+                          {b.status !== "completed" && b.status !== "cancelled" && (
+                            <AdminButton
+                              variant="danger"
+                              size="sm"
+                              className="!h-7 !px-2.5 !text-[11px] justify-center shadow-sm"
+                              isLoading={isProcessing}
+                              onClick={() => setCancellingBooking(b)}
+                              title="Cancel booking"
+                            >
+                              Cancel
+                            </AdminButton>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Desktop Full Table View (>= 1200px / xl) */}
+                <div className="hidden xl:block overflow-x-auto min-w-0">
+                  <table className="table table-hover align-middle mb-0">
                   <thead className="table-light"><tr>
                       <th className="py-3 px-4 whitespace-nowrap min-w-[160px] text-slate-500 font-bold uppercase tracking-wider text-[10.5px]">
                         <span className="whitespace-nowrap inline-block">Booking Code</span>
@@ -766,7 +1478,7 @@ export default function BookingsManager({
                           {/* Booking Code */}
                           <td className="py-3 px-4">
                             <div className="flex items-center gap-1.5">
-                              <span className="font-mono text-[#5955D1] font-extrabold text-xs tracking-wide select-all">
+                              <span className="font-mono text-[#c59b27] font-extrabold text-xs tracking-wide select-all">
                                 {b.booking_code}
                               </span>
                               <button
@@ -806,7 +1518,7 @@ export default function BookingsManager({
                             </p>
                             <div className="flex items-center gap-1.5 mt-1">
                               <span
-                                className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold bg-[#eeedfc] text-[#5955D1] border border-[#5955D1]/30 rounded-full"
+                                className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold bg-[#fdfaf2] text-[#c59b27] border border-[#c59b27]/30 rounded-full"
                                 
                               >
                                 <Car className="w-2.5 h-2.5 shrink-0" />
@@ -831,23 +1543,11 @@ export default function BookingsManager({
                           </td>
 
                           {/* Rental Window */}
-                          <td className="py-4 px-4 align-middle whitespace-nowrap min-w-[170px] text-[11px] bg-white border-y border-[#e8edf2] group-hover:border-[#5955D1]/40 group-hover:bg-[#eeedfc]/40 transition-all">
+                          <td className="py-4 px-4 align-middle whitespace-nowrap min-w-[170px] text-[11px] bg-white border-y border-[#e8edf2] group-hover:border-[#c59b27]/40 group-hover:bg-[#fdfaf2]/40 transition-all">
                             <div className="flex items-center gap-1 text-[#1c274c] font-bold">
-                              <span>
-                                {new Date(b.start_date).toLocaleDateString("en-IN", {
-                                  day: "numeric",
-                                  month: "short",
-                                  year: "numeric",
-                                })}
-                              </span>
+                              <span>{formatIstDate(b.start_date)}</span>
                               <span className="text-slate-400">→</span>
-                              <span>
-                                {new Date(b.end_date).toLocaleDateString("en-IN", {
-                                  day: "numeric",
-                                  month: "short",
-                                  year: "numeric",
-                                })}
-                              </span>
+                              <span>{formatIstDate(b.end_date)}</span>
                             </div>
                             <span className="block text-slate-500 font-medium text-[10.5px] mt-0.5">
                               {Math.max(
@@ -963,7 +1663,7 @@ export default function BookingsManager({
                           </td>
 
                           {/* Action Controls — Vertically Stacked */}
-                          <td className="py-4 px-4 align-middle text-right whitespace-nowrap min-w-[130px] bg-white border-y border-r border-[#e8edf2] rounded-r-2xl group-hover:border-[#5955D1]/40 group-hover:bg-[#eeedfc]/40 transition-all">
+                          <td className="py-4 px-4 align-middle text-right whitespace-nowrap min-w-[130px] bg-white border-y border-r border-[#e8edf2] rounded-r-2xl group-hover:border-[#c59b27]/40 group-hover:bg-[#fdfaf2]/40 transition-all">
                             <div className="flex flex-col items-end justify-center gap-1.5 w-full">
                               {/* Quick Transition Buttons */}
                               {b.status === "pending" && (
@@ -1020,7 +1720,7 @@ export default function BookingsManager({
                                 variant="secondary"
                                 size="sm"
                                 className="w-[108px] !h-7 !px-2.5 !text-[11px] justify-center shadow-sm"
-                                icon={<Edit3 className="w-3 h-3 text-[#5955D1]" />}
+                                icon={<Edit3 className="w-3 h-3 text-[#c59b27]" />}
                                 onClick={() => {
                                   setEditingStatusBooking(b);
                                   setSelectedNewStatus(b.status);
@@ -1030,6 +1730,31 @@ export default function BookingsManager({
                               >
                                 Status
                               </AdminButton>
+
+                              {/* Statutory GST Tax Invoice Action */}
+                              <a
+                                href={`/api/v1/bookings/${b.id}/invoice`}
+                                download={`Invoice-${b.booking_code.replace(/[^a-zA-Z0-9_-]/g, "_")}.pdf`}
+                                className="inline-flex items-center gap-1.5 w-[108px] h-7 px-2.5 text-[11px] justify-center rounded-lg font-medium border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 hover:text-slate-900 shadow-xs transition-colors shrink-0"
+                                title="Download official GST Tax Invoice (PDF)"
+                              >
+                                <FileText className="w-3 h-3 text-purple-600 shrink-0" />
+                                <span>Invoice</span>
+                              </a>
+
+                              {/* Gateway Refund Action (for bookings with captured payments) */}
+                              {((b.refundableBalance !== undefined ? b.refundableBalance > 0 : (b.totalPaid && b.totalPaid > 0))) && (
+                                <AdminButton
+                                  variant="secondary"
+                                  size="sm"
+                                  className="w-[108px] !h-7 !px-2.5 !text-[11px] justify-center shadow-sm !text-amber-800 hover:!text-amber-900 !border-amber-300 hover:!bg-amber-50"
+                                  icon={<RotateCcw className="w-3 h-3 text-amber-700" />}
+                                  onClick={() => openRefundModal(b)}
+                                  title={`Issue gateway refund (Available: ₹${(b.refundableBalance ?? b.totalPaid ?? 0).toLocaleString("en-IN")})`}
+                                >
+                                  Refund
+                                </AdminButton>
+                              )}
 
                               {/* Cancel Button */}
                               {b.status !== "completed" && b.status !== "cancelled" && (
@@ -1052,6 +1777,7 @@ export default function BookingsManager({
                   </tbody>
                 </table>
               </div>
+            </>
             )}
           </div>
         </div>
@@ -1066,13 +1792,97 @@ export default function BookingsManager({
           >
             {leads.length === 0 ? (
               <AdminEmptyState
-                icon={<MessageSquare className="w-10 h-10 text-[#5955D1]" />}
+                icon={<MessageSquare className="w-10 h-10 text-[#c59b27]" />}
                 title="No Customer Inquiries Recorded"
                 description="Inquiries submitted via the Contact page will appear here for staff review and follow-up."
               />
             ) : (
-              <div className="overflow-x-auto min-w-0">
-                <table className="w-full min-w-[1000px] text-left text-xs border-separate border-spacing-x-0 border-spacing-y-2.5 sm:border-spacing-y-3">
+              <>
+                {/* Tablet Portrait & Mobile Responsive Card Fallback (< 1200px / xl) */}
+                <div className="block xl:hidden space-y-3">
+                  {leads.map((lead) => (
+                    <div
+                      key={lead.id}
+                      className="bg-white rounded-2xl border border-[#e8edf2] p-4 shadow-xs hover:shadow-md hover:border-[#c59b27]/40 transition-all space-y-2.5"
+                    >
+                      <div className="flex items-center justify-between gap-2 flex-wrap pb-2 border-b border-slate-100">
+                        <span className="text-slate-500 text-[11px] font-medium">
+                          {new Date(lead.created_at).toLocaleDateString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+                        </span>
+                        <span
+                          className={`px-2.5 py-0.5 text-[10px] font-bold uppercase rounded-md border shadow-xs ${
+                            lead.status === "contacted"
+                              ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                              : "bg-amber-50 text-amber-700 border-amber-200"
+                          }`}
+                        >
+                          {lead.status}
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                        <div>
+                          <p className="font-bold text-[#1c274c] text-xs">{lead.name}</p>
+                          <a
+                            href={`tel:${lead.phone}`}
+                            className="text-[11px] text-[#c59b27] hover:underline font-mono mt-0.5 block"
+                          >
+                            {lead.phone}
+                          </a>
+                          {lead.email && <p className="text-[10px] text-slate-500 font-mono mt-0.5 truncate">{lead.email}</p>}
+                        </div>
+                        <div>
+                          <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">Subject</span>
+                          <p className="font-semibold text-[#1c274c] text-xs mt-0.5">{lead.subject || "Car Rental"}</p>
+                        </div>
+                      </div>
+
+                      <div className="pt-2 border-t border-slate-100">
+                        <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider block mb-1">Message</span>
+                        <p className="text-xs text-slate-600 line-clamp-3 bg-slate-50 p-2.5 rounded-lg border border-slate-100">
+                          {lead.message}
+                        </p>
+                      </div>
+
+                      <div className="pt-2 border-t border-slate-100 flex items-center justify-end gap-1.5 flex-wrap">
+                        <AdminButton
+                          variant="secondary"
+                          size="sm"
+                          className="!h-7 !px-2.5 !text-[11px] shadow-sm"
+                          icon={<Eye className="w-3 h-3 text-[#c59b27]" />}
+                          onClick={() => setInspectingLead(lead)}
+                          title="Inspect full inquiry message"
+                        >
+                          Inspect
+                        </AdminButton>
+                        <AdminButton
+                          href={`https://api.whatsapp.com/send?phone=${lead.phone.replace(/[^0-9]/g, "")}&text=${encodeURIComponent(`Hello ${lead.name}, thank you for contacting PrimeRides!`)}`}
+                          variant="success"
+                          size="sm"
+                          className="!h-7 !px-2.5 !text-[11px] shadow-sm"
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          WhatsApp
+                        </AdminButton>
+                        {lead.status === "new" && (
+                          <AdminButton
+                            variant="secondary"
+                            size="sm"
+                            className="!h-7 !px-2.5 !text-[11px] shadow-sm"
+                            onClick={() => handleLeadStatusChange(lead.id, "contacted")}
+                          >
+                            Done
+                          </AdminButton>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Desktop Full Table View (>= 1200px / xl) */}
+                <div className="hidden xl:block overflow-x-auto min-w-0">
+                  <table className="w-full min-w-[760px] text-left text-xs border-separate border-spacing-x-0 border-spacing-y-2.5 sm:border-spacing-y-3">
                   <thead>
                     <tr>
                       <th className="py-3 px-4 whitespace-nowrap min-w-[140px] text-slate-500 font-bold uppercase tracking-wider text-[10.5px]">
@@ -1101,18 +1911,18 @@ export default function BookingsManager({
                         key={lead.id}
                         className="align-middle"
                       >
-                        <td className="py-4 px-4 align-middle whitespace-nowrap min-w-[140px] text-slate-500 text-[11px] font-medium bg-white border-y border-l border-[#e8edf2] rounded-l-2xl group-hover:border-[#5955D1]/40 group-hover:bg-[#eeedfc]/40 transition-all">
+                        <td className="py-4 px-4 align-middle whitespace-nowrap min-w-[140px] text-slate-500 text-[11px] font-medium bg-white border-y border-l border-[#e8edf2] rounded-l-2xl group-hover:border-[#c59b27]/40 group-hover:bg-[#fdfaf2]/40 transition-all">
                           {new Date(lead.created_at).toLocaleDateString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
                         </td>
                         <td className="py-3 px-4">
                           <p className="font-bold text-[#1c274c] text-xs">{lead.name}</p>
-                          <p className="text-[11px] text-[#5955D1] font-mono mt-0.5">{lead.phone}</p>
+                          <p className="text-[11px] text-[#c59b27] font-mono mt-0.5">{lead.phone}</p>
                           {lead.email && <p className="text-[10px] text-slate-500 font-mono mt-0.5">{lead.email}</p>}
                         </td>
                         <td className="py-3 px-4">
                           <p className="font-semibold text-[#1c274c]">{lead.subject || "Car Rental"}</p>
                         </td>
-                        <td className="py-4 px-4 align-middle min-w-[240px] text-slate-600 bg-white border-y border-[#e8edf2] group-hover:border-[#5955D1]/40 group-hover:bg-[#eeedfc]/40 transition-all">
+                        <td className="py-4 px-4 align-middle min-w-[240px] text-slate-600 bg-white border-y border-[#e8edf2] group-hover:border-[#c59b27]/40 group-hover:bg-[#fdfaf2]/40 transition-all">
                           <p className="line-clamp-2">{lead.message}</p>
                         </td>
                         <td className="py-3 px-4">
@@ -1126,13 +1936,13 @@ export default function BookingsManager({
                             {lead.status}
                           </span>
                         </td>
-                        <td className="py-4 px-4 align-middle text-right whitespace-nowrap min-w-[140px] bg-white border-y border-r border-[#e8edf2] rounded-r-2xl group-hover:border-[#5955D1]/40 group-hover:bg-[#eeedfc]/40 transition-all">
+                        <td className="py-4 px-4 align-middle text-right whitespace-nowrap min-w-[140px] bg-white border-y border-r border-[#e8edf2] rounded-r-2xl group-hover:border-[#c59b27]/40 group-hover:bg-[#fdfaf2]/40 transition-all">
                           <div className="flex items-center justify-end gap-1.5 w-full">
                             <AdminButton
                               variant="secondary"
                               size="sm"
                               className="!h-7 !px-2 !text-[11px] shadow-sm"
-                              icon={<Eye className="w-3 h-3 text-[#5955D1]" />}
+                              icon={<Eye className="w-3 h-3 text-[#c59b27]" />}
                               onClick={() => setInspectingLead(lead)}
                               title="Inspect full inquiry message"
                             >
@@ -1165,6 +1975,7 @@ export default function BookingsManager({
                   </tbody>
                 </table>
               </div>
+            </>
             )}
           </div>
         </div>
@@ -1186,6 +1997,30 @@ export default function BookingsManager({
           <p className="text-xs text-slate-600">
             Cancelling this reservation will immediately re-release the vehicle dates back to public fleet inventory.
           </p>
+
+          {cancellingBooking && ((cancellingBooking.refundableBalance !== undefined ? cancellingBooking.refundableBalance > 0 : (cancellingBooking.totalPaid && cancellingBooking.totalPaid > 0))) && (
+            <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs space-y-2">
+              <div className="flex items-center gap-2 font-bold text-amber-900">
+                <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
+                <span>Captured Payment Detected (₹{(cancellingBooking.refundableBalance ?? cancellingBooking.totalPaid ?? 0).toLocaleString("en-IN")} available)</span>
+              </div>
+              <p className="text-amber-800 text-[11px]">
+                This customer has already paid. Instead of a dry status change, you can issue an immediate Razorpay gateway refund and cancel in one step.
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  const target = cancellingBooking;
+                  setCancellingBooking(null);
+                  openRefundModal(target);
+                }}
+                className="w-full py-1.5 px-3 bg-[#c59b27] hover:bg-[#b0871e] text-white font-bold rounded-lg text-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                Switch to Gateway Refund Flow
+              </button>
+            </div>
+          )}
 
           <div>
             <label className="block text-xs font-bold text-slate-700 mb-2">
@@ -1253,6 +2088,156 @@ export default function BookingsManager({
         </div>
       </AdminModal>
 
+      {/* Dedicated Gateway Refund Modal */}
+      <AdminModal
+        isOpen={Boolean(refundingBooking)}
+        onClose={() => setRefundingBooking(null)}
+        title="Issue Gateway Refund"
+        subtitle={
+          refundingBooking
+            ? `Booking: ${refundingBooking.booking_code} • ${refundingBooking.full_name}`
+            : undefined
+        }
+        size="md"
+      >
+        {refundingBooking && (
+          <form onSubmit={handleProcessRefund} className="space-y-4">
+            {refundError && (
+              <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-800 flex items-start gap-2">
+                <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+                <span>{refundError}</span>
+              </div>
+            )}
+
+            {/* Financial Breakdown Card */}
+            <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl space-y-2 text-xs">
+              <div className="flex justify-between items-center text-slate-600">
+                <span>Vehicle:</span>
+                <span className="font-bold text-slate-900">{refundingBooking.car_name || "Luxury Fleet"}</span>
+              </div>
+              <div className="flex justify-between items-center text-slate-600">
+                <span>Total Captured Payments:</span>
+                <span className="font-bold text-slate-900">₹{(refundingBooking.totalPaid || 0).toLocaleString("en-IN")}</span>
+              </div>
+              <div className="flex justify-between items-center text-slate-600">
+                <span>Already Refunded:</span>
+                <span className="font-semibold text-rose-600">
+                  -₹{(refundingBooking.totalRefunded || 0).toLocaleString("en-IN")}
+                </span>
+              </div>
+              <div className="border-t border-slate-200 pt-2 flex justify-between items-center text-emerald-900 font-extrabold text-sm">
+                <span>Available Refundable Balance:</span>
+                <span className="text-emerald-700">
+                  ₹{(refundingBooking.refundableBalance ?? refundingBooking.totalPaid ?? 0).toLocaleString("en-IN")}
+                </span>
+              </div>
+            </div>
+
+            {/* Preset Reason Chips */}
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                Common Refund Reasons (Click to auto-fill)
+              </label>
+              <div className="flex flex-wrap gap-1.5">
+                {QUICK_REFUND_REASONS.map((reason) => {
+                  const isSelected = refundReasonInput === reason;
+                  return (
+                    <button
+                      key={reason}
+                      type="button"
+                      onClick={() => setRefundReasonInput(reason)}
+                      className={`px-2.5 py-1 text-[11px] font-medium rounded-lg border transition-all cursor-pointer ${
+                        isSelected
+                          ? "bg-amber-50 text-amber-900 border-amber-300 font-semibold shadow-sm"
+                          : "bg-slate-50 text-slate-600 border-[#e8edf2] hover:bg-slate-100 hover:text-slate-900"
+                      }`}
+                    >
+                      {reason}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Refund Amount Input with MAX helper */}
+            <div>
+              <div className="flex justify-between items-center mb-1">
+                <label className="block text-xs font-bold text-slate-700">
+                  Refund Amount (₹) *
+                </label>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const bal = refundingBooking.refundableBalance ?? refundingBooking.totalPaid ?? 0;
+                    setRefundAmountInput(String(bal));
+                  }}
+                  className="text-[11px] font-bold text-amber-700 hover:text-amber-800 underline cursor-pointer"
+                >
+                  Set Maximum (₹{(refundingBooking.refundableBalance ?? refundingBooking.totalPaid ?? 0).toLocaleString("en-IN")})
+                </button>
+              </div>
+              <input
+                type="number"
+                step="any"
+                min="1"
+                max={refundingBooking.refundableBalance ?? refundingBooking.totalPaid ?? 0}
+                required
+                value={refundAmountInput}
+                onChange={(e) => setRefundAmountInput(e.target.value)}
+                placeholder="Enter amount to refund"
+                className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-900 font-semibold focus:outline-none focus:border-amber-500"
+              />
+            </div>
+
+            {/* Reason Textarea */}
+            <AdminTextarea
+              label="Refund Note / Internal Justification *"
+              rows={2}
+              required
+              value={refundReasonInput}
+              onChange={(e) => setRefundReasonInput(e.target.value)}
+              placeholder="e.g. Cancelled at customer request; processed via Razorpay."
+              helperText="Recorded in the customer payment ledger and audit log."
+            />
+
+            {/* Cancel Booking Checkbox */}
+            {refundingBooking.status !== "cancelled" && (
+              <label className="flex items-center gap-2 text-xs text-slate-700 font-medium cursor-pointer pt-1">
+                <input
+                  type="checkbox"
+                  checked={refundCancelBooking}
+                  onChange={(e) => setRefundCancelBooking(e.target.checked)}
+                  className="rounded border-slate-300 text-amber-600 focus:ring-amber-500"
+                />
+                <span>Also transition booking status to <strong>Cancelled</strong> and release fleet dates</span>
+              </label>
+            )}
+
+            {/* Actions */}
+            <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+              <AdminButton
+                type="button"
+                variant="secondary"
+                size="sm"
+                onClick={() => setRefundingBooking(null)}
+              >
+                Back
+              </AdminButton>
+              <AdminButton
+                type="submit"
+                variant="primary"
+                size="sm"
+                icon={<RotateCcw className="w-3.5 h-3.5" />}
+                isLoading={refundIsSubmitting}
+                className="!bg-[#c59b27] hover:!bg-[#b0871e]"
+              >
+                Execute Gateway Refund
+              </AdminButton>
+            </div>
+          </form>
+        )}
+      </AdminModal>
+
       {/* Edit Status Modal */}
       <AdminModal
         isOpen={Boolean(editingStatusBooking)}
@@ -1303,7 +2288,7 @@ export default function BookingsManager({
               </div>
               <div>
                 <span className="text-slate-400 block text-[10px] uppercase font-bold">Current Status</span>
-                <span className="font-bold uppercase text-[#5955D1] block">{editingStatusBooking.status}</span>
+                <span className="font-bold uppercase text-[#c59b27] block">{editingStatusBooking.status}</span>
               </div>
               <div>
                 <span className="text-slate-400 block text-[10px] uppercase font-bold">Driving License</span>
@@ -1339,13 +2324,13 @@ export default function BookingsManager({
                       onClick={() => setSelectedNewStatus(card.key)}
                       className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
                         isSelected
-                          ? "bg-[#eeedfc] border-[#5955D1] shadow-xs ring-2 ring-[#5955D1]/25"
+                          ? "bg-[#fdfaf2] border-[#c59b27] shadow-xs ring-2 ring-[#c59b27]/25"
                           : "bg-white border-[#e8edf2] hover:border-slate-300 hover:bg-slate-50/70"
                       }`}
                     >
                       <div className="flex items-center justify-between mb-1">
-                        <Icon className={`w-4 h-4 ${isSelected ? "text-[#5955D1]" : "text-slate-400"}`} />
-                        {isSelected && <Check className="w-3.5 h-3.5 text-[#5955D1]" />}
+                        <Icon className={`w-4 h-4 ${isSelected ? "text-[#c59b27]" : "text-slate-400"}`} />
+                        {isSelected && <Check className="w-3.5 h-3.5 text-[#c59b27]" />}
                       </div>
                       <div>
                         <p className={`text-xs font-bold ${isSelected ? "text-[#b0871d]" : "text-[#1c274c]"}`}>
@@ -1385,7 +2370,7 @@ export default function BookingsManager({
                       onClick={() => setStatusUpdateNote(note)}
                       className={`px-2.5 py-1 text-[11px] font-medium rounded-lg border transition-all cursor-pointer ${
                         isSelected
-                          ? "bg-[#eeedfc] text-[#b0871d] border-[#5955D1]/60 font-semibold shadow-sm"
+                          ? "bg-[#fdfaf2] text-[#b0871d] border-[#c59b27]/60 font-semibold shadow-sm"
                           : "bg-slate-50 text-slate-600 border-[#e8edf2] hover:bg-slate-100 hover:text-slate-900"
                       }`}
                     >
@@ -1468,7 +2453,7 @@ export default function BookingsManager({
               </div>
               <div>
                 <span className="text-slate-400 block text-[10px] uppercase font-bold">Phone Number</span>
-                <span className="font-mono font-bold text-[#5955D1] block">{inspectingLead.phone}</span>
+                <span className="font-mono font-bold text-[#c59b27] block">{inspectingLead.phone}</span>
               </div>
               {inspectingLead.email && (
                 <div>
@@ -1751,6 +2736,547 @@ export default function BookingsManager({
               </div>
             </div>
           </form>
+        )}
+      </AdminModal>
+
+      {/* Walk-In / Office Booking Modal */}
+      <AdminModal
+        isOpen={isWalkinModalOpen}
+        onClose={() => setIsWalkinModalOpen(false)}
+        title="Create Walk-In / Office Booking"
+        subtitle="Book a vehicle directly from the office desk for in-person or telephone walk-in customers."
+        size="lg"
+        footer={
+          <div className="flex items-center justify-between w-full">
+            <span className="text-[11px] text-slate-500 font-medium">
+              * Required fields. Row-locks car in fleet to prevent double-booking.
+            </span>
+            <div className="flex items-center gap-2">
+              <AdminButton
+                variant="outline"
+                type="button"
+                onClick={() => setIsWalkinModalOpen(false)}
+                disabled={walkinIsSubmitting}
+              >
+                Cancel
+              </AdminButton>
+              <AdminButton
+                variant="primary"
+                type="submit"
+                form="walkin-booking-form"
+                isLoading={walkinIsSubmitting}
+                icon={<Car className="w-4 h-4" />}
+              >
+                Create Office Reservation
+              </AdminButton>
+            </div>
+          </div>
+        }
+      >
+        <form id="walkin-booking-form" onSubmit={handleWalkinSubmit} className="space-y-4">
+          {walkinError && (
+            <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-800 text-xs flex items-start gap-2">
+              <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+              <span className="leading-relaxed">{walkinError}</span>
+            </div>
+          )}
+
+          {/* SECTION 1: Location & Trip Schedule First */}
+          <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 shadow-xs space-y-3">
+            <div className="flex items-center justify-between pb-1 border-b border-slate-200">
+              <div className="flex items-center gap-2 text-slate-900 font-bold text-xs uppercase tracking-wider">
+                <MapPin className="w-4 h-4 text-[#c59b27]" />
+                <span>1. Select Location Hub &amp; Schedule (First Step)</span>
+              </div>
+              {walkinLocationId && calculatedEstimate && (
+                <span className="px-2.5 py-0.5 rounded-full bg-[#c59b27]/10 text-[#c59b27] text-[11px] font-semibold">
+                  {locationsList.find((l) => l.id === Number(walkinLocationId))?.name || "Hub Selected"} • {calculatedEstimate.diffDays} Day{calculatedEstimate.diffDays > 1 ? "s" : ""}
+                </span>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div>
+                <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
+                  Pickup Location / Hub *
+                </label>
+                <select
+                  value={walkinLocationId}
+                  onChange={(e) => {
+                    const locId = Number(e.target.value);
+                    setWalkinLocationId(locId);
+                    const loc = locationsList.find((l) => l.id === locId);
+                    if (loc) {
+                      setWalkinPickupLocation(loc.name);
+                      setWalkinDropLocation(loc.name);
+                    }
+                    const matchingCars = carsList.filter((c) => !c.location_id || c.location_id === locId);
+                    if (matchingCars.length > 0) {
+                      const firstAvail = matchingCars.find((c) => {
+                        const stat = carAvailabilityMap[c.id];
+                        return !stat || !stat.isSoldOut;
+                      }) || matchingCars[0];
+                      setWalkinCarId(firstAvail.id);
+                      setWalkinPlanId(firstAvail.rental_plans?.[0]?.id || "");
+                    } else {
+                      setWalkinCarId("");
+                      setWalkinPlanId("");
+                    }
+                  }}
+                  className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs font-semibold focus:outline-none focus:border-[#c59b27]"
+                  required
+                >
+                  <option value="" disabled>-- Select Pickup Hub --</option>
+                  {locationsList.map((loc) => (
+                    <option key={loc.id} value={loc.id}>
+                      {loc.name} ({loc.city})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
+                  Pickup Date &amp; Time *
+                </label>
+                <input
+                  type="datetime-local"
+                  value={walkinStartDate}
+                  onChange={(e) => setWalkinStartDate(e.target.value)}
+                  className="w-full px-2.5 py-1.5 bg-white border border-slate-300 rounded-lg text-xs font-mono focus:outline-none focus:border-[#c59b27]"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
+                  Return Date &amp; Time *
+                </label>
+                <input
+                  type="datetime-local"
+                  value={walkinEndDate}
+                  onChange={(e) => setWalkinEndDate(e.target.value)}
+                  className="w-full px-2.5 py-1.5 bg-white border border-slate-300 rounded-lg text-xs font-mono focus:outline-none focus:border-[#c59b27]"
+                  required
+                />
+              </div>
+            </div>
+
+            <p className="text-[10.5px] text-slate-500">
+              💡 Selecting the location hub first automatically filters vehicles stationed at that hub and recalculates live multi-unit availability.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Left Column: Fleet Vehicle & Customer Identification */}
+            <div className="space-y-3.5 p-3.5 rounded-xl bg-slate-50/70 border border-slate-200">
+              {/* 2. Vehicle & Package Selection */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between pb-1 border-b border-slate-200">
+                  <div className="flex items-center gap-2 text-slate-800 font-bold text-xs uppercase tracking-wider">
+                    <Car className="w-4 h-4 text-[#c59b27]" />
+                    <span>2. Available Fleet Vehicle &amp; Package</span>
+                  </div>
+                  <span className="text-[10px] text-slate-500">
+                    {locationFilteredCars.length} car{locationFilteredCars.length !== 1 ? "s" : ""} at this hub
+                  </span>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
+                    Select Vehicle (Filtered by Location) *
+                  </label>
+                  <select
+                    value={walkinCarId}
+                    onChange={(e) => {
+                      const id = Number(e.target.value);
+                      setWalkinCarId(id);
+                      const c = locationFilteredCars.find((car) => car.id === id);
+                      if (c && c.rental_plans.length > 0) {
+                        setWalkinPlanId(c.rental_plans[0].id);
+                      } else {
+                        setWalkinPlanId("");
+                      }
+                    }}
+                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-medium focus:outline-none focus:border-[#c59b27]"
+                    required
+                  >
+                    <option value="" disabled>-- Choose Available Fleet Vehicle --</option>
+                    {locationFilteredCars.map((car) => {
+                      const stat = carAvailabilityMap[car.id];
+                      const avail = stat ? stat.available : (car.fleet_count || 1);
+                      const total = stat ? stat.total : (car.fleet_count || 1);
+                      const isSoldOut = stat ? stat.isSoldOut : false;
+                      return (
+                        <option key={car.id} value={car.id} disabled={isSoldOut}>
+                          {car.name} ({car.brand}) — ₹{car.price_per_day.toLocaleString("en-IN")}/day [{avail} of {total} available]{isSoldOut ? " — SOLD OUT" : ""}
+                        </option>
+                      );
+                    })}
+                  </select>
+                </div>
+
+                {selectedCar && carAvailabilityMap[selectedCar.id]?.isSoldOut && (
+                  <div className="p-2.5 rounded-lg bg-red-50 border border-red-200 text-red-800 text-[11px] flex items-center gap-2">
+                    <AlertTriangle className="w-4 h-4 text-red-600 shrink-0" />
+                    <span>All {selectedCar.fleet_count || 1} units of this vehicle are already reserved for these dates. Please choose another car.</span>
+                  </div>
+                )}
+
+                {selectedCar && selectedCar.rental_plans.length > 0 && (
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
+                      Rental Plan / Package *
+                    </label>
+                    <select
+                      value={walkinPlanId}
+                      onChange={(e) => setWalkinPlanId(Number(e.target.value))}
+                      className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-medium focus:outline-none focus:border-[#c59b27]"
+                      required
+                    >
+                      {selectedCar.rental_plans.map((p) => (
+                        <option key={p.id} value={p.id}>
+                          {p.name} — ₹{p.price.toLocaleString("en-IN")} ({p.free_km ? `${p.free_km} free km` : "Standard km"} • Dep: ₹{p.security_deposit || 5000})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
+                <div className="flex items-center gap-2 pt-0.5">
+                  <label className="flex items-center gap-2 cursor-pointer text-xs text-slate-700 font-medium">
+                    <input
+                      type="checkbox"
+                      checked={walkinWithChauffeur}
+                      onChange={(e) => setWalkinWithChauffeur(e.target.checked)}
+                      className="w-4 h-4 text-[#c59b27] rounded focus:ring-[#c59b27]"
+                    />
+                    <span>Add Professional Chauffeur (+₹1,000/day)</span>
+                  </label>
+                </div>
+              </div>
+
+              {/* 3. Customer Identity & In-Person Verification */}
+              <div className="pt-3 border-t border-slate-200 space-y-3">
+                <div className="flex items-center gap-2 pb-1 border-b border-slate-200 text-slate-800 font-bold text-xs uppercase tracking-wider">
+                  <User className="w-4 h-4 text-[#c59b27]" />
+                  <span>3. Customer &amp; Identity Verification</span>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
+                    Full Name *
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Vikram Sharma"
+                    value={walkinFullName}
+                    onChange={(e) => setWalkinFullName(e.target.value)}
+                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#c59b27]"
+                    required
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
+                      Phone Number *
+                    </label>
+                    <input
+                      type="tel"
+                      placeholder="e.g. 9876543210"
+                      value={walkinPhone}
+                      onChange={(e) => setWalkinPhone(e.target.value)}
+                      className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-mono focus:outline-none focus:border-[#c59b27]"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
+                      Email Address
+                    </label>
+                    <input
+                      type="email"
+                      placeholder="e.g. customer@example.com"
+                      value={walkinEmail}
+                      onChange={(e) => setWalkinEmail(e.target.value)}
+                      className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-[#c59b27]"
+                    />
+                  </div>
+                </div>
+
+                {/* In-Person DL Gate */}
+                <div className="p-3 bg-amber-50/80 border border-amber-200/80 rounded-lg space-y-2">
+                  <div className="flex items-start gap-2">
+                    <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                    <div>
+                      <label className="block text-[11px] font-bold text-amber-900 uppercase">
+                        Physical Driving License Verification
+                      </label>
+                      <p className="text-[10.5px] text-amber-800">
+                        Verify original physical DL before handing over vehicle keys.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 pt-1">
+                    <input
+                      type="text"
+                      placeholder="DL Number (e.g. DL-0420220019283)"
+                      value={walkinDlNumber}
+                      onChange={(e) => setWalkinDlNumber(e.target.value)}
+                      className="flex-1 px-2.5 py-1.5 bg-white border border-amber-300 rounded text-xs font-mono uppercase focus:outline-none focus:border-amber-500"
+                    />
+                  </div>
+
+                  <label className="flex items-center gap-2 cursor-pointer text-[11px] text-amber-950 font-medium pt-0.5">
+                    <input
+                      type="checkbox"
+                      checked={walkinVerifyDlInPerson}
+                      onChange={(e) => setWalkinVerifyDlInPerson(e.target.checked)}
+                      className="w-3.5 h-3.5 text-amber-600 rounded focus:ring-amber-500"
+                    />
+                    <span>Physical original license inspected and verified in office</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column: Desk Payment & Clearance Gate */}
+            <div className="space-y-3.5 p-3.5 rounded-xl bg-slate-50/70 border border-slate-200 flex flex-col justify-between">
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 pb-1 border-b border-slate-200 text-slate-800 font-bold text-xs uppercase tracking-wider">
+                  <Banknote className="w-4 h-4 text-[#c59b27]" />
+                  <span>4. Counter Payment &amp; Clearance Gate</span>
+                </div>
+
+                {/* Live Financial Breakdown Card */}
+                {calculatedEstimate && (
+                  <div className="p-3 bg-white rounded-xl border border-slate-200 shadow-xs space-y-1.5 text-xs">
+                    <div className="flex justify-between items-center text-slate-500 text-[11px] pb-1 border-b border-slate-100">
+                      <span>Duration</span>
+                      <strong className="text-slate-800 font-mono">
+                        {calculatedEstimate.diffDays} Day{calculatedEstimate.diffDays > 1 ? "s" : ""} ({calculatedEstimate.diffHours} hrs)
+                      </strong>
+                    </div>
+                    <div className="flex justify-between items-center text-slate-600 text-[11px]">
+                      <span>Rental Subtotal</span>
+                      <span className="font-mono">₹{calculatedEstimate.baseRental.toLocaleString("en-IN")}</span>
+                    </div>
+                    {calculatedEstimate.chauffeurCost > 0 && (
+                      <div className="flex justify-between items-center text-slate-600 text-[11px]">
+                        <span>Chauffeur</span>
+                        <span className="font-mono">₹{calculatedEstimate.chauffeurCost.toLocaleString("en-IN")}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between items-center text-slate-600 text-[11px]">
+                      <span>GST (18% SAC 996601)</span>
+                      <span className="font-mono">₹{calculatedEstimate.gst.toLocaleString("en-IN")}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-slate-600 text-[11px]">
+                      <span>Refundable Deposit</span>
+                      <span className="font-mono">₹{calculatedEstimate.deposit.toLocaleString("en-IN")}</span>
+                    </div>
+                    <div className="flex justify-between items-center pt-1.5 border-t border-slate-200 font-bold text-xs text-slate-900">
+                      <span>Estimated Grand Total</span>
+                      <span className="font-mono text-[#c59b27] text-sm">
+                        ₹{calculatedEstimate.grandTotal.toLocaleString("en-IN")}
+                      </span>
+                    </div>
+
+                    {walkinCollectPaymentNow && (
+                      <button
+                        type="button"
+                        onClick={() => setWalkinPaymentAmount(String(calculatedEstimate.grandTotal))}
+                        className="w-full text-center text-[10.5px] text-[#c59b27] font-semibold hover:underline mt-1 pt-0.5"
+                      >
+                        Auto-fill Desk Payment with ₹{calculatedEstimate.grandTotal.toLocaleString("en-IN")}
+                      </button>
+                    )}
+                  </div>
+                )}
+
+                {/* Desk Payment Gate */}
+                <div className="p-3 bg-emerald-50/70 border border-emerald-200 rounded-xl space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-emerald-950">
+                      <input
+                        type="checkbox"
+                        checked={walkinCollectPaymentNow}
+                        onChange={(e) => setWalkinCollectPaymentNow(e.target.checked)}
+                        className="w-4 h-4 text-emerald-600 rounded focus:ring-emerald-500"
+                      />
+                      <Banknote className="w-4 h-4 text-emerald-600" />
+                      <span>Collect Initial Payment at Desk Now</span>
+                    </label>
+                  </div>
+
+                  {walkinCollectPaymentNow && (
+                    <div className="space-y-2 pt-1 border-t border-emerald-200">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <div>
+                          <label className="block text-[10px] font-bold text-emerald-900 uppercase mb-0.5">
+                            Amount Collected (₹) *
+                          </label>
+                          <input
+                            type="number"
+                            min="1"
+                            placeholder="e.g. 5000"
+                            value={walkinPaymentAmount}
+                            onChange={(e) => setWalkinPaymentAmount(e.target.value)}
+                            className="w-full px-2.5 py-1.5 bg-white border border-emerald-300 rounded text-xs font-mono font-bold focus:outline-none focus:border-emerald-500"
+                            required={walkinCollectPaymentNow}
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] font-bold text-emerald-900 uppercase mb-0.5">
+                            Payment Mode *
+                          </label>
+                          <select
+                            value={walkinPaymentMethod}
+                            onChange={(e) => setWalkinPaymentMethod(e.target.value)}
+                            className="w-full px-2.5 py-1.5 bg-white border border-emerald-300 rounded text-xs font-medium focus:outline-none focus:border-emerald-500"
+                          >
+                            <option value="cash">Cash in Hand</option>
+                            <option value="card_pos">Wireless Card POS Terminal</option>
+                            <option value="upi_pos">Desk UPI QR Code</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-[10px] font-bold text-emerald-900 uppercase mb-0.5">
+                          Slip / Receipt / Reference No
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="e.g. CASH_DESK_8291 or POS_RRN_102"
+                          value={walkinPaymentRef}
+                          onChange={(e) => setWalkinPaymentRef(e.target.value)}
+                          className="w-full px-2.5 py-1.5 bg-white border border-emerald-300 rounded text-xs font-mono focus:outline-none focus:border-emerald-500"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
+                      Coupon Code (Optional)
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. FLAT500"
+                      value={walkinCouponCode}
+                      onChange={(e) => setWalkinCouponCode(e.target.value.toUpperCase())}
+                      className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded text-xs font-mono uppercase focus:outline-none focus:border-[#c59b27]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
+                      Initial Status
+                    </label>
+                    <select
+                      value={walkinStatus}
+                      onChange={(e) => setWalkinStatus(e.target.value as "confirmed" | "pending")}
+                      className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded text-xs font-medium focus:outline-none focus:border-[#c59b27]"
+                    >
+                      <option value="confirmed">Confirmed (Ready for Key Handover)</option>
+                      <option value="pending">Pending (Awaiting Confirmation)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
+                    Staff / Office Notes
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Walk-in customer visiting Connaught Place office"
+                    value={walkinNotes}
+                    onChange={(e) => setWalkinNotes(e.target.value)}
+                    className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded text-xs focus:outline-none focus:border-[#c59b27]"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </AdminModal>
+
+      {/* Walk-In Success & Instant Handover Choice Modal */}
+      <AdminModal
+        isOpen={!!createdWalkinBooking}
+        onClose={() => setCreatedWalkinBooking(null)}
+        title="Walk-In Booking Confirmed"
+        subtitle="The vehicle has been reserved in the fleet and customer profile created."
+        size="md"
+        footer={
+          <div className="flex items-center justify-end gap-2.5 w-full">
+            <AdminButton
+              variant="outline"
+              type="button"
+              onClick={() => setCreatedWalkinBooking(null)}
+            >
+              Back to Reservations
+            </AdminButton>
+            <AdminButton
+              variant="success"
+              type="button"
+              icon={<Key className="w-4 h-4" />}
+              onClick={() => {
+                const b = createdWalkinBooking;
+                setCreatedWalkinBooking(null);
+                if (b) {
+                  setHandoverBooking(b);
+                  setHandoverOdometer("");
+                  setHandoverFuel("100% (Full)");
+                  setHandoverInspection("Desk handover verified. In-person DL inspected. Pristine condition.");
+                  const total = Number(b.total_amount || 0);
+                  const bal = total - Number(b.totalPaid || 0);
+                  setHandoverPaymentAmount(bal > 0 ? String(bal) : "");
+                  setHandoverPaymentMethod("cash");
+                  setHandoverPaymentRef(bal > 0 ? `POS_${Date.now().toString().slice(-6)}` : "");
+                  setHandoverError(null);
+                }
+              }}
+            >
+              Proceed to Key Handover
+            </AdminButton>
+          </div>
+        }
+      >
+        {createdWalkinBooking && (
+          <div className="space-y-4 py-2 text-xs">
+            <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-950 flex items-start gap-3">
+              <CheckCircle className="w-6 h-6 text-emerald-600 shrink-0 mt-0.5" />
+              <div>
+                <strong className="text-sm font-bold text-emerald-900 block">
+                  Reservation {createdWalkinBooking.booking_code} Created
+                </strong>
+                <p className="mt-1 text-emerald-800">
+                  Customer <strong>{createdWalkinBooking.full_name}</strong> ({createdWalkinBooking.phone}) has been booked for <strong>{createdWalkinBooking.car_name || "Vehicle"}</strong>.
+                </p>
+                <div className="mt-2.5 flex flex-wrap gap-2 text-[11px]">
+                  <span className="px-2 py-0.5 rounded bg-emerald-100/80 font-mono font-bold text-emerald-900">
+                    Total: ₹{Number(createdWalkinBooking.total_amount || 0).toLocaleString("en-IN")}
+                  </span>
+                  <span className="px-2 py-0.5 rounded bg-emerald-100/80 font-mono font-bold text-emerald-900">
+                    Paid: ₹{Number(createdWalkinBooking.totalPaid || 0).toLocaleString("en-IN")}
+                  </span>
+                  <span className="px-2 py-0.5 rounded bg-emerald-200 font-semibold text-emerald-900">
+                    DL Verified: {createdWalkinBooking.hasVerifiedDL ? "Yes (In-Person)" : "Pending"}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <p className="text-slate-600 leading-relaxed">
+              If the customer is ready to receive vehicle keys right now at the office counter, click <strong>"Proceed to Key Handover"</strong> to record starting odometer, starting fuel level, and release the car.
+            </p>
+          </div>
         )}
       </AdminModal>
     </PageContainer>

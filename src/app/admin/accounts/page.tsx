@@ -1,4 +1,4 @@
-import React from "react";
+import { PageContainer } from "@/components/admin/ui";
 import { prisma } from "@/server/db/client";
 import { getCurrentAdmin, hasAdminPermission, ADMIN_PERMISSIONS } from "@/server/auth/rbac";
 import ForbiddenCard from "@/components/admin/ForbiddenCard";
@@ -19,10 +19,12 @@ export default async function AdminAccountsPage() {
     ])
   ) {
     return (
-      <ForbiddenCard
-        permissionRequired="payments.view or bookings.view"
-        moduleName="Accounts & Financial Reports"
-      />
+      <PageContainer>
+        <ForbiddenCard
+          permissionRequired="payments.view or bookings.view"
+          moduleName="Accounts & Financial Reports"
+        />
+      </PageContainer>
     );
   }
 

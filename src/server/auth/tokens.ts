@@ -1,8 +1,8 @@
 export * from "./jwt";
 import { prisma } from "../db/client";
-import { createAccessToken, TokenPayload } from "./jwt";
+import { createAccessToken, TokenPayload, getJwtSecret } from "./jwt";
 
-const JWT_SECRET = process.env.JWT_SECRET || "primerides_super_secure_jwt_secret_2026_fallback";
+const JWT_SECRET = getJwtSecret();
 
 /**
  * Creates a cryptographically secure random refresh token and records it in tbl_sessions.

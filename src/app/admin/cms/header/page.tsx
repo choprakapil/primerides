@@ -262,13 +262,13 @@ export default function AdminCmsHeaderPage() {
       {/* 4 Luxury Pastel KPI Summary Cards */}
       <div className="row g-3 mb-4">
         <div className="col-12 col-sm-6 col-xl-3">
-          <div className="card h-100 border pastel-card pastel-card-lavender">
+          <div className="card h-100 border pastel-card pastel-card-peach">
             <div className="card-body p-3.5">
               <div className="d-flex align-items-center justify-content-between mb-2">
-                <div className="avatar avatar-md rounded-circle bg-purple-100 text-purple-700 d-flex align-items-center justify-content-center">
+                <div className="avatar avatar-md rounded-circle bg-amber-100 text-amber-800 d-flex align-items-center justify-content-center">
                   <Compass className="w-5 h-5" />
                 </div>
-                <TrendArrowBadge value="Active" period="Navbar" pastelTheme="lavender" />
+                <TrendArrowBadge value="Active" period="Navbar" pastelTheme="peach" />
               </div>
               <div className="text-muted text-xs font-semibold text-uppercase tracking-wider">
                 Total Menu Links
@@ -393,7 +393,7 @@ export default function AdminCmsHeaderPage() {
           <div className="d-flex align-items-center gap-2 py-1">
             <img
               src={headerConfig.logoUrl || "/assets/img/PRLogo.png"}
-              alt="Logo Preview"
+              alt="PrimeRides Brand Logo Live Preview"
               style={{
                 height: `${headerConfig.logoHeight || 44}px`,
                 maxWidth: "180px",
@@ -509,7 +509,7 @@ export default function AdminCmsHeaderPage() {
       {/* TAB 1: Menu Links Management */}
       {activeTab === "menu" && (
         <div className="space-y-4">
-          <div className="card border pastel-card pastel-card-lavender mb-4">
+          <div className="card border pastel-card pastel-card-peach mb-4">
             <div className="card-header bg-transparent border-bottom d-flex align-items-center justify-content-between p-3.5">
               <div>
                 <h6 className="mb-0 fw-bold text-dark">Navigation Links List</h6>
@@ -544,7 +544,7 @@ export default function AdminCmsHeaderPage() {
                       <tr key={item.id}>
                         <td>
                           <span
-                            className="badge bg-purple-100 text-purple-700 rounded-circle p-1.5 fw-bold text-[11px] d-inline-flex align-items-center justify-content-center"
+                            className="badge bg-amber-100 text-amber-800 rounded-circle p-1.5 fw-bold text-[11px] d-inline-flex align-items-center justify-content-center"
                             style={{ width: "26px", height: "26px" }}
                           >
                             {idx + 1}
@@ -830,7 +830,7 @@ export default function AdminCmsHeaderPage() {
                   >
                     <img
                       src={headerConfig.logoUrl || "/assets/img/PRLogo.png"}
-                      alt="Logo on Dark"
+                      alt="PrimeRides Brand Logo Render on Dark Navbar"
                       style={{
                         height: `${headerConfig.logoHeight || 44}px`,
                         objectFit: "contain",
@@ -848,7 +848,7 @@ export default function AdminCmsHeaderPage() {
                   >
                     <img
                       src={headerConfig.logoUrl || "/assets/img/PRLogo.png"}
-                      alt="Logo on Light"
+                      alt="PrimeRides Brand Logo Render on Light Background"
                       style={{
                         height: `${headerConfig.logoHeight || 44}px`,
                         objectFit: "contain",
@@ -1036,10 +1036,10 @@ export default function AdminCmsHeaderPage() {
 
           {/* Action Button 3: User Auth / Portal Button */}
           <div className="col-12 col-md-4">
-            <div className="card border pastel-card pastel-card-lavender h-100">
+            <div className="card border pastel-card pastel-card-peach h-100">
               <div className="card-header bg-transparent border-bottom d-flex align-items-center justify-content-between p-3.5">
                 <div className="d-flex align-items-center gap-2">
-                  <User className="w-4 h-4 text-purple-700" />
+                  <User className="w-4 h-4 text-amber-800" />
                   <h6 className="mb-0 fw-bold text-dark text-sm">Customer Auth / Portal</h6>
                 </div>
                 <div className="form-check form-switch mb-0">

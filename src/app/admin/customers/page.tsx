@@ -6,6 +6,9 @@ import ForbiddenCard from "@/components/admin/ForbiddenCard";
 import { PageContainer, PageHeader } from "@/components/admin/ui";
 import CustomerDirectory, { CustomerRecord } from "@/components/admin/CustomerDirectory";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export const metadata = {
   title: "Customer Directory & Dossiers | PrimeRides Admin",
 };

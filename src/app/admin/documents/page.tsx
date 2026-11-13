@@ -257,7 +257,7 @@ export default function AdminDocumentsReviewPage() {
                     </div>
                   ) : (
                     <div className="w-full h-full rounded-[14px] bg-slate-100 border border-dashed border-slate-300 flex flex-col items-center justify-center text-slate-400 gap-1.5">
-                      <FileText className="w-8 h-8 text-[#5955D1]" />
+                      <FileText className="w-8 h-8 text-[#c59b27]" />
                       <span className="text-[11px] font-semibold">Document File Uploaded</span>
                     </div>
                   )}
@@ -312,7 +312,7 @@ export default function AdminDocumentsReviewPage() {
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex items-center gap-2.5">
                         <div
-                          className="w-9 h-9 rounded-full bg-[#eeedfc] border border-[#5955D1] flex items-center justify-center text-[#5955D1] font-bold text-xs shrink-0"
+                          className="w-9 h-9 rounded-full bg-[#fdfaf2] border border-[#c59b27] flex items-center justify-center text-[#c59b27] font-bold text-xs shrink-0"
                           
                         >
                           <User className="w-4 h-4" />
@@ -321,7 +321,7 @@ export default function AdminDocumentsReviewPage() {
                           <h4 className="font-heading text-sm font-extrabold text-[#1c274c]">
                             {doc.customer?.full_name || `Customer #${doc.customer_id}`}
                           </h4>
-                          <p className="text-[11px] text-[#5955D1] font-mono mt-0.5 font-semibold">
+                          <p className="text-[11px] text-[#c59b27] font-mono mt-0.5 font-semibold">
                             {doc.customer?.phone}
                           </p>
                         </div>
@@ -367,7 +367,7 @@ export default function AdminDocumentsReviewPage() {
                       variant="secondary"
                       size="sm"
                       className="w-full justify-center shadow-sm"
-                      icon={<Eye className="w-3.5 h-3.5 text-[#5955D1]" />}
+                      icon={<Eye className="w-3.5 h-3.5 text-[#c59b27]" />}
                       onClick={() => openCustomerInspection(doc)}
                     >
                       Inspect Full Document
@@ -447,7 +447,7 @@ export default function AdminDocumentsReviewPage() {
                     onClick={() => setRejectionReason(reason)}
                     className={`px-2.5 py-1 text-[11px] font-medium rounded-lg border transition-all cursor-pointer ${
                       isSelected
-                        ? "bg-[#eeedfc] text-[#b0871d] border-[#5955D1]/60 font-semibold shadow-sm"
+                        ? "bg-[#fdfaf2] text-[#b0871d] border-[#c59b27]/60 font-semibold shadow-sm"
                         : "bg-slate-50 text-slate-600 border-[#e8edf2] hover:bg-slate-100 hover:text-slate-900"
                     }`}
                   >
@@ -513,7 +513,7 @@ export default function AdminDocumentsReviewPage() {
               {/* Customer Profile & Verification Context Strip */}
               <div className="p-3.5 rounded-3 bg-slate-50 border border-[#e8edf2] flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-white border border-[#e8edf2] flex items-center justify-center text-[#5955D1] font-bold text-sm shadow-sm">
+                  <div className="w-10 h-10 rounded-xl bg-white border border-[#e8edf2] flex items-center justify-center text-[#c59b27] font-bold text-sm shadow-sm">
                     {activeDoc.customer?.full_name?.substring(0, 2).toUpperCase() || "ID"}
                   </div>
                   <div>
@@ -536,7 +536,7 @@ export default function AdminDocumentsReviewPage() {
                   <span className="text-[11px] font-bold text-slate-500">
                     Shared Documents:
                   </span>
-                  <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#eeedfc] text-[#b0871d] border border-[#5955D1]/30">
+                  <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#fdfaf2] text-[#b0871d] border border-[#c59b27]/30">
                     {isLoadingCustomerDocs ? "Loading..." : `${effectiveDocs.length} Total`}
                   </span>
                 </div>
@@ -549,7 +549,7 @@ export default function AdminDocumentsReviewPage() {
                     All Shared Documents ({activeIndex + 1} of {effectiveDocs.length}):
                   </label>
                   {isLoadingCustomerDocs && (
-                    <span className="text-[10.5px] text-[#5955D1] font-semibold flex items-center gap-1 animate-pulse">
+                    <span className="text-[10.5px] text-[#c59b27] font-semibold flex items-center gap-1 animate-pulse">
                       <RefreshCw className="w-3 h-3 animate-spin" />
                       Syncing customer records...
                     </span>
@@ -565,7 +565,7 @@ export default function AdminDocumentsReviewPage() {
                         onClick={() => setSelectedDocId(doc.id)}
                         className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer flex items-center gap-2.5 ${
                           isSelected
-                            ? "bg-[#eeedfc] border-[#5955D1] shadow-xs ring-2 ring-[#5955D1]/20"
+                            ? "bg-[#fdfaf2] border-[#c59b27] shadow-xs ring-2 ring-[#c59b27]/20"
                             : "bg-white border-[#e8edf2] hover:border-slate-300 hover:bg-slate-50"
                         }`}
                       >
@@ -573,7 +573,7 @@ export default function AdminDocumentsReviewPage() {
                           {doc.viewUrl ? (
                             <img
                               src={doc.viewUrl}
-                              alt=""
+                              alt={`${getDocTypeLabel(doc.type)} Thumbnail`}
                               className="w-full h-full object-cover"
                               onError={(e) => {
                                 (e.target as HTMLImageElement).style.display = "none";
@@ -613,12 +613,12 @@ export default function AdminDocumentsReviewPage() {
                 {activeDoc.viewUrl ? (
                   <img
                     src={activeDoc.viewUrl}
-                    alt={activeDoc.type}
+                    alt={`${getDocTypeLabel(activeDoc.type)} Inspection Preview`}
                     className="max-w-full max-h-full object-contain p-2"
                   />
                 ) : (
                   <div className="flex flex-col items-center justify-center text-slate-400 gap-2">
-                    <FileText className="w-12 h-12 text-[#5955D1]" />
+                    <FileText className="w-12 h-12 text-[#c59b27]" />
                     <span className="text-xs font-semibold">No Image Preview Available</span>
                   </div>
                 )}

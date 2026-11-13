@@ -352,7 +352,7 @@ export default function AdminCmsHomepage() {
         <div className="row g-4">
           {/* Left Column: Editor Controls */}
           <div className="col-12 col-xl-7">
-            <div className="card border pastel-card pastel-card-lavender h-100">
+            <div className="card border pastel-card pastel-card-peach h-100">
               <div className="card-header bg-transparent border-bottom d-flex align-items-center justify-content-between p-3.5">
                 <div>
                   <h6 className="mb-0 fw-bold text-dark">Hero Headline & Value Proposition</h6>
@@ -360,7 +360,7 @@ export default function AdminCmsHomepage() {
                     Controls the primary headline, golden accents, and USP badges on the live homepage.
                   </p>
                 </div>
-                <span className="badge bg-purple-100 text-purple-700 rounded-pill px-2.5 py-1 text-xs fw-semibold">
+                <span className="badge bg-amber-100 text-amber-800 rounded-pill px-2.5 py-1 text-xs fw-semibold">
                   Live Section 1
                 </span>
               </div>

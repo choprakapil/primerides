@@ -1,22 +1,40 @@
 {
   "expo": {
-    "name": "mobile",
-    "slug": "mobile",
+    "name": "PrimeRides",
+    "slug": "primerides",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "mobile",
-    "userInterfaceStyle": "automatic",
+    "scheme": "primerides",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "image": "./assets/images/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#090e1a"
+    },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "in.primerides.app",
+      "buildNumber": "1",
+      "infoPlist": {
+        "NSCameraUsageDescription": "PrimeRides requires access to your camera to photograph your Driving Licence and identity documents for fast KYC verification.",
+        "NSPhotoLibraryUsageDescription": "PrimeRides requires access to your photo library to upload existing identity and licence documents."
+      }
     },
     "android": {
+      "package": "in.primerides.app",
+      "versionCode": 1,
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#090e1a",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
+      "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "READ_MEDIA_IMAGES"
+      ],
       "predictiveBackGestureEnabled": false
     },
     "web": {
@@ -31,10 +49,17 @@
         {
           "image": "./assets/images/splash-icon.png",
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
+          "backgroundColor": "#090e1a"
         }
       ],
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "PrimeRides requires access to your photo library to upload existing identity and licence documents.",
+          "cameraPermission": "PrimeRides requires access to your camera to photograph your Driving Licence and identity documents for fast KYC verification."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

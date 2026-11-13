@@ -133,12 +133,12 @@ export default function StaffManager({
   const staffCount = staffList.filter((u) => u.role !== "superadmin").length;
 
   const getDomainIcon = (key: string) => {
-    if (key.startsWith("fleet")) return <Car className="w-3.5 h-3.5 text-[#5955D1]" />;
+    if (key.startsWith("fleet")) return <Car className="w-3.5 h-3.5 text-[#c59b27]" />;
     if (key.startsWith("bookings")) return <CalendarCheck className="w-3.5 h-3.5 text-emerald-600" />;
     if (key.startsWith("documents") || key.startsWith("kyc")) return <ShieldCheck className="w-3.5 h-3.5 text-blue-600" />;
     if (key.startsWith("content") || key.startsWith("leads")) return <FileText className="w-3.5 h-3.5 text-indigo-600" />;
     if (key.startsWith("pricing")) return <CreditCard className="w-3.5 h-3.5 text-amber-600" />;
-    return <Shield className="w-3.5 h-3.5 text-[#5955D1]" />;
+    return <Shield className="w-3.5 h-3.5 text-[#c59b27]" />;
   };
 
   const resolvePermissionMetadata = (permKey: string) => {
@@ -228,7 +228,7 @@ export default function StaffManager({
         </div>
 
         <div
-          className="bg-gradient-to-br from-[#1c274c] to-[#1e293b] text-white border border-[#5955D1]/30 p-5 shadow-[0_4px_20px_rgba(0,0,0,0.15)] transition-all duration-200 flex flex-col justify-between"
+          className="bg-gradient-to-br from-[#1c274c] to-[#1e293b] text-white border border-[#c59b27]/30 p-5 shadow-[0_4px_20px_rgba(0,0,0,0.15)] transition-all duration-200 flex flex-col justify-between"
           
         >
           <div className="flex items-center justify-between">
@@ -236,7 +236,7 @@ export default function StaffManager({
               <Lock className="w-3.5 h-3.5" />
               <span>RBAC Governance</span>
             </span>
-            <span className="px-2 py-0.5 rounded-full text-[9.5px] font-mono font-bold bg-[#5955D1]/25 text-[#f7d58b] border border-[#5955D1]/40">
+            <span className="px-2 py-0.5 rounded-full text-[9.5px] font-mono font-bold bg-[#c59b27]/25 text-[#f7d58b] border border-[#c59b27]/40">
               Argon2id
             </span>
           </div>
@@ -362,8 +362,11 @@ export default function StaffManager({
 
               <div className="position-relative" style={{ minWidth: "260px" }}>
                 <input
+                  id="admin-search-staff"
+                  name="admin-search-staff"
                   type="text"
                   placeholder="Search staff by name, email..."
+                  aria-label="Search staff by name, email, or role"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="form-control form-control-sm ps-5"
@@ -447,7 +450,7 @@ export default function StaffManager({
                               <div
                                 className={`w-9 h-9 rounded-full flex items-center justify-center font-heading font-black text-xs shadow-sm shrink-0 ${
                                   isSuper
-                                    ? "bg-gradient-to-br from-[#5955D1] to-[#8d6910] text-white ring-2 ring-[#5955D1]/30"
+                                    ? "bg-gradient-to-br from-[#c59b27] to-[#8d6910] text-white ring-2 ring-[#c59b27]/30"
                                     : "bg-slate-100 text-slate-800 border border-slate-300"
                                 }`}
                               >
@@ -500,7 +503,7 @@ export default function StaffManager({
                                 className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10.5px] font-bold bg-amber-50 text-amber-800 border border-amber-200/80 shadow-sm"
                                 
                               >
-                                <Sparkles className="w-3 h-3 text-[#5955D1]" />
+                                <Sparkles className="w-3 h-3 text-[#c59b27]" />
                                 <span>Superadmin</span>
                               </span>
                             ) : (
@@ -518,7 +521,7 @@ export default function StaffManager({
                           <td className="py-3 px-4">
                             {isSuper ? (
                               <span className="text-[11px] font-semibold text-[#8d6910] flex items-center gap-1">
-                                <Sparkles className="w-3 h-3 text-[#5955D1]" />
+                                <Sparkles className="w-3 h-3 text-[#c59b27]" />
                                 <span>Full Cluster Privileges (*)</span>
                               </span>
                             ) : perms.length === 0 ? (
@@ -531,7 +534,7 @@ export default function StaffManager({
                                 <button
                                   type="button"
                                   onClick={() => setInspectingUser(user)}
-                                  className="text-[11px] text-[#5955D1] hover:underline font-bold cursor-pointer"
+                                  className="text-[11px] text-[#c59b27] hover:underline font-bold cursor-pointer"
                                 >
                                   View Scope
                                 </button>
@@ -540,7 +543,7 @@ export default function StaffManager({
                           </td>
 
                           {/* Enrolled Date */}
-                          <td className="py-4 px-4 align-middle whitespace-nowrap min-w-[130px] text-slate-500 text-[11px] bg-white border-y border-[#e8edf2] group-hover:border-[#5955D1]/40 group-hover:bg-[#eeedfc]/40 transition-all">
+                          <td className="py-4 px-4 align-middle whitespace-nowrap min-w-[130px] text-slate-500 text-[11px] bg-white border-y border-[#e8edf2] group-hover:border-[#c59b27]/40 group-hover:bg-[#fdfaf2]/40 transition-all">
                             <div className="flex items-center gap-1.5">
                               <Clock className="w-3.5 h-3.5 text-slate-400" />
                               <span>{new Date(user.created_at).toLocaleDateString("en-IN", { month: "short", day: "numeric", year: "numeric" })}</span>
@@ -548,11 +551,11 @@ export default function StaffManager({
                           </td>
 
                           {/* Actions */}
-                          <td className="py-4 px-4 align-middle text-right whitespace-nowrap min-w-[130px] bg-white border-y border-r border-[#e8edf2] rounded-r-2xl group-hover:border-[#5955D1]/40 group-hover:bg-[#eeedfc]/40 transition-all">
+                          <td className="py-4 px-4 align-middle text-right whitespace-nowrap min-w-[130px] bg-white border-y border-r border-[#e8edf2] rounded-r-2xl group-hover:border-[#c59b27]/40 group-hover:bg-[#fdfaf2]/40 transition-all">
                             <AdminButton
                               variant="secondary"
                               size="sm"
-                              icon={<Eye className="w-3 h-3 text-[#5955D1]" />}
+                              icon={<Eye className="w-3 h-3 text-[#c59b27]" />}
                               className="!h-7 !px-2.5 !text-[11px] justify-center shadow-sm"
                               onClick={() => setInspectingUser(user)}
                             >
@@ -577,13 +580,13 @@ export default function StaffManager({
           style={{ borderRadius: "24px" }}
         >
           {/* Subtle Luxury Ambient Glow & Golden Accent Bar */}
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#5955D1] to-transparent opacity-90" />
-          <div className="absolute -top-32 -right-32 w-80 h-80 bg-gradient-to-br from-[#5955D1]/10 via-[#5955D1]/5 to-transparent rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#c59b27] to-transparent opacity-90" />
+          <div className="absolute -top-32 -right-32 w-80 h-80 bg-gradient-to-br from-[#c59b27]/10 via-[#c59b27]/5 to-transparent rounded-full blur-3xl pointer-events-none" />
 
           {/* Header Banner */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 mb-8 border-b border-slate-100 relative">
             <div className="flex items-center gap-3.5">
-              <div className="w-12 h-12 rounded-3 bg-gradient-to-br from-[#eeedfc] via-[#fbf5e6] to-[#f4e8cb] border border-[#5955D1]/40 flex items-center justify-center text-[#5955D1] shadow-[0_2px_12px_rgba(197,155,39,0.18)] shrink-0">
+              <div className="w-12 h-12 rounded-3 bg-gradient-to-br from-[#fdfaf2] via-[#fbf5e6] to-[#f4e8cb] border border-[#c59b27]/40 flex items-center justify-center text-[#c59b27] shadow-[0_2px_12px_rgba(197,155,39,0.18)] shrink-0">
                 <UserPlus className="w-6 h-6" />
               </div>
               <div>
@@ -591,7 +594,7 @@ export default function StaffManager({
                   <h2 className="font-heading text-lg sm:text-xl font-bold text-[#1c274c] tracking-tight">
                     Provision Administrator
                   </h2>
-                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#eeedfc] text-[#5955D1] border border-[#5955D1]/30 shadow-sm">
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#fdfaf2] text-[#c59b27] border border-[#c59b27]/30 shadow-sm">
                     Security Console
                   </span>
                 </div>
@@ -635,7 +638,7 @@ export default function StaffManager({
                         Full Name <span className="text-red-500">*</span>
                       </label>
                       <div
-                        className="flex items-center h-11 px-3.5 bg-white hover:bg-slate-50/40 focus-within:bg-white border border-[#e8edf2] focus-within:border-[#5955D1] focus-within:ring-4 focus-within:ring-[#5955D1]/10 transition-all shadow-sm"
+                        className="flex items-center h-11 px-3.5 bg-white hover:bg-slate-50/40 focus-within:bg-white border border-[#e8edf2] focus-within:border-[#c59b27] focus-within:ring-4 focus-within:ring-[#c59b27]/10 transition-all shadow-sm"
                         style={{ borderRadius: "12px" }}
                       >
                         <User className="w-4 h-4 text-slate-400 mr-3 shrink-0" />
@@ -656,7 +659,7 @@ export default function StaffManager({
                         Official Username <span className="text-red-500">*</span>
                       </label>
                       <div
-                        className="flex items-center h-11 px-3.5 bg-white hover:bg-slate-50/40 focus-within:bg-white border border-[#e8edf2] focus-within:border-[#5955D1] focus-within:ring-4 focus-within:ring-[#5955D1]/10 transition-all shadow-sm"
+                        className="flex items-center h-11 px-3.5 bg-white hover:bg-slate-50/40 focus-within:bg-white border border-[#e8edf2] focus-within:border-[#c59b27] focus-within:ring-4 focus-within:ring-[#c59b27]/10 transition-all shadow-sm"
                         style={{ borderRadius: "12px" }}
                       >
                         <AtSign className="w-4 h-4 text-slate-400 mr-3 shrink-0" />
@@ -677,7 +680,7 @@ export default function StaffManager({
                         Work Email Address <span className="text-red-500">*</span>
                       </label>
                       <div
-                        className="flex items-center h-11 px-3.5 bg-white hover:bg-slate-50/40 focus-within:bg-white border border-[#e8edf2] focus-within:border-[#5955D1] focus-within:ring-4 focus-within:ring-[#5955D1]/10 transition-all shadow-sm"
+                        className="flex items-center h-11 px-3.5 bg-white hover:bg-slate-50/40 focus-within:bg-white border border-[#e8edf2] focus-within:border-[#c59b27] focus-within:ring-4 focus-within:ring-[#c59b27]/10 transition-all shadow-sm"
                         style={{ borderRadius: "12px" }}
                       >
                         <Mail className="w-4 h-4 text-slate-400 mr-3 shrink-0" />
@@ -698,7 +701,7 @@ export default function StaffManager({
                         Temporary Access Password <span className="text-red-500">*</span>
                       </label>
                       <div
-                        className="flex items-center h-11 px-3.5 bg-white hover:bg-slate-50/40 focus-within:bg-white border border-[#e8edf2] focus-within:border-[#5955D1] focus-within:ring-4 focus-within:ring-[#5955D1]/10 transition-all shadow-sm"
+                        className="flex items-center h-11 px-3.5 bg-white hover:bg-slate-50/40 focus-within:bg-white border border-[#e8edf2] focus-within:border-[#c59b27] focus-within:ring-4 focus-within:ring-[#c59b27]/10 transition-all shadow-sm"
                         style={{ borderRadius: "12px" }}
                       >
                         <Key className="w-4 h-4 text-slate-400 mr-3 shrink-0" />
@@ -743,18 +746,18 @@ export default function StaffManager({
                         onClick={() => setSelectedRole("staff")}
                         className={`p-4 rounded-xl border text-left transition-all duration-200 cursor-pointer relative overflow-hidden group ${
                           selectedRole === "staff"
-                            ? "bg-[#eeedfc] border-[#5955D1] shadow-[0_4px_16px_rgba(197,155,39,0.14)] ring-1 ring-[#5955D1]/30"
+                            ? "bg-[#fdfaf2] border-[#c59b27] shadow-[0_4px_16px_rgba(197,155,39,0.14)] ring-1 ring-[#c59b27]/30"
                             : "bg-white border-[#e8edf2] hover:border-slate-300 text-slate-600 hover:bg-slate-50/60 shadow-sm"
                         }`}
                       >
                         <div className="flex items-start justify-between">
-                          <div className="w-8 h-8 rounded-lg bg-amber-50 border border-amber-200/70 flex items-center justify-center text-[#5955D1] shadow-sm">
+                          <div className="w-8 h-8 rounded-lg bg-amber-50 border border-amber-200/70 flex items-center justify-center text-[#c59b27] shadow-sm">
                             <Sliders className="w-4 h-4" />
                           </div>
                           <div
                             className={`w-5 h-5 rounded-full border flex items-center justify-center transition-all ${
                               selectedRole === "staff"
-                                ? "border-[#5955D1] bg-[#5955D1] text-white shadow-xs"
+                                ? "border-[#c59b27] bg-[#c59b27] text-white shadow-xs"
                                 : "border-slate-300 bg-white"
                             }`}
                           >
@@ -776,7 +779,7 @@ export default function StaffManager({
                         onClick={() => setSelectedRole("superadmin")}
                         className={`p-4 rounded-xl border text-left transition-all duration-200 cursor-pointer relative overflow-hidden group ${
                           selectedRole === "superadmin"
-                            ? "bg-[#1c274c] border-[#1c274c] text-white shadow-[0_6px_22px_rgba(0,0,0,0.22)] ring-1 ring-[#5955D1]/40"
+                            ? "bg-[#1c274c] border-[#1c274c] text-white shadow-[0_6px_22px_rgba(0,0,0,0.22)] ring-1 ring-[#c59b27]/40"
                             : "bg-white border-[#e8edf2] hover:border-slate-300 text-slate-600 hover:bg-slate-50/60 shadow-sm"
                         }`}
                       >
@@ -788,12 +791,12 @@ export default function StaffManager({
                                 : "bg-slate-100 text-slate-700 border border-[#e8edf2]"
                             }`}
                           >
-                            <Sparkles className="w-4 h-4 text-[#5955D1]" />
+                            <Sparkles className="w-4 h-4 text-[#c59b27]" />
                           </div>
                           <div
                             className={`w-5 h-5 rounded-full border flex items-center justify-center transition-all ${
                               selectedRole === "superadmin"
-                                ? "border-[#5955D1] bg-[#5955D1] text-white shadow-xs"
+                                ? "border-[#c59b27] bg-[#c59b27] text-white shadow-xs"
                                 : "border-slate-300 bg-white"
                             }`}
                           >
@@ -827,7 +830,7 @@ export default function StaffManager({
                         <div className="flex items-center gap-2">
                           <span className="text-xs font-bold uppercase tracking-wider text-[#1c274c]">Domain Access Boundaries</span>
                           {selectedRole === "staff" && (
-                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#eeedfc] text-[#5955D1] border border-[#5955D1]/30">
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#fdfaf2] text-[#c59b27] border border-[#c59b27]/30">
                               {Object.values(selectedPermissions).filter(Boolean).length} Active
                             </span>
                           )}
@@ -840,7 +843,7 @@ export default function StaffManager({
                         <button
                           type="button"
                           onClick={handleSelectAllPermissions}
-                          className="px-3 py-1 rounded-full font-bold text-xs text-[#5955D1] bg-[#eeedfc] border border-[#5955D1]/35 hover:bg-[#5955D1] hover:text-white transition-all cursor-pointer shadow-sm"
+                          className="px-3 py-1 rounded-full font-bold text-xs text-[#c59b27] bg-[#fdfaf2] border border-[#c59b27]/35 hover:bg-[#c59b27] hover:text-white transition-all cursor-pointer shadow-sm"
                         >
                           Grant All
                         </button>
@@ -856,10 +859,10 @@ export default function StaffManager({
                   </div>
 
                   {selectedRole === "superadmin" ? (
-                    <div className="p-6 rounded-3 bg-[#1c274c] text-white border border-[#5955D1]/40 shadow-[0_8px_24px_rgba(0,0,0,0.2)] space-y-4 relative overflow-hidden">
-                      <div className="absolute -right-12 -bottom-12 w-48 h-48 bg-[#5955D1]/10 rounded-full blur-2xl pointer-events-none" />
+                    <div className="p-6 rounded-3 bg-[#1c274c] text-white border border-[#c59b27]/40 shadow-[0_8px_24px_rgba(0,0,0,0.2)] space-y-4 relative overflow-hidden">
+                      <div className="absolute -right-12 -bottom-12 w-48 h-48 bg-[#c59b27]/10 rounded-full blur-2xl pointer-events-none" />
                       <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-lg bg-[#5955D1]/20 border border-[#5955D1]/40 flex items-center justify-center text-[#f7d58b]">
+                        <div className="w-8 h-8 rounded-lg bg-[#c59b27]/20 border border-[#c59b27]/40 flex items-center justify-center text-[#f7d58b]">
                           <Sparkles className="w-4 h-4" />
                         </div>
                         <h4 className="text-sm font-bold text-white">Full Cluster Privileges Inherited</h4>
@@ -883,7 +886,7 @@ export default function StaffManager({
                             onClick={() => handleTogglePermission(perm.key)}
                             className={`p-4 rounded-xl cursor-pointer transition-all duration-200 border flex items-center justify-between gap-4 ${
                               isChecked
-                                ? "bg-[#eeedfc] border-[#5955D1] shadow-[0_4px_14px_rgba(197,155,39,0.12)] ring-1 ring-[#5955D1]/30"
+                                ? "bg-[#fdfaf2] border-[#c59b27] shadow-[0_4px_14px_rgba(197,155,39,0.12)] ring-1 ring-[#c59b27]/30"
                                 : "bg-white border-[#e8edf2] hover:border-slate-300 hover:bg-slate-50/50 shadow-xs"
                             }`}
                           >
@@ -899,7 +902,7 @@ export default function StaffManager({
                               <div
                                 className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
                                   isChecked
-                                    ? "bg-white border border-[#5955D1]/40 text-[#5955D1] shadow-xs"
+                                    ? "bg-white border border-[#c59b27]/40 text-[#c59b27] shadow-xs"
                                     : "bg-slate-100 text-slate-500 border border-[#e8edf2]"
                                 }`}
                               >
@@ -924,8 +927,8 @@ export default function StaffManager({
                             <div
                               className={`w-6 h-6 rounded-full border flex items-center justify-center shrink-0 transition-all ${
                                 isChecked
-                                  ? "bg-[#5955D1] border-[#5955D1] text-white shadow-xs"
-                                  : "border-slate-300 bg-slate-50 hover:border-[#5955D1]/60"
+                                  ? "bg-[#c59b27] border-[#c59b27] text-white shadow-xs"
+                                  : "border-slate-300 bg-slate-50 hover:border-[#c59b27]/60"
                               }`}
                             >
                               {isChecked && <Check className="w-3.5 h-3.5 stroke-[3]" />}
@@ -981,7 +984,7 @@ export default function StaffManager({
           >
             <div className="pb-4 mb-4 border-b border-slate-100">
               <h2 className="font-heading text-base font-bold text-[#1c274c] flex items-center gap-2">
-                <Layers className="w-4 h-4 text-[#5955D1]" />
+                <Layers className="w-4 h-4 text-[#c59b27]" />
                 <span>PrimeRides Administrative Access Control Matrix</span>
               </h2>
               <p className="text-xs text-slate-500 mt-0.5">
@@ -993,7 +996,7 @@ export default function StaffManager({
               {allPermissions.map((perm) => (
                 <div
                   key={perm.key}
-                  className="p-4 rounded-3 border border-[#e8edf2]/80 bg-[#f8fafc]/50 hover:bg-[#eeedfc]/50 hover:border-[#5955D1]/30 transition-all flex items-start gap-3.5"
+                  className="p-4 rounded-3 border border-[#e8edf2]/80 bg-[#f8fafc]/50 hover:bg-[#fdfaf2]/50 hover:border-[#c59b27]/30 transition-all flex items-start gap-3.5"
                 >
                   <div className="w-9 h-9 rounded-full bg-white border border-[#e8edf2] flex items-center justify-center shrink-0 shadow-sm">
                     {getDomainIcon(perm.key)}
@@ -1001,7 +1004,7 @@ export default function StaffManager({
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-2">
                       <h4 className="text-xs font-bold text-[#1c274c]">{perm.label}</h4>
-                      <span className="font-mono text-[10px] text-[#5955D1] bg-[#eeedfc] px-2 py-0.5 rounded-full border border-[#5955D1]/30">
+                      <span className="font-mono text-[10px] text-[#c59b27] bg-[#fdfaf2] px-2 py-0.5 rounded-full border border-[#c59b27]/30">
                         {perm.key}
                       </span>
                     </div>
@@ -1041,13 +1044,13 @@ export default function StaffManager({
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
               {/* Policy 1: Argon2id */}
-              <div className="p-5 rounded-3 bg-[#1c274c] text-white border border-[#5955D1]/30 flex flex-col justify-between">
+              <div className="p-5 rounded-3 bg-[#1c274c] text-white border border-[#c59b27]/30 flex flex-col justify-between">
                 <div>
                   <div className="flex items-center justify-between">
                     <span className="text-[10.5px] uppercase tracking-wider text-[#f7d58b] font-bold">
                       Password Security
                     </span>
-                    <span className="px-2 py-0.5 rounded-full text-[9px] font-mono font-bold bg-[#5955D1]/25 text-[#f7d58b] border border-[#5955D1]/40">
+                    <span className="px-2 py-0.5 rounded-full text-[9px] font-mono font-bold bg-[#c59b27]/25 text-[#f7d58b] border border-[#c59b27]/40">
                       Argon2id
                     </span>
                   </div>
@@ -1123,7 +1126,7 @@ export default function StaffManager({
             {/* Identity & Role Banner */}
             <div className="p-4.5 rounded-3 bg-gradient-to-br from-[#fcfbf9] to-slate-50 border border-[#e8edf2] shadow-sm flex items-center justify-between gap-4">
               <div className="flex items-center gap-3.5">
-                <div className="w-12 h-12 rounded-3 bg-[#1c274c] border border-[#5955D1]/40 flex items-center justify-center text-[#f7d58b] font-heading font-black text-base shadow-sm">
+                <div className="w-12 h-12 rounded-3 bg-[#1c274c] border border-[#c59b27]/40 flex items-center justify-center text-[#f7d58b] font-heading font-black text-base shadow-sm">
                   {inspectingUser.name.substring(0, 2).toUpperCase()}
                 </div>
                 <div>
@@ -1170,15 +1173,15 @@ export default function StaffManager({
                 <h5 className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
                   Authorized Domain Permissions
                 </h5>
-                <span className="text-[11px] font-semibold text-[#5955D1]">
+                <span className="text-[11px] font-semibold text-[#c59b27]">
                   {inspectingUser.role === "superadmin" ? "Full Cluster Wildcard (*)" : `${inspectingUser.permissions.length} Domains Authorized`}
                 </span>
               </div>
 
               {inspectingUser.role === "superadmin" ? (
-                <div className="p-4.5 rounded-3 bg-gradient-to-br from-[#eeedfc] to-amber-50/40 border border-[#5955D1]/35 text-xs text-[#8d6910] space-y-2 shadow-sm">
+                <div className="p-4.5 rounded-3 bg-gradient-to-br from-[#fdfaf2] to-amber-50/40 border border-[#c59b27]/35 text-xs text-[#8d6910] space-y-2 shadow-sm">
                   <div className="font-heading font-black text-sm flex items-center gap-2 text-[#b0871d]">
-                    <Sparkles className="w-4 h-4 text-[#5955D1]" />
+                    <Sparkles className="w-4 h-4 text-[#c59b27]" />
                     <span>Unrestricted Cluster Governance Privileges</span>
                   </div>
                   <p className="text-slate-600 leading-relaxed text-xs">
@@ -1196,7 +1199,7 @@ export default function StaffManager({
                     return (
                       <div
                         key={permKey}
-                        className="p-3 rounded-xl bg-white border border-[#e8edf2] flex items-center justify-between gap-3 shadow-sm hover:border-[#5955D1]/30 transition-colors"
+                        className="p-3 rounded-xl bg-white border border-[#e8edf2] flex items-center justify-between gap-3 shadow-sm hover:border-[#c59b27]/30 transition-colors"
                       >
                         <div className="flex items-center gap-3">
                           <div className="w-8 h-8 rounded-lg bg-slate-50 border border-[#e8edf2]/80 flex items-center justify-center shrink-0">

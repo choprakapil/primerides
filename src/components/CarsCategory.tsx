@@ -2,10 +2,15 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { FLEET_CARS } from "@/data/fleet";
+import { FLEET_CARS, CarItem } from "@/data/fleet";
 import { useModal } from "@/context/ModalContext";
 
-export default function CarsCategory() {
+export interface CarsCategoryProps {
+  cars?: CarItem[];
+}
+
+export default function CarsCategory({ cars }: CarsCategoryProps = {}) {
+  const fleetData = cars && cars.length > 0 ? cars : FLEET_CARS;
   const [currentIndex, setCurrentIndex] = useState(0);
   const [visibleCount, setVisibleCount] = useState(4);
   const [isPaused, setIsPaused] = useState(false);
@@ -31,7 +36,7 @@ export default function CarsCategory() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const maxIndex = Math.max(0, FLEET_CARS.length - visibleCount);
+  const maxIndex = Math.max(0, fleetData.length - visibleCount);
 
   useEffect(() => {
     if (isPaused || maxIndex === 0) return;
@@ -161,7 +166,7 @@ export default function CarsCategory() {
               willChange: "transform",
             }}
           >
-            {FLEET_CARS.map((car) => {
+            {fleetData.map((car) => {
               const selectedKm = selectedKmMap[car.id] || "250 KM";
               return (
                 <div
@@ -176,7 +181,7 @@ export default function CarsCategory() {
                     <div className="modern-car-img-box position-relative">
                       <img
                         src={car.img}
-                        alt={car.name}
+                        alt={`${car.name} Rental Car`}
                         className="modern-car-img"
                       />
                       {car.badge && (

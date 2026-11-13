@@ -1,4 +1,15 @@
-const JWT_SECRET = process.env.JWT_SECRET || "primerides_super_secure_jwt_secret_2026_fallback";
+function getJwtSecret(): string {
+  const secret = process.env.JWT_SECRET;
+  if (!secret || secret.trim() === "") {
+    throw new Error(
+      "FATAL SECURITY ERROR: JWT_SECRET environment variable is not defined. The application refuses to start with an insecure authentication state."
+    );
+  }
+  return secret;
+}
+
+const JWT_SECRET = getJwtSecret();
+export { getJwtSecret };
 
 export interface TokenPayload {
   id: number;

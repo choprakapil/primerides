@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { trackPaymentInitiated, trackPaymentCompleted } from "@/lib/analytics";
 
 export interface PaymentRecord {
   id: number;
@@ -90,7 +91,15 @@ export default function PaymentsLedgerClient({
   const pendingBookings = unpaidList.filter((b) => !b.isPaid && b.status !== "cancelled");
 
   const filteredPayments = payments.filter((p) => {
-    if (filter !== "all" && p.status !== filter) return false;
+    if (filter !== "all") {
+      if (filter === "refunded") {
+        if (p.status !== "refunded" && p.payment_method !== "refund") return false;
+      } else if (filter === "captured") {
+        if ((p.status !== "captured" && p.status !== "successful") || p.payment_method === "refund") return false;
+      } else if (p.status !== filter) {
+        return false;
+      }
+    }
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       const ref = (p.transaction_ref || p.gateway_payment_id || ("TXN-" + p.id)).toLowerCase();
@@ -138,7 +147,7 @@ export default function PaymentsLedgerClient({
       }
 
       try {
-        const orderRes = await fetch("/api/v1/payments/razorpay/create-order", {
+        const orderRes = await fetch("/api/v1/payments/create-order", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -166,14 +175,17 @@ export default function PaymentsLedgerClient({
             email: customerEmail,
             contact: customerPhone,
           },
-          theme: { color: "#5955D1" },
+          theme: { color: "#c59b27" },
           handler: async function (response: any) {
             try {
-              const verifyRes = await fetch("/api/v1/payments/razorpay/verify", {
+              const verifyRes = await fetch("/api/v1/payments/verify", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                   bookingId: selectedBooking.id,
+                  razorpay_order_id: response.razorpay_order_id,
+                  razorpay_payment_id: response.razorpay_payment_id,
+                  razorpay_signature: response.razorpay_signature,
                   razorpayOrderId: response.razorpay_order_id,
                   razorpayPaymentId: response.razorpay_payment_id,
                   razorpaySignature: response.razorpay_signature,
@@ -186,6 +198,14 @@ export default function PaymentsLedgerClient({
               }
 
               setSuccessMsg("Payment verified successfully! Receipt has been issued.");
+              trackPaymentCompleted({
+                bookingId: selectedBooking.id,
+                bookingCode: selectedBooking.booking_code || selectedBooking.booking_number,
+                amount: balanceAmount,
+                currency: "INR",
+                transactionRef: response.razorpay_payment_id,
+                carName: selectedBooking.car_name ?? selectedBooking.car?.model ?? undefined,
+              });
               const newPayment: PaymentRecord = {
                 id: Date.now(),
                 booking_id: selectedBooking.id,
@@ -220,6 +240,13 @@ export default function PaymentsLedgerClient({
             },
           },
         };
+
+        trackPaymentInitiated({
+          bookingId: selectedBooking.id,
+          amount: balanceAmount,
+          currency: currency || "INR",
+          orderId,
+        });
 
         const rzp = new (window as any).Razorpay(options);
         rzp.open();
@@ -347,7 +374,7 @@ export default function PaymentsLedgerClient({
               className={`nav-link ${filter === "refunded" ? "active" : ""}`}
               style={{ fontSize: "13px" }}
             >
-              Refunded ({payments.filter((p) => p.status === "refunded").length})
+              Refunded ({payments.filter((p) => p.status === "refunded" || p.payment_method === "refund").length})
             </button>
           </li>
         </ul>
@@ -401,6 +428,7 @@ export default function PaymentsLedgerClient({
                   filteredPayments.map((p) => {
                     const ref = p.transaction_ref || p.gateway_payment_id || ("TXN-" + p.id);
                     const code = p.booking?.booking_code || p.booking?.booking_number || ("PR-" + p.booking_id);
+                    const isRefund = p.status === "refunded" || p.payment_method === "refund";
 
                     return (
                       <tr key={p.id}>
@@ -423,24 +451,31 @@ export default function PaymentsLedgerClient({
                           })}
                         </td>
                         <td className="py-3 px-4 text-uppercase text-muted" style={{ fontSize: "11.5px" }}>
-                          {p.gateway} • {p.payment_method || "Online"}
+                          {isRefund ? "Refund Disbursement" : `${p.gateway} • ${p.payment_method || "Online"}`}
                         </td>
-                        <td className="py-3 px-4 fw-bold text-dark">
-                          ₹{Number(p.amount || 0).toLocaleString("en-IN")}
+                        <td className="py-3 px-4 fw-bold">
+                          {isRefund ? (
+                            <div>
+                              <span className="text-purple-700">-₹{Number(p.amount || 0).toLocaleString("en-IN")}</span>
+                              <small className="d-block text-purple fw-semibold" style={{ fontSize: "10px" }}>CREDITED</small>
+                            </div>
+                          ) : (
+                            <span className="text-dark">₹{Number(p.amount || 0).toLocaleString("en-IN")}</span>
+                          )}
                         </td>
                         <td className="py-3 px-4">
                           <span
                             className={`badge ${
-                              p.status === "captured"
+                              isRefund
+                                ? "bg-purple-subtle text-purple border border-purple-subtle"
+                                : p.status === "captured"
                                 ? "bg-success-subtle text-success"
                                 : p.status === "authorized"
                                 ? "bg-primary-subtle text-primary"
-                                : p.status === "refunded"
-                                ? "bg-purple-subtle text-purple"
                                 : "bg-danger-subtle text-danger"
                             }`}
                           >
-                            {p.status.toUpperCase()}
+                            {isRefund ? "REFUNDED" : p.status.toUpperCase()}
                           </span>
                         </td>
                       </tr>

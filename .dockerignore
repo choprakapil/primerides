@@ -1,0 +1,13 @@
+.git
+.github
+node_modules
+.next
+.env.local
+scratch
+admin
+docs
+tests
+__tests__
+*.log
+npm-debug.log*
+.DS_Store

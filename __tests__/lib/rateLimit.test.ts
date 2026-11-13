@@ -1,10 +1,10 @@
-import { createRateLimiter } from '@/lib/rateLimit';
+import { createRateLimiter, clearRateLimitStore } from '@/lib/rateLimit';
 import { NextRequest } from 'next/server';
 
 describe('Rate Limiting Module', () => {
   beforeEach(() => {
     // Clear rate limit store between tests
-    jest.clearAllMocks();
+    clearRateLimitStore();
   });
 
   describe('Basic Rate Limiting', () => {

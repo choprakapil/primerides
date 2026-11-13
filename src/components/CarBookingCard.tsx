@@ -13,13 +13,12 @@ import {
   ArrowRight,
   Sparkles,
   MapPin,
-  ExternalLink,
-  Gauge,
   Tag,
   X,
-  Percent,
   Check,
   Zap,
+  CreditCard,
+  Lock,
 } from "lucide-react";
 
 export interface RentalPlanData {
@@ -98,31 +97,29 @@ export default function CarBookingCard({ car, customer, slug }: CarBookingCardPr
   const [isConflictError, setIsConflictError] = useState(false);
   const [confirmedBooking, setConfirmedBooking] = useState<any | null>(null);
 
-  // Coupon State
+  // Promo Coupon State
   const [couponInput, setCouponInput] = useState("");
-  const [appliedCoupon, setAppliedCoupon] = useState<{
-    code: string;
-    discountAmount: number;
-    discountType: string;
-    discountValue: number;
-    description?: string;
-  } | null>(null);
   const [couponLoading, setCouponLoading] = useState(false);
   const [couponError, setCouponError] = useState<string | null>(null);
   const [couponSuccess, setCouponSuccess] = useState<string | null>(null);
+  const [appliedCoupon, setAppliedCoupon] = useState<{
+    code: string;
+    discountAmount: number;
+    finalTotal: number;
+  } | null>(null);
 
-  // Price Calculation based on KM / Monthly Plan
-  const planPrice = Number(selectedPlan?.price || car.pricePerDay || 2500);
-  const depositAmount = Number(selectedPlan?.security_deposit || 5000);
+  // Price calculations
+  const planPrice = Number(selectedPlan?.price || car.pricePerDay || 3999);
+  const depositAmount = Number(selectedPlan?.security_deposit ?? (car.securityDeposit || 5000));
   const extraKmRate = Number(selectedPlan?.extra_km_rate || 7);
-  const freeKm = selectedPlan?.free_km || 300;
+  const freeKm = Number(selectedPlan?.free_km || 300);
 
-  const chauffeurFee = withChauffeur ? 1500 * (selectedPlan?.duration_days || 1) : 0;
+  const chauffeurFee = withChauffeur ? 1500 : 0;
   const grossAmount = planPrice + chauffeurFee;
   const discountAmount = appliedCoupon ? appliedCoupon.discountAmount : 0;
   const netTotalAmount = Math.max(0, grossAmount - discountAmount);
 
-  // Validate and Apply Coupon
+  // Validate coupon handler
   const handleApplyCoupon = async () => {
     if (!couponInput.trim()) return;
     setCouponLoading(true);
@@ -134,28 +131,27 @@ export default function CarBookingCard({ car, customer, slug }: CarBookingCardPr
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          code: couponInput.trim(),
-          amount: grossAmount,
+          code: couponInput.trim().toUpperCase(),
+          totalAmount: grossAmount,
+          carId: car.id,
         }),
       });
+
       const data = await res.json();
-      if (res.ok && data.success) {
-        setAppliedCoupon({
-          code: data.data.code,
-          discountAmount: data.data.discountAmount,
-          discountType: data.data.discountType,
-          discountValue: data.data.discountValue,
-          description: data.data.description,
-        });
-        setCouponSuccess(data.message || `Coupon ${data.data.code} applied!`);
-        setCouponError(null);
-      } else {
+      if (!res.ok || !data.success) {
+        setCouponError(data.error || "Invalid promo coupon code");
         setAppliedCoupon(null);
-        setCouponError(data.error || "Invalid coupon code");
+      } else {
+        setAppliedCoupon({
+          code: data.data.coupon.code,
+          discountAmount: data.data.discount_amount,
+          finalTotal: data.data.final_amount,
+        });
+        setCouponSuccess(`Coupon ${data.data.coupon.code} applied! Saved ₹${data.data.discount_amount}`);
       }
     } catch (err: any) {
-      setAppliedCoupon(null);
       setCouponError(err.message || "Failed to validate coupon");
+      setAppliedCoupon(null);
     } finally {
       setCouponLoading(false);
     }
@@ -168,35 +164,27 @@ export default function CarBookingCard({ car, customer, slug }: CarBookingCardPr
     setCouponSuccess(null);
   };
 
-  // Handle Form Submission
+  // Submit Reservation
   const handleBookingSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
     setIsConflictError(false);
 
-    if (!customer) {
-      router.push(`/account/login?callbackUrl=/cars/${slug}`);
-      return;
-    }
-
     const start = new Date(startDate);
     const end = new Date(endDate);
 
     if (end <= start) {
-      setErrorMessage("Return date and time must be after pickup date and time.");
+      setErrorMessage("Return date & time must be strictly after pickup date & time.");
       return;
     }
 
     setLoading(true);
 
     try {
-      const idempotencyKey = `req_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-
       const res = await fetch("/api/v1/bookings", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "x-idempotency-key": idempotencyKey,
         },
         body: JSON.stringify({
           carId: car.id,
@@ -229,7 +217,6 @@ export default function CarBookingCard({ car, customer, slug }: CarBookingCardPr
         return;
       }
 
-      // Success
       setConfirmedBooking(data.data);
       setLoading(false);
     } catch (err: any) {
@@ -238,22 +225,22 @@ export default function CarBookingCard({ car, customer, slug }: CarBookingCardPr
     }
   };
 
-  // 1. SUCCESS CONFIRMATION VIEW (LUXURY LIGHT THEME)
+  // 1. SUCCESS CONFIRMATION VIEW
   if (confirmedBooking) {
     return (
-      <div className="p-6 sm:p-8 rounded-3xl bg-white border-2 border-emerald-200 shadow-[0_15px_45px_rgba(0,0,0,0.06)] space-y-6 text-center animate-in fade-in zoom-in duration-300">
-        <div className="w-16 h-16 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center mx-auto text-emerald-600 shadow-sm">
+      <div className="p-6 sm:p-8 rounded-3xl bg-white border-2 border-emerald-300 shadow-[0_15px_45px_rgba(0,0,0,0.06)] space-y-6 text-center animate-in fade-in zoom-in duration-300">
+        <div className="w-16 h-16 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center mx-auto text-emerald-600 shadow-xs">
           <CheckCircle2 className="w-9 h-9" />
         </div>
 
         <div>
-          <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 uppercase tracking-wider">
+          <span className="px-3.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 uppercase tracking-wider">
             Reservation Confirmed
           </span>
-          <h3 className="text-xl font-bold text-[#090e1a] mt-3">{car.name}</h3>
+          <h3 className="text-xl font-extrabold text-[#090e1a] mt-3">{car.name}</h3>
           <p className="text-xs text-slate-500 mt-1">
             Booking Code:{" "}
-            <strong className="text-amber-700 font-mono text-sm font-bold bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+            <strong className="text-amber-800 font-mono text-sm font-bold bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
               {confirmedBooking.booking_code}
             </strong>
           </p>
@@ -290,21 +277,17 @@ export default function CarBookingCard({ car, customer, slug }: CarBookingCardPr
           </div>
         </div>
 
-        <div className="space-y-3 pt-2">
+        <div className="space-y-2.5 pt-1">
           <Link
             href="/account"
-            className="w-full py-3.5 px-5 rounded-2xl text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg transition-all hover:scale-[1.01]"
-            style={{
-              background: "linear-gradient(135deg, #d8a834 0%, #c59b27 100%)",
-              boxShadow: "0 6px 20px rgba(197, 155, 39, 0.35)",
-            }}
+            className="modern-card-btn w-full flex items-center justify-center gap-2 text-decoration-none shadow-md"
           >
             <span>View Trip in Customer Account</span>
-            <ArrowRight className="w-4 h-4" />
+            <ArrowRight className="w-4 h-4 arrow-icon" />
           </Link>
           <Link
             href="/account/payments"
-            className="block w-full py-2.5 text-xs font-semibold text-slate-600 hover:text-amber-700 transition-colors"
+            className="block w-full py-2 text-xs font-semibold text-slate-600 hover:text-amber-700 transition-colors"
           >
             Proceed to Payment / Upload Driving License →
           </Link>
@@ -313,119 +296,129 @@ export default function CarBookingCard({ car, customer, slug }: CarBookingCardPr
     );
   }
 
-  // 2. UNLOGGED VISITOR VIEW (LUXURY LIGHT THEME)
+  // 2. UNAUTHENTICATED VISITOR VIEW (LUXURY LIGHT THEME)
   if (!customer) {
     return (
-      <div className="p-6 sm:p-8 rounded-3xl bg-white border border-slate-200/90 shadow-[0_15px_45px_rgba(0,0,0,0.06)] space-y-6">
-        {/* Header Badge & Starting Price */}
-        <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+      <div className="p-4 sm:p-6 md:p-8 rounded-3xl bg-white border border-slate-200/90 shadow-[0_15px_45px_rgba(0,0,0,0.06)] space-y-5">
+        {/* Header: Starting Price & Location Hub */}
+        <div className="pb-4 border-b border-slate-100 flex items-start justify-between gap-3">
           <div>
-            <span className="text-[11px] font-bold text-amber-700 uppercase tracking-wider block">
-              Package Starting Rate
+            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-0.5">
+              Starting Package Rate
             </span>
-            <div className="flex items-baseline gap-1 mt-0.5">
-              <span className="text-2xl sm:text-3xl font-extrabold text-[#090e1a]">
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-3xl font-black text-[#090e1a] tracking-tight">
                 ₹{planPrice.toLocaleString("en-IN")}
               </span>
-              <span className="text-xs text-slate-500 font-medium">/ {selectedPlan?.name || "300 km"}</span>
+              <span className="text-xs text-slate-500 font-semibold">
+                / {selectedPlan?.name || "300 km"}
+              </span>
             </div>
           </div>
-          <div className="text-right">
-            <span className="text-[10px] text-slate-400 block uppercase font-bold">Inventory Hub</span>
-            <span className="text-xs font-bold text-slate-800 flex items-center gap-1 mt-0.5 justify-end">
+
+          <div className="text-right shrink-0">
+            <span className="text-[10px] text-slate-600 block uppercase font-bold">Inventory Hub</span>
+            <span className="inline-flex items-center gap-1 text-xs font-bold text-slate-800 mt-1 bg-slate-50 px-2.5 py-1 rounded-full border border-slate-200">
               <MapPin className="w-3.5 h-3.5 text-amber-600" />
               <span>{car.location?.city || "Delhi NCR"}</span>
             </span>
           </div>
         </div>
 
-        {/* KM Plan Options Picker */}
-        <div className="space-y-2">
-          <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider flex items-center justify-between">
-            <span>Available KM Rental Packages</span>
-            <span className="text-[10px] text-amber-700 font-semibold">Extra KM: ₹{extraKmRate}/km</span>
-          </label>
-          <div className="grid grid-cols-2 gap-2.5">
+        {/* KM Package Selector */}
+        <div className="space-y-2.5">
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+              Select KM Package
+            </span>
+            <span className="text-[11px] text-amber-800 font-bold bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200/80">
+              Extra KM: ₹{extraKmRate}/km
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 min-[400px]:grid-cols-2 gap-2.5" role="group" aria-label="Available KM Rental Packages">
             {plans.map((p) => {
               const isSelected = selectedPlanId === p.id;
               return (
-                <div
+                <button
+                  type="button"
                   key={p.id}
                   onClick={() => setSelectedPlanId(p.id)}
-                  className={`p-3 rounded-2xl border text-left cursor-pointer transition-all ${
+                  aria-pressed={isSelected}
+                  aria-label={`${p.name}: ₹${Number(p.price).toLocaleString("en-IN")}, ${p.free_km} km included`}
+                  className={`w-full p-3 rounded-2xl text-left cursor-pointer transition-all border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#c59b27] ${
                     isSelected
                       ? "bg-[#fdfaf2] border-2 border-[#c59b27] shadow-sm shadow-amber-500/10"
-                      : "bg-slate-50 border-slate-200/80 hover:border-amber-300 hover:bg-slate-100/60"
+                      : "bg-slate-50/80 border-slate-200/90 hover:border-amber-300 hover:bg-white"
                   }`}
                 >
                   <div className="flex justify-between items-center mb-1">
                     <span className="text-xs font-bold text-[#090e1a]">{p.name}</span>
-                    {isSelected && <Check className="w-3.5 h-3.5 text-amber-600" />}
+                    {isSelected && <Check className="w-3.5 h-3.5 text-amber-600 font-bold" />}
                   </div>
-                  <span className="text-sm font-extrabold text-amber-700 block">
+                  <span className="text-sm font-extrabold text-amber-800 block">
                     ₹{Number(p.price).toLocaleString("en-IN")}
                   </span>
-                  <span className="block text-[10px] text-slate-500 font-medium mt-0.5">
+                  <span className="block text-[10.5px] text-slate-500 font-medium mt-0.5">
                     {p.free_km} km included
                   </span>
-                </div>
+                </button>
               );
             })}
           </div>
         </div>
 
-        {/* Trust Notice Box */}
-        <div className="p-4 rounded-2xl bg-amber-50/70 border border-amber-200/70 space-y-1.5 text-amber-950">
-          <div className="flex items-center gap-2 text-amber-900 font-bold text-xs uppercase tracking-wider">
-            <Sparkles className="w-4 h-4 text-amber-600" />
-            <span>Customer Reservation Login</span>
+        {/* Instant Online Reservation Dark Luxury Box */}
+        <div className="p-4 rounded-2xl bg-gradient-to-br from-[#090e1a] to-[#141b2d] text-white border border-slate-800 shadow-md space-y-1.5">
+          <div className="flex items-center gap-2 text-[#f7d58b] font-bold text-xs uppercase tracking-wider">
+            <Sparkles className="w-3.5 h-3.5 text-[#c59b27]" />
+            <span>Instant Reservation Online</span>
           </div>
-          <p className="text-xs text-amber-800 leading-relaxed">
-            Sign in or create your account to reserve the <strong className="text-slate-900">{car.name}</strong> with instant date locking, ₹{depositAmount.toLocaleString("en-IN")} refundable deposit, and doorstep delivery options.
+          <p className="text-xs text-slate-300 leading-relaxed font-normal">
+            Sign in to reserve the <strong className="text-white font-semibold">{car.name}</strong> with real-time date locking. Zero advance booking fee online; refundable security deposit (₹{depositAmount.toLocaleString("en-IN")}) is collected at vehicle handover.
           </p>
         </div>
 
         {/* Sign In CTA */}
-        <div className="space-y-3 pt-2">
+        <div className="space-y-2.5 pt-1">
           <Link
             href={`/account/login?callbackUrl=/cars/${slug}`}
-            className="w-full py-3.5 px-5 rounded-2xl text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg transition-all hover:scale-[1.01]"
-            style={{
-              background: "linear-gradient(135deg, #d8a834 0%, #c59b27 100%)",
-              boxShadow: "0 6px 20px rgba(197, 155, 39, 0.35)",
-            }}
+            className="modern-card-btn w-full flex items-center justify-center gap-2 text-decoration-none shadow-md"
           >
             <span>Sign In to Select Package &amp; Book</span>
-            <ArrowRight className="w-4 h-4" />
+            <ArrowRight className="w-4 h-4 arrow-icon" />
           </Link>
-          <div className="flex items-center justify-center gap-2 text-[11px] text-slate-400">
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-            <span>Zero Booking Deposit Required to Reserve Online</span>
+          <div className="flex items-center justify-center gap-2 text-[11px] text-slate-500 font-medium">
+            <Lock className="w-3.5 h-3.5 text-emerald-600" />
+            <span>Zero Online Booking Fee • Deposit Collected at Handover</span>
           </div>
         </div>
       </div>
     );
   }
 
-  // 3. LOGGED-IN CUSTOMER BOOKING FORM (LUXURY LIGHT THEME)
+  // 3. LOGGED-IN CUSTOMER BOOKING FORM
   return (
-    <div className="p-6 sm:p-8 rounded-3xl bg-white border border-slate-200/90 shadow-[0_15px_45px_rgba(0,0,0,0.06)] space-y-6">
+    <div className="p-4 sm:p-6 md:p-8 rounded-3xl bg-white border border-slate-200/90 shadow-[0_15px_45px_rgba(0,0,0,0.06)] space-y-5">
       {/* Header Info */}
-      <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+      <div className="pb-4 border-b border-slate-100 flex items-start justify-between gap-3">
         <div>
-          <span className="text-[10px] font-bold text-amber-700 uppercase tracking-wider">
-            Stationed Inventory Hub
+          <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-0.5">
+            Active Reservation Rate
           </span>
-          <div className="flex items-center gap-1.5 mt-0.5">
-            <MapPin className="w-4 h-4 text-amber-600" />
-            <span className="text-sm font-bold text-[#090e1a]">
-              {car.location?.name || "Delhi NCR Hub"}
+          <div className="flex items-baseline gap-1.5">
+            <span className="text-2xl sm:text-3xl font-black text-[#090e1a] tracking-tight">
+              ₹{planPrice.toLocaleString("en-IN")}
+            </span>
+            <span className="text-xs text-slate-500 font-semibold">
+              / {selectedPlan?.name || "package"}
             </span>
           </div>
         </div>
-        <div className="text-right">
-          <span className="text-[10px] font-bold text-slate-400 uppercase">Customer Session</span>
-          <div className="flex items-center gap-1.5 justify-end mt-0.5">
+
+        <div className="text-right shrink-0">
+          <span className="text-[10px] font-bold text-slate-600 uppercase">Customer Session</span>
+          <div className="flex items-center gap-1.5 justify-end mt-1">
             <span className="w-2 h-2 rounded-full bg-emerald-500" />
             <span className="text-xs font-bold text-slate-800 truncate max-w-[120px]">
               {customer.fullName}
@@ -451,77 +444,96 @@ export default function CarBookingCard({ car, customer, slug }: CarBookingCardPr
 
         {/* Step 1: Select Rental Plan */}
         <div className="space-y-2">
-          <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider flex items-center justify-between">
-            <span>1. Choose Rental Package</span>
-            <span className="text-[10px] text-amber-700 font-semibold">Extra KM: ₹{extraKmRate}/km</span>
-          </label>
-          <div className="grid grid-cols-2 gap-2.5">
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+              1. Choose Rental Package
+            </span>
+            <span className="text-[11px] text-amber-800 font-bold bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200/80">
+              Extra KM: ₹{extraKmRate}/km
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 min-[400px]:grid-cols-2 gap-2.5" role="group" aria-label="Rental Package Options">
             {plans.map((p) => {
               const isSelected = selectedPlanId === p.id;
               return (
-                <div
+                <button
+                  type="button"
                   key={p.id}
                   onClick={() => setSelectedPlanId(p.id)}
-                  className={`p-3 rounded-2xl border text-left cursor-pointer transition-all ${
+                  aria-pressed={isSelected}
+                  aria-label={`${p.name}: ₹${Number(p.price).toLocaleString("en-IN")}, ${p.free_km} km included`}
+                  className={`w-full p-3 rounded-2xl text-left cursor-pointer transition-all border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#c59b27] ${
                     isSelected
                       ? "bg-[#fdfaf2] border-2 border-[#c59b27] shadow-sm shadow-amber-500/10"
-                      : "bg-slate-50 border-slate-200/80 hover:border-amber-300 hover:bg-slate-100/60"
+                      : "bg-slate-50/80 border-slate-200/90 hover:border-amber-300 hover:bg-white"
                   }`}
                 >
                   <div className="flex justify-between items-center mb-1">
                     <span className="text-xs font-bold text-[#090e1a]">{p.name}</span>
-                    {isSelected && <Check className="w-3.5 h-3.5 text-amber-600" />}
+                    {isSelected && <Check className="w-3.5 h-3.5 text-amber-600 font-bold" />}
                   </div>
-                  <span className="text-sm font-extrabold text-amber-700 block">
+                  <span className="text-sm font-extrabold text-amber-800 block">
                     ₹{Number(p.price).toLocaleString("en-IN")}
                   </span>
-                  <span className="block text-[10px] text-slate-500 font-medium mt-0.5">
+                  <span className="block text-[10.5px] text-slate-500 font-medium mt-0.5">
                     {p.free_km} km included
                   </span>
-                </div>
+                </button>
               );
             })}
           </div>
         </div>
 
-        {/* Step 2: Dates */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-          <div>
-            <label className="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1 flex items-center gap-1.5">
-              <Calendar className="w-3.5 h-3.5 text-amber-600" />
-              <span>Pickup Date &amp; Time</span>
-            </label>
-            <input
-              type="datetime-local"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              required
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-900 font-medium focus:outline-none focus:border-amber-500 focus:bg-white transition-colors"
-            />
-          </div>
+        {/* Step 2: Pickup and Return Dates */}
+        <div className="space-y-1.5 pt-1">
+          <span className="text-xs font-bold text-slate-700 uppercase tracking-wider block">
+            2. Trip Schedule
+          </span>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label htmlFor="booking-pickup-datetime" className="block text-[11px] font-semibold text-slate-500 mb-1 flex items-center gap-1.5">
+                <Calendar className="w-3.5 h-3.5 text-amber-600" />
+                <span>Pickup Date &amp; Time</span>
+              </label>
+              <input
+                id="booking-pickup-datetime"
+                aria-label="Pickup Date and Time"
+                type="datetime-local"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                required
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 font-medium focus:outline-none focus:border-amber-500 focus:bg-white transition-colors"
+              />
+            </div>
 
-          <div>
-            <label className="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1 flex items-center gap-1.5">
-              <Clock className="w-3.5 h-3.5 text-amber-600" />
-              <span>Return Date &amp; Time</span>
-            </label>
-            <input
-              type="datetime-local"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              required
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-900 font-medium focus:outline-none focus:border-amber-500 focus:bg-white transition-colors"
-            />
+            <div>
+              <label htmlFor="booking-return-datetime" className="block text-[11px] font-semibold text-slate-500 mb-1 flex items-center gap-1.5">
+                <Clock className="w-3.5 h-3.5 text-amber-600" />
+                <span>Return Date &amp; Time</span>
+              </label>
+              <input
+                id="booking-return-datetime"
+                aria-label="Return Date and Time"
+                type="datetime-local"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                required
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 font-medium focus:outline-none focus:border-amber-500 focus:bg-white transition-colors"
+              />
+            </div>
           </div>
         </div>
 
         {/* Pickup & Return Address */}
         <div>
-          <label className="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1 flex items-center gap-1.5">
+          <label htmlFor="booking-pickup-address" className="block text-[11px] font-semibold text-slate-500 mb-1 flex items-center gap-1.5">
             <MapPin className="w-3.5 h-3.5 text-amber-600" />
             <span>Pickup &amp; Return Address</span>
           </label>
           <input
+            id="booking-pickup-address"
+            aria-label="Pickup and Return Address"
             type="text"
             value={pickupLocation}
             onChange={(e) => {
@@ -529,7 +541,7 @@ export default function CarBookingCard({ car, customer, slug }: CarBookingCardPr
               setDropLocation(e.target.value);
             }}
             placeholder="e.g. Hub Pickup or Doorstep Address (Delhi NCR / Lucknow)"
-            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-900 font-medium focus:outline-none focus:border-amber-500 focus:bg-white transition-colors"
+            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 font-medium focus:outline-none focus:border-amber-500 focus:bg-white transition-colors"
           />
         </div>
 
@@ -545,13 +557,13 @@ export default function CarBookingCard({ car, customer, slug }: CarBookingCardPr
             />
             <label htmlFor="withChauffeur" className="text-xs text-slate-800 font-bold cursor-pointer">
               Add Professional Chauffeur
-              <span className="block text-[10px] text-slate-500 font-normal">
+              <span className="block text-[10.5px] text-slate-500 font-normal">
                 Uniformed, verified driver (+₹1,500/day)
               </span>
             </label>
           </div>
           {withChauffeur && (
-            <span className="text-xs font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+            <span className="text-xs font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
               +₹{chauffeurFee.toLocaleString("en-IN")}
             </span>
           )}
@@ -559,8 +571,8 @@ export default function CarBookingCard({ car, customer, slug }: CarBookingCardPr
 
         {/* Promo / Coupon Code Input */}
         <div className="space-y-1.5 pt-1">
-          <label className="block text-[11px] font-bold text-slate-600 uppercase tracking-wider flex items-center justify-between">
-            <span className="flex items-center gap-1.5">
+          <div className="flex items-center justify-between">
+            <span className="flex items-center gap-1.5 text-[11px] font-bold text-slate-600 uppercase tracking-wider">
               <Tag className="w-3.5 h-3.5 text-amber-600" />
               <span>Promo / Coupon Code</span>
             </span>
@@ -569,7 +581,7 @@ export default function CarBookingCard({ car, customer, slug }: CarBookingCardPr
                 ✓ Coupon Applied
               </span>
             )}
-          </label>
+          </div>
 
           {appliedCoupon ? (
             <div className="flex items-center justify-between p-3 rounded-2xl bg-emerald-50 border border-emerald-200 text-xs">
@@ -592,7 +604,12 @@ export default function CarBookingCard({ car, customer, slug }: CarBookingCardPr
             </div>
           ) : (
             <div className="flex gap-2">
+              <label htmlFor="booking-promo-code" className="sr-only">
+                Enter promo or coupon code
+              </label>
               <input
+                id="booking-promo-code"
+                aria-label="Enter promo or coupon code"
                 type="text"
                 value={couponInput}
                 onChange={(e) => setCouponInput(e.target.value.toUpperCase().replace(/\s+/g, ""))}
@@ -605,7 +622,7 @@ export default function CarBookingCard({ car, customer, slug }: CarBookingCardPr
                 disabled={couponLoading || !couponInput.trim()}
                 className="px-4 py-2 rounded-xl bg-amber-100 hover:bg-amber-200/80 text-amber-900 border border-amber-300 text-xs font-bold disabled:opacity-50 transition-colors cursor-pointer"
               >
-                {couponLoading ? "Verifying..." : "Apply"}
+                {couponLoading ? "Checking..." : "Apply"}
               </button>
             </div>
           )}
@@ -651,7 +668,7 @@ export default function CarBookingCard({ car, customer, slug }: CarBookingCardPr
             <span>Total Payable Amount:</span>
             <div className="text-right">
               {appliedCoupon && (
-                <span className="text-xs text-slate-400 line-through mr-2 font-normal">
+                <span className="text-xs text-slate-600 line-through mr-2 font-medium">
                   ₹{grossAmount.toLocaleString("en-IN")}
                 </span>
               )}
@@ -666,11 +683,7 @@ export default function CarBookingCard({ car, customer, slug }: CarBookingCardPr
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-4 px-5 rounded-2xl text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer shadow-lg transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50"
-          style={{
-            background: "linear-gradient(135deg, #d8a834 0%, #c59b27 100%)",
-            boxShadow: "0 6px 20px rgba(197, 155, 39, 0.35)",
-          }}
+          className="modern-card-btn w-full flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 shadow-md"
         >
           {loading ? (
             <div className="flex items-center gap-2">
@@ -680,7 +693,7 @@ export default function CarBookingCard({ car, customer, slug }: CarBookingCardPr
           ) : (
             <>
               <span>Confirm &amp; Book Ride</span>
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="w-4 h-4 arrow-icon" />
             </>
           )}
         </button>

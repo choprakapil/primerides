@@ -21,27 +21,41 @@ export async function GET(req: NextRequest) {
       return apiError("Forbidden: You lack fleet.manage or bookings.view permission.", 403);
     }
 
-    const locations = await prisma.location.findMany({
-      where: { deleted_at: null },
-      include: {
-        _count: {
-          select: {
-            cars: { where: { deleted_at: null } },
-            bookings: { where: { deleted_at: null } },
+    const { searchParams } = new URL(req.url);
+    const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
+    const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") || "20", 10)));
+    const skip = (page - 1) * limit;
+
+    const [locations, totalCount] = await Promise.all([
+      prisma.location.findMany({
+        where: { deleted_at: null },
+        include: {
+          _count: {
+            select: {
+              cars: { where: { deleted_at: null } },
+              bookings: { where: { deleted_at: null } },
+            },
           },
         },
-      },
-      orderBy: { sort_order: "asc" },
-    });
+        orderBy: { sort_order: "asc" },
+        take: limit,
+        skip,
+      }),
+      prisma.location.count({ where: { deleted_at: null } }),
+    ]);
 
     const stats = {
-      totalHubs: locations.length,
+      totalHubs: totalCount,
       activeHubs: locations.filter((l) => l.is_active).length,
       totalVehiclesAssigned: locations.reduce((sum, l) => sum + l._count.cars, 0),
       totalReservations: locations.reduce((sum, l) => sum + l._count.bookings, 0),
     };
 
-    return apiSuccess({ locations, stats }, "Locations retrieved successfully.");
+    return apiSuccess({
+      locations,
+      stats,
+      pagination: { total: totalCount, page, limit, pages: Math.ceil(totalCount / limit) },
+    }, "Locations retrieved successfully.");
   } catch (err: any) {
     return apiError(err.message || "Failed to fetch locations", 500);
   }

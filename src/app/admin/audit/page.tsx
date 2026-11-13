@@ -3,6 +3,7 @@ import { prisma } from "@/server/db/client";
 import { getCurrentAdmin, hasAdminPermission, ADMIN_PERMISSIONS } from "@/server/auth/rbac";
 import ForbiddenCard from "@/components/admin/ForbiddenCard";
 import AuditManager from "@/components/admin/AuditManager";
+import { PageContainer } from "@/components/admin/ui";
 
 export const dynamic = "force-dynamic";
 
@@ -14,10 +15,12 @@ export default async function AdminAuditPage() {
   const admin = await getCurrentAdmin();
   if (!admin) {
     return (
-      <ForbiddenCard
-        permissionRequired="admin session"
-        moduleName="System Audit Activity & Logs"
-      />
+      <PageContainer>
+        <ForbiddenCard
+          permissionRequired="admin session"
+          moduleName="System Audit Activity & Logs"
+        />
+      </PageContainer>
     );
   }
 

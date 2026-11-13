@@ -3,6 +3,7 @@ import { prisma } from "@/server/db/client";
 import { getCurrentAdmin, hasAdminPermission, ADMIN_PERMISSIONS } from "@/server/auth/rbac";
 import ForbiddenCard from "@/components/admin/ForbiddenCard";
 import CouponsManager from "@/components/admin/CouponsManager";
+import { PageContainer } from "@/components/admin/ui";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -18,10 +19,12 @@ export default async function AdminCouponsPage() {
     ])
   ) {
     return (
-      <ForbiddenCard
-        permissionRequired="coupons.view, coupons.manage or pricing.manage"
-        moduleName="Coupon Code Management"
-      />
+      <PageContainer>
+        <ForbiddenCard
+          permissionRequired="coupons.view, coupons.manage or pricing.manage"
+          moduleName="Coupon Code Management"
+        />
+      </PageContainer>
     );
   }
 
@@ -70,6 +73,10 @@ export default async function AdminCouponsPage() {
       valid_until: c.valid_until ? c.valid_until.toISOString() : null,
       usage_limit: c.usage_limit,
       used_count: c.used_count,
+      per_user_limit: c.per_user_limit,
+      new_users_only: c.new_users_only,
+      applicable_platforms: c.applicable_platforms,
+      show_in_slider: c.show_in_slider,
       is_active: c.is_active,
       created_at: c.created_at.toISOString(),
       updated_at: c.updated_at.toISOString(),

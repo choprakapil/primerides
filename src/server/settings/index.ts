@@ -1,6 +1,7 @@
 import "server-only";
 import fs from "fs";
 import path from "path";
+import { prisma } from "../db/client";
 import {
   ExtendedSiteSettings,
   HeaderConfig,
@@ -9,6 +10,8 @@ import {
   HomepageConfig,
   AboutConfig,
   PoliciesConfig,
+  ContactConfig,
+  FleetCmsConfig,
   DEFAULT_SITE_SETTINGS,
   DEFAULT_HEADER_CONFIG,
   DEFAULT_FOOTER_CONFIG,
@@ -16,6 +19,8 @@ import {
   DEFAULT_HOMEPAGE_CONFIG,
   DEFAULT_ABOUT_CONFIG,
   DEFAULT_POLICIES_CONFIG,
+  DEFAULT_CONTACT_CONFIG,
+  DEFAULT_FLEET_CMS_CONFIG,
 } from "@/types/siteSettings";
 
 export * from "@/types/siteSettings";
@@ -27,6 +32,37 @@ const FOOTER_FILE = path.join(process.cwd(), "src/data/persistedFooter.json");
 const HOMEPAGE_FILE = path.join(process.cwd(), "src/data/persistedHomepage.json");
 const ABOUT_FILE = path.join(process.cwd(), "src/data/persistedAbout.json");
 const POLICIES_FILE = path.join(process.cwd(), "src/data/persistedPolicies.json");
+const CONTACT_FILE = path.join(process.cwd(), "src/data/persistedContact.json");
+const FLEET_FILE = path.join(process.cwd(), "src/data/persistedFleet.json");
+
+/**
+ * Persists configuration snapshot to MySQL tbl_site_settings table for serverless safety.
+ */
+async function persistToDb(key: string, value: any): Promise<void> {
+  try {
+    await (prisma as any).siteSetting.upsert({
+      where: { key },
+      update: { value },
+      create: { key, value },
+    });
+  } catch (err) {
+    // Graceful fallback: database might be disconnected or initializing
+  }
+}
+
+export async function getSiteSettingsAsync(): Promise<ExtendedSiteSettings> {
+  try {
+    const record = await (prisma as any).siteSetting.findUnique({
+      where: { key: "site_settings" },
+    });
+    if (record && record.value) {
+      return { ...DEFAULT_SITE_SETTINGS, ...(record.value as object) };
+    }
+  } catch (err) {
+    // fallback to file
+  }
+  return getSiteSettings();
+}
 
 export function getSiteSettings(): ExtendedSiteSettings {
   try {
@@ -113,7 +149,16 @@ export function saveSiteSettings(data: Partial<ExtendedSiteSettings> & { siteNam
   } catch (err) {
     console.error("Error saving site settings:", err);
   }
+  persistToDb("site_settings", updated).catch(() => {});
   return updated;
+}
+
+export async function getHeaderConfigAsync(): Promise<HeaderConfig> {
+  try {
+    const record = await (prisma as any).siteSetting.findUnique({ where: { key: "header" } });
+    if (record && record.value) return { ...DEFAULT_HEADER_CONFIG, ...(record.value as object) };
+  } catch {}
+  return getHeaderConfig();
 }
 
 export function getHeaderConfig(): HeaderConfig {
@@ -136,7 +181,16 @@ export function saveHeaderConfig(data: Partial<HeaderConfig>): HeaderConfig {
   } catch (err) {
     console.error("Error saving header config:", err);
   }
+  persistToDb("header", updated).catch(() => {});
   return updated;
+}
+
+export async function getFooterConfigAsync(): Promise<FooterConfig> {
+  try {
+    const record = await (prisma as any).siteSetting.findUnique({ where: { key: "footer" } });
+    if (record && record.value) return { ...DEFAULT_FOOTER_CONFIG, ...(record.value as object) };
+  } catch {}
+  return getFooterConfig();
 }
 
 export function getFooterConfig(): FooterConfig {
@@ -159,7 +213,16 @@ export function saveFooterConfig(data: Partial<FooterConfig>): FooterConfig {
   } catch (err) {
     console.error("Error saving footer config:", err);
   }
+  persistToDb("footer", updated).catch(() => {});
   return updated;
+}
+
+export async function getNotificationSettingsAsync(): Promise<NotificationSettings> {
+  try {
+    const record = await (prisma as any).siteSetting.findUnique({ where: { key: "notifications" } });
+    if (record && record.value) return { ...DEFAULT_NOTIFICATION_SETTINGS, ...(record.value as object) };
+  } catch {}
+  return getNotificationSettings();
 }
 
 export function getNotificationSettings(): NotificationSettings {
@@ -182,7 +245,16 @@ export function saveNotificationSettings(data: Partial<NotificationSettings>): N
   } catch (err) {
     console.error("Error saving notification settings:", err);
   }
+  persistToDb("notifications", updated).catch(() => {});
   return updated;
+}
+
+export async function getHomepageConfigAsync(): Promise<HomepageConfig> {
+  try {
+    const record = await (prisma as any).siteSetting.findUnique({ where: { key: "homepage" } });
+    if (record && record.value) return { ...DEFAULT_HOMEPAGE_CONFIG, ...(record.value as object) };
+  } catch {}
+  return getHomepageConfig();
 }
 
 export function getHomepageConfig(): HomepageConfig {
@@ -205,7 +277,16 @@ export function saveHomepageConfig(data: Partial<HomepageConfig>): HomepageConfi
   } catch (err) {
     console.error("Error saving homepage config:", err);
   }
+  persistToDb("homepage", updated).catch(() => {});
   return updated;
+}
+
+export async function getAboutConfigAsync(): Promise<AboutConfig> {
+  try {
+    const record = await (prisma as any).siteSetting.findUnique({ where: { key: "about" } });
+    if (record && record.value) return { ...DEFAULT_ABOUT_CONFIG, ...(record.value as object) };
+  } catch {}
+  return getAboutConfig();
 }
 
 export function getAboutConfig(): AboutConfig {
@@ -228,7 +309,16 @@ export function saveAboutConfig(data: Partial<AboutConfig>): AboutConfig {
   } catch (err) {
     console.error("Error saving about config:", err);
   }
+  persistToDb("about", updated).catch(() => {});
   return updated;
+}
+
+export async function getPoliciesConfigAsync(): Promise<PoliciesConfig> {
+  try {
+    const record = await (prisma as any).siteSetting.findUnique({ where: { key: "policies" } });
+    if (record && record.value) return { ...DEFAULT_POLICIES_CONFIG, ...(record.value as object) };
+  } catch {}
+  return getPoliciesConfig();
 }
 
 export function getPoliciesConfig(): PoliciesConfig {
@@ -251,6 +341,73 @@ export function savePoliciesConfig(data: Partial<PoliciesConfig>): PoliciesConfi
   } catch (err) {
     console.error("Error saving policies config:", err);
   }
+  persistToDb("policies", updated).catch(() => {});
   return updated;
 }
+
+export async function getContactConfigAsync(): Promise<ContactConfig> {
+  try {
+    const record = await (prisma as any).siteSetting.findUnique({ where: { key: "contact" } });
+    if (record && record.value) return { ...DEFAULT_CONTACT_CONFIG, ...(record.value as object) };
+  } catch {}
+  return getContactConfig();
+}
+
+export function getContactConfig(): ContactConfig {
+  try {
+    if (fs.existsSync(CONTACT_FILE)) {
+      const content = fs.readFileSync(CONTACT_FILE, "utf8");
+      return { ...DEFAULT_CONTACT_CONFIG, ...JSON.parse(content) };
+    }
+  } catch (err) {
+    console.error("Error reading contact config, using defaults:", err);
+  }
+  return DEFAULT_CONTACT_CONFIG;
+}
+
+export function saveContactConfig(data: Partial<ContactConfig>): ContactConfig {
+  const current = getContactConfig();
+  const updated = { ...current, ...data };
+  try {
+    fs.writeFileSync(CONTACT_FILE, JSON.stringify(updated, null, 2), "utf8");
+  } catch (err) {
+    console.error("Error saving contact config:", err);
+  }
+  persistToDb("contact", updated).catch(() => {});
+  return updated;
+}
+
+export async function getFleetConfigAsync(): Promise<FleetCmsConfig> {
+  try {
+    const record = await (prisma as any).siteSetting.findUnique({ where: { key: "fleet" } });
+    if (record && record.value) return { ...DEFAULT_FLEET_CMS_CONFIG, ...(record.value as object) };
+  } catch {}
+  return getFleetConfig();
+}
+
+export function getFleetConfig(): FleetCmsConfig {
+  try {
+    if (fs.existsSync(FLEET_FILE)) {
+      const content = fs.readFileSync(FLEET_FILE, "utf8");
+      return { ...DEFAULT_FLEET_CMS_CONFIG, ...JSON.parse(content) };
+    }
+  } catch (err) {
+    console.error("Error reading fleet config, using defaults:", err);
+  }
+  return DEFAULT_FLEET_CMS_CONFIG;
+}
+
+export function saveFleetConfig(data: Partial<FleetCmsConfig>): FleetCmsConfig {
+  const current = getFleetConfig();
+  const updated = { ...current, ...data };
+  try {
+    fs.writeFileSync(FLEET_FILE, JSON.stringify(updated, null, 2), "utf8");
+  } catch (err) {
+    console.error("Error saving fleet config:", err);
+  }
+  persistToDb("fleet", updated).catch(() => {});
+  return updated;
+}
+
+
 

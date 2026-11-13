@@ -22,6 +22,44 @@ const SEGMENTS: Segment[] = [
 
 export default function FleetUtilizationDonutChart() {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const [segments, setSegments] = useState<Segment[]>(SEGMENTS);
+
+  React.useEffect(() => {
+    fetch("/api/v1/cars")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((json) => {
+        if (json?.data && Array.isArray(json.data) && json.data.length > 0) {
+          const cars = json.data;
+          const total = cars.length;
+          const catMap: Record<string, number> = {};
+          cars.forEach((c: any) => {
+            const catName = c.category?.name || "Luxury Sedans";
+            catMap[catName] = (catMap[catName] || 0) + 1;
+          });
+
+          const colors = [
+            { color: "#8b5cf6", pastelBg: "#ede9fe" },
+            { color: "#0ea5e9", pastelBg: "#e0f2fe" },
+            { color: "#10b981", pastelBg: "#d1fae5" },
+            { color: "#f59e0b", pastelBg: "#fef3c7" },
+          ];
+
+          const calculated = Object.entries(catMap).map(([name, count], idx) => ({
+            id: `cat-${idx}`,
+            name,
+            count,
+            percentage: Math.round((count / total) * 100),
+            color: colors[idx % colors.length].color,
+            pastelBg: colors[idx % colors.length].pastelBg,
+          }));
+
+          if (calculated.length > 0) {
+            setSegments(calculated);
+          }
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   // SVG Geometry
   const size = 200;
@@ -32,7 +70,8 @@ export default function FleetUtilizationDonutChart() {
 
   let currentOffset = 0;
 
-  const activeSegment = hoveredId ? SEGMENTS.find((s) => s.id === hoveredId) : null;
+  const activeSegment = hoveredId ? segments.find((s) => s.id === hoveredId) : null;
+  const totalUnits = segments.reduce((sum, s) => sum + s.count, 0);
 
   return (
     <div className="card h-100 border pastel-card pastel-card-mint">
@@ -65,7 +104,7 @@ export default function FleetUtilizationDonutChart() {
             />
 
             {/* Segment Arcs */}
-            {SEGMENTS.map((seg) => {
+            {segments.map((seg) => {
               const strokeDasharray = `${(seg.percentage / 100) * circumference} ${circumference}`;
               const strokeDashoffset = -currentOffset;
               currentOffset += (seg.percentage / 100) * circumference;
@@ -106,7 +145,7 @@ export default function FleetUtilizationDonutChart() {
               </div>
             ) : (
               <div>
-                <div className="h3 mb-0 fw-bold text-dark">43</div>
+                <div className="h3 mb-0 fw-bold text-dark">{totalUnits || 43}</div>
                 <div className="text-[10px] font-bold text-muted text-uppercase tracking-wider">
                   Total Cars
                 </div>
@@ -117,7 +156,7 @@ export default function FleetUtilizationDonutChart() {
 
         {/* Legend Chips with pastel styling */}
         <div className="row g-2 mt-2 pt-1">
-          {SEGMENTS.map((seg) => {
+          {segments.map((seg) => {
             const isHovered = hoveredId === seg.id;
             return (
               <div key={seg.id} className="col-6">

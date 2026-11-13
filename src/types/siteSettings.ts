@@ -8,6 +8,15 @@ export interface ExtendedSiteSettings extends SiteConfig {
   securityDepositDefault: number;
   googleMapsEmbedUrl: string;
   whatsappInquiryTemplate: string;
+  // Tax & Corporate Invoicing Configuration (Issue #15)
+  legalCorporateName?: string;
+  sacCode?: string;
+  gstRatePercentage?: number;
+  cgstRatePercentage?: number;
+  sgstRatePercentage?: number;
+  igstRatePercentage?: number;
+  taxInvoiceAddress?: string;
+  taxInvoiceState?: string;
 }
 
 export interface HeaderMenuItem {
@@ -97,6 +106,14 @@ export const DEFAULT_SITE_SETTINGS: ExtendedSiteSettings = {
   securityDepositDefault: 3000,
   googleMapsEmbedUrl: "https://maps.google.com/?q=Indira+Gandhi+International+Airport+Delhi",
   whatsappInquiryTemplate: "Hi PrimeRides, I am interested in reserving a self-drive luxury car in Delhi NCR / Lucknow.",
+  legalCorporateName: "PrimeRides Mobility Solutions Private Limited",
+  sacCode: "996601",
+  gstRatePercentage: 18,
+  cgstRatePercentage: 9,
+  sgstRatePercentage: 9,
+  igstRatePercentage: 18,
+  taxInvoiceAddress: "Indira Gandhi International Airport, Terminal 3 VIP Valet, New Delhi 110037",
+  taxInvoiceState: "07 - Delhi",
 };
 
 export const DEFAULT_HEADER_CONFIG: HeaderConfig = {
@@ -464,4 +481,47 @@ export const DEFAULT_POLICIES_CONFIG: PoliciesConfig = {
     }
   ]
 };
+
+export interface ContactConfig {
+  eyebrow: string;
+  title: string;
+  subtitle: string;
+  phone: string;
+  whatsapp: string;
+  email: string;
+  supportEmail: string;
+  addressDelhi: string;
+  addressGurgaon: string;
+  addressLucknow: string;
+  timings: string;
+}
+
+export const DEFAULT_CONTACT_CONFIG: ContactConfig = {
+  eyebrow: "GET IN TOUCH",
+  title: "24/7 Curbside & Doorstep Concierge",
+  subtitle:
+    "Have questions regarding airport pickup, unlimited kilometers, or custom wedding fleet rental? Our concierge desk is active 24/7 across Delhi NCR & Lucknow.",
+  phone: "+91 90453 01702",
+  whatsapp: "+91 90453 01702",
+  email: "concierge@primerides.in",
+  supportEmail: "support@primerides.in",
+  addressDelhi: "IGI Airport Terminal 3 Valet & Aerocity Hospitality Hub, New Delhi",
+  addressGurgaon: "DLF Cyber City Building 10 Executive Center, Gurugram",
+  addressLucknow: "Chaudhary Charan Singh International Airport & Gomti Nagar, Lucknow",
+  timings: "24 Hours / 7 Days a Week (Doorstep & Curbside Airport Delivery)",
+};
+
+export interface FleetCmsConfig {
+  eyebrow: string;
+  title: string;
+  subtitle: string;
+}
+
+export const DEFAULT_FLEET_CMS_CONFIG: FleetCmsConfig = {
+  eyebrow: "PREMIUM SELF-DRIVE COLLECTION",
+  title: "Explore Our Luxury Fleet",
+  subtitle:
+    "From mountain-dominating 4x4 SUVs to executive long-wheelbase sedans, choose your ideal drive with unlimited kilometers and zero security deposit.",
+};
+
 

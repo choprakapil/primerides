@@ -7,17 +7,27 @@ import { apiError, apiSuccess, apiUnauthorized } from "@/server/utils/api-respon
  * GET /api/v1/admin/leads
  * List all customer contact inquiries
  */
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
     const admin = await getCurrentAdmin();
     if (!admin) return apiUnauthorized("Admin authentication required.");
 
-    const leads = await prisma.contactLead.findMany({
-      where: { deleted_at: null },
-      orderBy: { created_at: "desc" },
-    });
+    const { searchParams } = new URL(req.url);
+    const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
+    const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") || "20", 10)));
+    const skip = (page - 1) * limit;
 
-    return apiSuccess(leads);
+    const [leads, total] = await Promise.all([
+      prisma.contactLead.findMany({
+        where: { deleted_at: null },
+        orderBy: { created_at: "desc" },
+        take: limit,
+        skip,
+      }),
+      prisma.contactLead.count({ where: { deleted_at: null } }),
+    ]);
+
+    return apiSuccess({ leads, pagination: { total, page, limit, pages: Math.ceil(total / limit) } });
   } catch (err: any) {
     return apiError(err.message || "Failed to fetch contact leads", 500);
   }

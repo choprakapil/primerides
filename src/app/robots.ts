@@ -1,6 +1,6 @@
 import { MetadataRoute } from "next";
 
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://primerides.in";
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -9,10 +9,12 @@ export default function robots(): MetadataRoute.Robots {
         userAgent: "*",
         allow: "/",
         disallow: [
-          "/admin/",
-          "/account/",
-          "/api/",
-          "/_next/",
+          "/admin",
+          "/admin/*",
+          "/account",
+          "/account/*",
+          "/api/*",
+          "/_next/*",
         ],
       },
     ],

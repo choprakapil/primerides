@@ -155,7 +155,7 @@ export default function AdminLeadsPage() {
             placeholder="Search by customer name, phone, car..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 text-xs border border-[#e8edf2] rounded-lg outline-none focus:ring-1 focus:ring-[#5955D1] bg-white"
+            className="w-full pl-9 pr-4 py-2 text-xs border border-[#e8edf2] rounded-lg outline-none focus:ring-1 focus:ring-[#c59b27] bg-white"
           />
         </div>
 
@@ -164,7 +164,7 @@ export default function AdminLeadsPage() {
           <select
             value={selectedStatus}
             onChange={(e) => setSelectedStatus(e.target.value)}
-            className="text-xs border border-[#e8edf2] rounded-lg px-3 py-2 bg-white outline-none focus:ring-1 focus:ring-[#5955D1]"
+            className="text-xs border border-[#e8edf2] rounded-lg px-3 py-2 bg-white outline-none focus:ring-1 focus:ring-[#c59b27]"
           >
             <option value="all">All Statuses</option>
             <option value="new">New</option>

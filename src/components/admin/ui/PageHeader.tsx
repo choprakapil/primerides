@@ -18,26 +18,24 @@ export function AdminPageHeader({
   className = "",
 }: AdminPageHeaderProps) {
   return (
-    <div className={`app-page-head d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-3 mb-4 ${className}`}>
-      <div>
+    <div className={`dash-page-header ${className}`}>
+      {/* Left: Title block */}
+      <div className="dash-page-header-left">
         {eyebrow && (
-          <span className="badge bg-primary-subtle text-primary border border-primary-subtle px-2.5 py-1 rounded-pill mb-2 fw-semibold" style={{ fontSize: "11px" }}>
-            {eyebrow}
-          </span>
+          <span className="dash-page-eyebrow">{eyebrow}</span>
         )}
-        <h4 className="fw-bold text-dark mb-1 d-flex align-items-center gap-2">
-          {icon && <span className="text-primary shrink-0">{icon}</span>}
-          <span>{title}</span>
-        </h4>
+        <h1 className="dash-page-title">
+          {icon && <span className="dash-page-title-icon">{icon}</span>}
+          {title}
+        </h1>
         {description && (
-          <p className="text-muted mb-0" style={{ fontSize: "13px" }}>
-            {description}
-          </p>
+          <p className="dash-page-description">{description}</p>
         )}
       </div>
 
+      {/* Right: Action buttons */}
       {actions && (
-        <div className="d-flex flex-wrap align-items-center gap-2">
+        <div className="dash-page-actions">
           {actions}
         </div>
       )}

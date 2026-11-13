@@ -11,7 +11,7 @@ import {
   TextInput,
   RefreshControl,
 } from "react-native";
-import { useRouter } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
 import { api } from "../../src/services/api";
 import { useAuthStore } from "../../src/stores/authStore";
 import { PaymentRecord, UnpaidBookingRecord, PaymentLedgerData } from "../../src/types";
@@ -31,9 +31,11 @@ import {
   X,
   Lock,
 } from "lucide-react-native";
+import { formatIstDate } from "../../src/utils/dates";
 
 export default function MobilePaymentsScreen() {
   const router = useRouter();
+  const params = useLocalSearchParams<{ bookingId?: string; autoPay?: string }>();
   const { isAuthenticated } = useAuthStore();
   const [data, setData] = useState<PaymentLedgerData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -66,6 +68,27 @@ export default function MobilePaymentsScreen() {
     }
     fetchPayments();
   }, [isAuthenticated]);
+
+  // Auto-open payment modal when directed from instant Pay Now flow
+  useEffect(() => {
+    const bookings = data?.unpaidBookings;
+    if (bookings && bookings.length > 0) {
+      if (params.bookingId) {
+        const found = bookings.find(
+          (b: UnpaidBookingRecord) =>
+            String(b.id) === String(params.bookingId) ||
+            b.booking_code === params.bookingId
+        );
+        if (found) {
+          setSelectedBooking(found);
+          return;
+        }
+      }
+      if (params.autoPay === "true") {
+        setSelectedBooking(bookings[0]);
+      }
+    }
+  }, [data, params.bookingId, params.autoPay]);
 
   const handleRefresh = () => {
     setIsRefreshing(true);
@@ -200,8 +223,8 @@ export default function MobilePaymentsScreen() {
 
                 <View style={styles.dateRow}>
                   <Text style={styles.dateText}>
-                    {new Date(b.start_date).toLocaleDateString("en-IN", { month: "short", day: "numeric" })} —{" "}
-                    {new Date(b.end_date).toLocaleDateString("en-IN", { month: "short", day: "numeric" })}
+                    {formatIstDate(b.start_date, { month: "short", day: "numeric" })} —{" "}
+                    {formatIstDate(b.end_date, { month: "short", day: "numeric" })}
                   </Text>
                   <Text style={styles.planName}>{b.rental_plan?.name || "KM Plan"}</Text>
                 </View>
@@ -260,7 +283,7 @@ export default function MobilePaymentsScreen() {
                       </Text>
                       <Text style={styles.paymentMeta}>
                         Ref: #{p.transaction_ref || p.gateway_payment_id || `PAY_${p.id}`} •{" "}
-                        {new Date(p.created_at).toLocaleDateString("en-IN", {
+                        {formatIstDate(p.created_at, {
                           month: "short",
                           day: "numeric",
                           year: "numeric",

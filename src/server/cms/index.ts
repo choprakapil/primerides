@@ -26,7 +26,7 @@ export interface BlogItemDTO {
 /**
  * Fetch all active FAQs from database, with fallback to hardcoded data
  */
-export async function getFaqs(): Promise<FaqItemDTO[]> {
+export async function getFaqs(limit = 100, skip = 0): Promise<FaqItemDTO[]> {
   try {
     const dbFaqs = await prisma.fAQ.findMany({
       where: {
@@ -36,6 +36,8 @@ export async function getFaqs(): Promise<FaqItemDTO[]> {
       orderBy: {
         sort_order: "asc",
       },
+      take: limit,
+      skip,
     });
 
     if (dbFaqs.length > 0) {
@@ -62,9 +64,9 @@ export async function getFaqs(): Promise<FaqItemDTO[]> {
 }
 
 /**
- * Fetch all published blogs from database with fallback
+ * Fetch published blogs from database with fallback
  */
-export async function getBlogs(): Promise<BlogItemDTO[]> {
+export async function getBlogs(limit = 50, skip = 0): Promise<BlogItemDTO[]> {
   try {
     const dbBlogs = await prisma.blog.findMany({
       where: {
@@ -77,6 +79,8 @@ export async function getBlogs(): Promise<BlogItemDTO[]> {
       orderBy: {
         published_at: "desc",
       },
+      take: limit,
+      skip,
     });
 
     if (dbBlogs.length > 0) {

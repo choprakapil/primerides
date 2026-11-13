@@ -4,18 +4,26 @@ import React, { useState } from "react";
 import { FAQS_DATA } from "@/data/faqs";
 import Link from "next/link";
 
-interface FaqSectionProps {
-  showAll?: boolean;
+export interface FaqItem {
+  id: string | number;
+  question: string;
+  answer: string;
+  category?: string;
 }
 
-export default function FaqSection({ showAll = false }: FaqSectionProps) {
-  const [openFaq, setOpenFaq] = useState<string | null>("faq1");
+interface FaqSectionProps {
+  showAll?: boolean;
+  items?: FaqItem[];
+}
 
-  const toggleFaq = (id: string) => {
+export default function FaqSection({ showAll = false, items }: FaqSectionProps) {
+  const sourceData = items && items.length > 0 ? items : FAQS_DATA;
+  const displayedFaqs = showAll ? sourceData : sourceData.slice(0, 5);
+  const [openFaq, setOpenFaq] = useState<string | number | null>(displayedFaqs[0]?.id || "faq1");
+
+  const toggleFaq = (id: string | number) => {
     setOpenFaq((prev) => (prev === id ? null : id));
   };
-
-  const displayedFaqs = showAll ? FAQS_DATA : FAQS_DATA.slice(0, 5);
 
   return (
     <section className="section-padding section-white" id="faqSection">

@@ -125,12 +125,12 @@ export default function DraggableDashboardGrid({
       {/* Top Reorder / Customization Action Bar */}
       <div className="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3 px-1">
         <div className="d-flex align-items-center gap-2">
-          <span className="badge bg-purple-50 text-purple-700 border border-purple-200/80 rounded-pill d-inline-flex align-items-center gap-1.5 px-3 py-1 font-bold text-xs shadow-2xs">
-            <Sparkles className="w-3.5 h-3.5 text-purple-600" />
+          <span className="dash-workspace-badge">
+            <Sparkles className="w-3.5 h-3.5" />
             <span>Customizable Workspace</span>
           </span>
           {isReorderMode && (
-            <span className="text-muted text-xs d-none d-sm-inline">
+            <span className="text-muted d-none d-sm-inline" style={{ fontSize: "12px" }}>
               Drag items by the grip handle to reposition graphs &amp; metrics.
             </span>
           )}

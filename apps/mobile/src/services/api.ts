@@ -2,9 +2,10 @@ import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
 import { ApiResponse, AuthTokens, Booking, Car, CustomerUser, IdentityDocument, Location, PaymentLedgerData } from "../types";
 
-// Auto-detect local backend IP depending on platform
+// Auto-detect local backend IP depending on platform, with production fallback
+const PROD_FALLBACK_URL = "https://primerides.in";
 const DEFAULT_HOST = Platform.OS === "android" ? "http://10.0.2.2:3000" : "http://localhost:3000";
-export const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || DEFAULT_HOST;
+export const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || (__DEV__ ? DEFAULT_HOST : PROD_FALLBACK_URL);
 
 const REFRESH_TOKEN_KEY = "primerides_mobile_refresh_token";
 
@@ -171,6 +172,16 @@ export const api = {
       }
       await clearTokens();
     },
+
+    async deleteAccount() {
+      const res = await apiRequest<{ deleted: boolean }>("/api/v1/auth/delete-account", {
+        method: "POST",
+      });
+      if (res.success) {
+        await clearTokens();
+      }
+      return res;
+    },
   },
 
   locations: {
@@ -246,6 +257,15 @@ export const api = {
       notes?: string;
     }) {
       return await apiRequest("/api/v1/customer/payments", {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
+    },
+  },
+
+  devices: {
+    async registerDeviceToken(data: { deviceType: string; fcmToken: string }) {
+      return await apiRequest<{ registered: boolean }>("/api/v1/customer/device", {
         method: "POST",
         body: JSON.stringify(data),
       });

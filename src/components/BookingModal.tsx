@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
+import { trackLead } from "@/lib/analytics";
+import { useFocusTrap } from "@/lib/useFocusTrap";
 
 interface BookingModalProps {
   isOpen: boolean;
@@ -17,20 +19,43 @@ export default function BookingModal({
   carImg,
   onClose,
 }: BookingModalProps) {
+  const modalRef = useFocusTrap<HTMLDivElement>({ isOpen, onClose });
   const [custName, setCustName] = useState("");
   const [custPhone, setCustPhone] = useState("");
   const [custLoc, setCustLoc] = useState("Delhi - IGI Airport Terminal 3");
-  const [custStart, setCustStart] = useState("2026-09-03");
-  const [custEnd, setCustEnd] = useState("2026-09-06");
+  const [custStart, setCustStart] = useState(() => new Date().toISOString().split("T")[0]);
+  const [custEnd, setCustEnd] = useState(() => new Date(Date.now() + 86400000 * 3).toISOString().split("T")[0]);
 
   if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    // 1. Silently record lead to database so operations team has full visibility
+    fetch("/api/v1/contact", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: custName,
+        phone: custPhone,
+        carType: carName,
+        pickupCity: custLoc,
+        message: `Quick Reserve Booking Inquiry for dates ${custStart} to ${custEnd}. Tariff: ₹${carPrice}/day`,
+      }),
+    }).catch((err) => console.error("[BookingModal] Failed to log lead:", err));
+
+    trackLead({
+      type: "whatsapp_reservation",
+      carName,
+      location: custLoc,
+      phone: custPhone,
+    });
+
+    // 2. Open WhatsApp Concierge
     const waText = encodeURIComponent(
       `Hello Primerides! I want to book the ${carName} from ${custStart} to ${custEnd}. Pickup Location: ${custLoc}. Name: ${custName}, Phone: ${custPhone}`
     );
-        const targetPhone = (typeof window !== "undefined" && (window as any).__PR_WHATSAPP) || "919045301702";
+    const targetPhone = (typeof window !== "undefined" && (window as any).__PR_WHATSAPP) || "919045301702";
     window.open(`https://api.whatsapp.com/send?phone=${targetPhone}&text=${waText}`, "_blank");
     onClose();
   };
@@ -39,10 +64,17 @@ export default function BookingModal({
     <div
       className="modal fade show d-block"
       tabIndex={-1}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="booking-modal-title"
       style={{ background: "rgba(0,0,0,0.75)", zIndex: 1060 }}
       onClick={onClose}
     >
-      <div className="modal-dialog modal-dialog-centered modal-lg" onClick={(e) => e.stopPropagation()}>
+      <div
+        ref={modalRef}
+        className="modal-dialog modal-dialog-centered modal-lg"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="modal-content modal-content-lux" style={{ borderRadius: "24px", overflow: "hidden" }}>
           <div
             className="modal-header modal-header-lux"
@@ -58,13 +90,13 @@ export default function BookingModal({
               >
                 Primerides Instant Reservation
               </span>
-              <h4 className="modal-title text-white mb-0">{carName}</h4>
+              <h4 id="booking-modal-title" className="modal-title text-white mb-0">{carName}</h4>
             </div>
             <button
               type="button"
               className="btn-close btn-close-white"
               onClick={onClose}
-              aria-label="Close"
+              aria-label="Close reservation modal"
             ></button>
           </div>
           <div className="modal-body p-4 p-md-5" style={{ background: "#ffffff" }}>
@@ -73,7 +105,7 @@ export default function BookingModal({
                 <div className="rounded-4 overflow-hidden shadow-sm border mb-3">
                   <img
                     src={carImg || "/assets/img/cars/1.jpg"}
-                    alt={carName}
+                    alt={carName ? `${carName} Reserved Car` : "Reserved Luxury Car"}
                     className="img-fluid w-100"
                     style={{ height: "200px", objectFit: "cover" }}
                   />
@@ -114,19 +146,27 @@ export default function BookingModal({
                       />
                     </div>
                     <div className="col-12">
-                      <label className="form-label small fw-bold text-muted">From (Pick-up Hub in Delhi NCR)</label>
+                      <label className="form-label small fw-bold text-muted">Pick-up Location Hub</label>
                       <select
                         className="form-select"
                         value={custLoc}
                         onChange={(e) => setCustLoc(e.target.value)}
                         required
                       >
-                        <option>Delhi - IGI Airport Terminal 3</option>
-                        <option>Delhi - IGI Airport Terminal 1 & 2</option>
-                        <option>Gurugram - Cyber City Hub</option>
-                        <option>Delhi - Connaught Place</option>
-                        <option>Noida - Sector 18</option>
-                        <option>Doorstep Delivery (Home/Office/Hotel)</option>
+                        <optgroup label="Delhi NCR Hubs">
+                          <option>Delhi - IGI Airport Terminal 3</option>
+                          <option>Delhi - IGI Airport Terminal 1 & 2</option>
+                          <option>Gurugram - Cyber City Hub</option>
+                          <option>Delhi - Connaught Place</option>
+                          <option>Noida - Sector 18</option>
+                        </optgroup>
+                        <optgroup label="Lucknow Hubs">
+                          <option>Lucknow - CCS International Airport (Amausi)</option>
+                          <option>Lucknow - Gomti Nagar & Hazratganj Hub</option>
+                        </optgroup>
+                        <optgroup label="Direct Delivery">
+                          <option>Doorstep Delivery (Home/Office/Hotel)</option>
+                        </optgroup>
                       </select>
                     </div>
                     <div className="col-6">

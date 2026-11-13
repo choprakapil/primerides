@@ -9,6 +9,7 @@ import {
   Alert,
 } from "react-native";
 import { useRouter } from "expo-router";
+import * as ImagePicker from "expo-image-picker";
 import { api } from "../../src/services/api";
 import { useAuthStore } from "../../src/stores/authStore";
 import { IdentityDocument } from "../../src/types";
@@ -44,6 +45,7 @@ export default function MobileDocumentsScreen() {
   const { isAuthenticated } = useAuthStore();
   const [documents, setDocuments] = useState<IdentityDocument[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [uploadingSlot, setUploadingSlot] = useState<string | null>(null);
 
   const fetchDocs = async () => {
     try {
@@ -65,6 +67,100 @@ export default function MobileDocumentsScreen() {
     }
     fetchDocs();
   }, [isAuthenticated]);
+
+  const handlePickAndUpload = async (slotType: string, source: "camera" | "library") => {
+    try {
+      let result: ImagePicker.ImagePickerResult;
+
+      if (source === "camera") {
+        const { status } = await ImagePicker.requestCameraPermissionsAsync();
+        if (status !== "granted") {
+          Alert.alert(
+            "Permission Required",
+            "Camera permission is required to capture your document photo."
+          );
+          return;
+        }
+        result = await ImagePicker.launchCameraAsync({
+          mediaTypes: ["images"],
+          base64: true,
+          quality: 0.8,
+          allowsEditing: true,
+        });
+      } else {
+        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (status !== "granted") {
+          Alert.alert(
+            "Permission Required",
+            "Photo library permission is required to select your document photo."
+          );
+          return;
+        }
+        result = await ImagePicker.launchImageLibraryAsync({
+          mediaTypes: ["images"],
+          base64: true,
+          quality: 0.8,
+          allowsEditing: true,
+        });
+      }
+
+      if (result.canceled || !result.assets || result.assets.length === 0) {
+        return;
+      }
+
+      const asset = result.assets[0];
+      if (!asset.base64) {
+        Alert.alert("Error", "Could not process image data. Please try again.");
+        return;
+      }
+
+      setUploadingSlot(slotType);
+
+      const mimeType = asset.mimeType || "image/jpeg";
+      const fileName = asset.fileName || `${slotType}.jpg`;
+      const fileBase64 = `data:${mimeType};base64,${asset.base64}`;
+
+      const uploadRes = await api.documents.uploadDocument({
+        type: slotType,
+        fileBase64,
+        fileName,
+        mimeType,
+      });
+
+      if (uploadRes.success) {
+        Alert.alert("Success", "Document uploaded successfully and submitted for review.");
+        await fetchDocs();
+      } else {
+        Alert.alert("Upload Failed", uploadRes.message || "Failed to upload document.");
+      }
+    } catch (err: any) {
+      console.error("Upload error:", err);
+      Alert.alert("Upload Failed", err.message || "An unexpected error occurred.");
+    } finally {
+      setUploadingSlot(null);
+    }
+  };
+
+  const promptUploadOptions = (slotType: string, slotTitle: string) => {
+    Alert.alert(
+      `Upload ${slotTitle}`,
+      "Choose a source to upload your identity document photo:",
+      [
+        {
+          text: "Take Photo",
+          onPress: () => handlePickAndUpload(slotType, "camera"),
+        },
+        {
+          text: "Choose from Library",
+          onPress: () => handlePickAndUpload(slotType, "library"),
+        },
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+      ]
+    );
+  };
 
   const getDoc = (type: string) => documents.find((d) => d.type === type);
 
@@ -97,6 +193,7 @@ export default function MobileDocumentsScreen() {
         <View style={styles.slotsContainer}>
           {SLOTS.map((slot) => {
             const doc = getDoc(slot.type);
+            const isUploadingThis = uploadingSlot === slot.type;
             return (
               <View key={slot.type} style={styles.slotCard}>
                 <View style={styles.slotHeader}>
@@ -137,19 +234,26 @@ export default function MobileDocumentsScreen() {
                 )}
 
                 <TouchableOpacity
-                  style={styles.uploadBtn}
-                  onPress={() => {
-                    Alert.alert(
-                      "Upload Document",
-                      "Please upload a photo of your " + slot.title + " via the PrimeRides Web Portal or camera roll.",
-                      [{ text: "OK" }]
-                    );
-                  }}
+                  style={[
+                    styles.uploadBtn,
+                    isUploadingThis && { opacity: 0.7 },
+                  ]}
+                  disabled={uploadingSlot !== null}
+                  onPress={() => promptUploadOptions(slot.type, slot.title)}
                 >
-                  <Upload size={14} color="#000" style={{ marginRight: 6 }} />
-                  <Text style={styles.uploadBtnText}>
-                    {doc ? "Replace Document Photo" : "Upload Document Photo"}
-                  </Text>
+                  {isUploadingThis ? (
+                    <>
+                      <ActivityIndicator size="small" color="#000" style={{ marginRight: 6 }} />
+                      <Text style={styles.uploadBtnText}>Uploading & Verifying...</Text>
+                    </>
+                  ) : (
+                    <>
+                      <Upload size={14} color="#000" style={{ marginRight: 6 }} />
+                      <Text style={styles.uploadBtnText}>
+                        {doc ? "Replace Document Photo" : "Upload Document Photo"}
+                      </Text>
+                    </>
+                  )}
                 </TouchableOpacity>
               </View>
             );

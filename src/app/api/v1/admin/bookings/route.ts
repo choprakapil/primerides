@@ -1,7 +1,8 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/server/db/client";
 import { getCurrentAdmin, hasAdminPermission, ADMIN_PERMISSIONS } from "@/server/auth/rbac";
-import { apiError, apiSuccess, apiUnauthorized } from "@/server/utils/api-response";
+import { apiError, apiSuccess, apiUnauthorized, apiCreated } from "@/server/utils/api-response";
+import { createBookingSafe } from "@/server/booking";
 
 /**
  * GET /api/v1/admin/bookings
@@ -17,7 +18,7 @@ import { apiError, apiSuccess, apiUnauthorized } from "@/server/utils/api-respon
  */
 export async function GET(req: NextRequest) {
   try {
-    const admin = await getCurrentAdmin();
+    const admin = await getCurrentAdmin(req);
     if (!admin) return apiUnauthorized("Admin authentication required.");
 
     if (
@@ -71,7 +72,7 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    const [totalCount, bookings, verifiedDocs] = await Promise.all([
+    const [totalCount, bookings] = await Promise.all([
       prisma.booking.count({ where }),
       prisma.booking.findMany({
         where,
@@ -86,23 +87,36 @@ export async function GET(req: NextRequest) {
         skip,
         take: limit,
       }),
-      prisma.identityDocument.findMany({
-        where: {
-          status: "verified",
-          type: { in: ["driving_license_front", "driving_license_back"] },
-        },
-        select: { customer_id: true },
-      }),
     ]);
+
+    const pageCustomerIds = Array.from(
+      new Set(bookings.map((b) => b.customer_id).filter((id): id is number => id !== null))
+    );
+
+    const verifiedDocs = pageCustomerIds.length > 0
+      ? await prisma.identityDocument.findMany({
+          where: {
+            customer_id: { in: pageCustomerIds },
+            status: "verified",
+            type: { in: ["driving_license_front", "driving_license_back"] },
+          },
+          select: { customer_id: true },
+          take: pageCustomerIds.length * 2,
+        })
+      : [];
 
     const verifiedCustomerIds = new Set(verifiedDocs.map((d) => d.customer_id));
 
     const sanitizedBookings = bookings.map((b) => {
-      const totalPaid = (b.payments || [])
-        .filter((p) => p.status === "captured" || p.status === "successful")
+      const capturedAmount = (b.payments || [])
+        .filter((p) => (p.status === "captured" || p.status === "successful") && p.payment_method !== "refund")
         .reduce((sum, p) => sum + Number(p.amount || 0), 0);
+      const refundedAmount = (b.payments || [])
+        .filter((p) => p.status === "refunded" || p.payment_method === "refund")
+        .reduce((sum, p) => sum + Number(p.amount || 0), 0);
+      const refundableBalance = Math.max(0, capturedAmount - refundedAmount);
       const requiredTotal = Number(b.total_amount || 0);
-      const isPaid = totalPaid >= requiredTotal && requiredTotal > 0;
+      const isPaid = capturedAmount >= requiredTotal && requiredTotal > 0;
 
       return {
         id: b.id,
@@ -121,7 +135,9 @@ export async function GET(req: NextRequest) {
         coupon_code: b.coupon_code || null,
         discount_amount: Number(b.discount_amount || 0),
         total_amount: requiredTotal,
-        totalPaid,
+        totalPaid: capturedAmount,
+        totalRefunded: refundedAmount,
+        refundableBalance,
         isPaid,
         payments: (b.payments || []).map((p) => ({
           id: p.id,
@@ -165,5 +181,201 @@ export async function GET(req: NextRequest) {
     });
   } catch (err: any) {
     return apiError(err.message || "Failed to fetch bookings", 500);
+  }
+}
+
+/**
+ * POST /api/v1/admin/bookings
+ * Creates an offline / walk-in / office booking initiated by staff.
+ */
+export async function POST(req: NextRequest) {
+  try {
+    const admin = await getCurrentAdmin(req);
+    if (!admin) return apiUnauthorized("Admin authentication required.");
+
+    if (!hasAdminPermission(admin, ADMIN_PERMISSIONS.BOOKINGS_MANAGE)) {
+      return apiError("Forbidden: You lack bookings.manage permission to create bookings.", 403);
+    }
+
+    const body = await req.json().catch(() => ({}));
+    const {
+      fullName,
+      phone,
+      email,
+      carId,
+      rentalPlanId,
+      locationId,
+      startDate,
+      endDate,
+      pickupLocation,
+      dropLocation,
+      withChauffeur,
+      couponCode,
+      notes,
+      initialPayment,
+      status: requestedStatus = "confirmed",
+      drivingLicenseNumber,
+      verifyDlInPerson,
+    } = body;
+
+    if (!fullName?.trim() || !phone?.trim() || !carId || !startDate || !endDate) {
+      return apiError("Full name, phone, car, start date, and end date are required.", 400);
+    }
+
+    // Resolve rental plan if not provided: pick first active plan for car
+    let targetPlanId = rentalPlanId ? Number(rentalPlanId) : null;
+    if (!targetPlanId) {
+      const defaultPlan = await prisma.rentalPlan.findFirst({
+        where: { car_id: Number(carId), is_active: true },
+        orderBy: { price: "asc" },
+      });
+      if (!defaultPlan) {
+        return apiError("No active rental package available for this vehicle.", 400);
+      }
+      targetPlanId = defaultPlan.id;
+    }
+
+    // Look up or create CustomerUser profile by phone so walk-in bookings link to KYC documents and history
+    let customer = await prisma.customerUser.findFirst({
+      where: { phone: phone.trim(), deleted_at: null },
+    });
+
+    if (!customer) {
+      customer = await prisma.customerUser.create({
+        data: {
+          phone: phone.trim(),
+          full_name: fullName.trim(),
+          email: email?.trim() || null,
+          is_verified: true,
+        },
+      });
+    } else if (email?.trim() && !customer.email) {
+      customer = await prisma.customerUser.update({
+        where: { id: customer.id },
+        data: { email: email.trim() },
+      });
+    }
+
+    // Create booking safely via booking engine (ensures row-locking, multi-unit availability, GST, sequential code)
+    const bookingResult = await createBookingSafe({
+      customerId: customer.id,
+      fullName: fullName.trim(),
+      phone: phone.trim(),
+      email: email?.trim() || undefined,
+      carId: Number(carId),
+      rentalPlanId: targetPlanId,
+      locationId: locationId ? Number(locationId) : undefined,
+      startDate,
+      endDate,
+      pickupLocation,
+      dropLocation,
+      withChauffeur: !!withChauffeur,
+      couponCode: couponCode ? String(couponCode).trim() : undefined,
+      source: "office_walkin",
+      notes: notes || `Walk-in / Office reservation created by ${admin.name} (${admin.username})`,
+    });
+
+    if (!bookingResult.success || !bookingResult.booking) {
+      return apiError(bookingResult.error || "Failed to create walk-in booking.", bookingResult.statusCode || 400);
+    }
+
+    const createdBooking = bookingResult.booking;
+
+    // Record initial offline payment if collected at reservation time (Cash, POS card, UPI)
+    if (initialPayment && initialPayment.amount && Number(initialPayment.amount) > 0) {
+      const paymentAmount = Number(initialPayment.amount);
+      const paymentMethod = initialPayment.method || "cash";
+      const paymentRef = initialPayment.reference || `WALKIN-${Date.now()}`;
+
+      await prisma.payment.create({
+        data: {
+          booking_id: createdBooking.id,
+          amount: paymentAmount,
+          currency: "INR",
+          gateway: "offline",
+          payment_method: paymentMethod,
+          status: "captured",
+          transaction_ref: paymentRef,
+        },
+      });
+
+      await prisma.booking.update({
+        where: { id: createdBooking.id },
+        data: {
+          status: requestedStatus,
+          admin_notes: `Initial payment of ₹${paymentAmount.toLocaleString("en-IN")} collected via ${paymentMethod.toUpperCase()} (${paymentRef}) by ${admin.name}`,
+        },
+      });
+    } else if (requestedStatus && requestedStatus !== "pending") {
+      await prisma.booking.update({
+        where: { id: createdBooking.id },
+        data: { status: requestedStatus },
+      });
+    }
+
+    // If DL verified in person at office, create/verify identity document
+    if (createdBooking.customer_id && (verifyDlInPerson || drivingLicenseNumber)) {
+      await prisma.identityDocument.create({
+        data: {
+          customer_id: createdBooking.customer_id,
+          type: "driving_license_front",
+          storage_key: `office_verified_${Date.now()}`,
+          file_name: drivingLicenseNumber ? `DL-${String(drivingLicenseNumber).trim().toUpperCase()}` : "In-Person Driving License Inspected",
+          status: "verified",
+          verified_at: new Date(),
+          verified_by: admin.id,
+        },
+      });
+    }
+
+    // Audit log
+    await prisma.auditLog.create({
+      data: {
+        actor_id: admin.id,
+        actor_type: "admin",
+        action: "BOOKING_CREATE_WALKIN",
+        entity: "Booking",
+        entity_id: createdBooking.id,
+        after_state: {
+          booking_code: createdBooking.booking_code,
+          customer: fullName,
+          car_id: carId,
+          total_amount: Number(createdBooking.total_amount),
+          source: "office_walkin",
+        },
+      },
+    });
+
+    const finalized = await prisma.booking.findUnique({
+      where: { id: createdBooking.id },
+      include: {
+        car: true,
+        rental_plan: true,
+        location: true,
+        price_snapshot: true,
+        payments: true,
+      },
+    });
+
+    const hasVerifiedDL = createdBooking.customer_id
+      ? !!(await prisma.identityDocument.findFirst({
+          where: {
+            customer_id: createdBooking.customer_id,
+            status: "verified",
+            type: { in: ["driving_license_front", "driving_license_back"] },
+          },
+        }))
+      : false;
+
+    return apiCreated(
+      {
+        ...finalized,
+        hasVerifiedDL,
+      },
+      `Walk-in booking ${createdBooking.booking_code} created successfully.`
+    );
+  } catch (err: any) {
+    console.error("Admin bookings POST error:", err);
+    return apiError(err.message || "Failed to create walk-in booking.", 500);
   }
 }

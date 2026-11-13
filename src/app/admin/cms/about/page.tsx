@@ -26,6 +26,7 @@ export default function AdminCmsAboutPage() {
   const [isSaved, setIsSaved] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const [aboutData, setAboutData] = useState<AboutConfig>(DEFAULT_ABOUT_CONFIG);
 
@@ -44,6 +45,7 @@ export default function AdminCmsAboutPage() {
   const handleSave = async () => {
     setIsSaving(true);
     setIsSaved(false);
+    setErrorMsg(null);
     try {
       const res = await fetch("/api/v1/admin/cms/about", {
         method: "PUT",
@@ -57,7 +59,7 @@ export default function AdminCmsAboutPage() {
       setIsSaved(true);
       setTimeout(() => setIsSaved(false), 3000);
     } catch (err: any) {
-      alert("Error saving about page content: " + (err.message || "Unknown error"));
+      setErrorMsg(err.message || "Failed to save about page content");
     } finally {
       setIsSaving(false);
     }
@@ -69,13 +71,13 @@ export default function AdminCmsAboutPage() {
         eyebrow="CMS & Content"
         title="About Us Management"
         description="Edit the company narrative, mission & vision statements, impact statistics, and leadership promises displayed on the /about page."
-        icon={<Users className="w-5 h-5 text-[#5955D1]" />}
+        icon={<Users className="w-5 h-5 text-[#c59b27]" />}
         actions={
           <div className="flex items-center gap-3">
             <Link
               href="/about"
               target="_blank"
-              className="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-bold rounded-lg border border-[#e8edf2] text-slate-700 bg-white hover:bg-slate-50 hover:text-[#5955D1] transition-all shadow-xs"
+              className="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-bold rounded-lg border border-[#e8edf2] text-slate-700 bg-white hover:bg-slate-50 hover:text-[#c59b27] transition-all shadow-xs"
             >
               <ExternalLink className="w-3.5 h-3.5" />
               <span>Preview Live About Page</span>
@@ -83,7 +85,7 @@ export default function AdminCmsAboutPage() {
             <AdminButton
               onClick={handleSave}
               disabled={isSaving}
-              className="inline-flex items-center gap-2 bg-[#5955D1] hover:bg-[#b0871e] text-white px-4 py-2 text-xs font-bold rounded-lg shadow-sm disabled:opacity-50"
+              className="inline-flex items-center gap-2 bg-[#c59b27] hover:bg-[#b0871e] text-white px-4 py-2 text-xs font-bold rounded-lg shadow-sm disabled:opacity-50"
             >
               <Save className="w-4 h-4" />
               <span>{isSaving ? "Saving to Storage..." : "Save About Us Content"}</span>
@@ -91,6 +93,14 @@ export default function AdminCmsAboutPage() {
           </div>
         }
       />
+
+      {errorMsg && (
+        <div className="mb-6 p-4 rounded-xl bg-red-50 border border-red-200 text-red-800 flex items-center gap-3 shadow-xs">
+          <div className="text-sm">
+            <strong>Save Error:</strong> {errorMsg}
+          </div>
+        </div>
+      )}
 
       {isSaved && (
         <div className="mb-6 p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 flex items-center gap-3 shadow-xs">
@@ -116,7 +126,7 @@ export default function AdminCmsAboutPage() {
                 type="text"
                 value={aboutData.eyebrow}
                 onChange={(e) => setAboutData({ ...aboutData, eyebrow: e.target.value })}
-                className="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-[#5955D1]"
+                className="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-[#c59b27]"
               />
             </div>
             <div className="space-y-1.5 md:col-span-2">
@@ -125,7 +135,7 @@ export default function AdminCmsAboutPage() {
                 type="text"
                 value={aboutData.pageTitle}
                 onChange={(e) => setAboutData({ ...aboutData, pageTitle: e.target.value })}
-                className="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-[#5955D1]"
+                className="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-[#c59b27]"
               />
             </div>
             <div className="space-y-1.5 md:col-span-2">
@@ -134,7 +144,7 @@ export default function AdminCmsAboutPage() {
                 rows={3}
                 value={aboutData.subtitle}
                 onChange={(e) => setAboutData({ ...aboutData, subtitle: e.target.value })}
-                className="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-[#5955D1]"
+                className="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-[#c59b27]"
               />
             </div>
           </div>
@@ -144,27 +154,27 @@ export default function AdminCmsAboutPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <AdminCard className="p-5 bg-white border border-[#e8edf2] rounded-3 shadow-xs space-y-3">
             <div className="flex items-center gap-2 border-b border-slate-100 pb-2">
-              <Target className="w-4 h-4 text-[#5955D1]" />
+              <Target className="w-4 h-4 text-[#c59b27]" />
               <h3 className="font-bold text-sm text-slate-900">Our Mission Statement</h3>
             </div>
             <textarea
               rows={4}
               value={aboutData.mission}
               onChange={(e) => setAboutData({ ...aboutData, mission: e.target.value })}
-              className="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg outline-none focus:ring-1 focus:ring-[#5955D1]"
+              className="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg outline-none focus:ring-1 focus:ring-[#c59b27]"
             />
           </AdminCard>
 
           <AdminCard className="p-5 bg-white border border-[#e8edf2] rounded-3 shadow-xs space-y-3">
             <div className="flex items-center gap-2 border-b border-slate-100 pb-2">
-              <Sparkles className="w-4 h-4 text-[#5955D1]" />
+              <Sparkles className="w-4 h-4 text-[#c59b27]" />
               <h3 className="font-bold text-sm text-slate-900">Our Vision Statement</h3>
             </div>
             <textarea
               rows={4}
               value={aboutData.vision}
               onChange={(e) => setAboutData({ ...aboutData, vision: e.target.value })}
-              className="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg outline-none focus:ring-1 focus:ring-[#5955D1]"
+              className="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg outline-none focus:ring-1 focus:ring-[#c59b27]"
             />
           </AdminCard>
         </div>
@@ -173,7 +183,7 @@ export default function AdminCmsAboutPage() {
         <AdminCard className="p-6 bg-white border border-[#e8edf2] rounded-3 shadow-xs space-y-4">
           <div className="flex items-center justify-between border-b border-slate-100 pb-3">
             <div className="flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-[#5955D1]" />
+              <TrendingUp className="w-4 h-4 text-[#c59b27]" />
               <h3 className="font-bold text-sm text-slate-900">Milestone Impact Statistics</h3>
             </div>
             <span className="text-[11px] text-slate-400">Counters shown in the About Us stats strip</span>
@@ -186,7 +196,7 @@ export default function AdminCmsAboutPage() {
                 type="text"
                 value={aboutData.statHappy}
                 onChange={(e) => setAboutData({ ...aboutData, statHappy: e.target.value })}
-                className="w-full px-3 py-1.5 text-sm border border-slate-300 rounded-lg outline-none focus:ring-1 focus:ring-[#5955D1]"
+                className="w-full px-3 py-1.5 text-sm border border-slate-300 rounded-lg outline-none focus:ring-1 focus:ring-[#c59b27]"
               />
             </div>
             <div className="space-y-1">
@@ -195,7 +205,7 @@ export default function AdminCmsAboutPage() {
                 type="text"
                 value={aboutData.statFleet}
                 onChange={(e) => setAboutData({ ...aboutData, statFleet: e.target.value })}
-                className="w-full px-3 py-1.5 text-sm border border-slate-300 rounded-lg outline-none focus:ring-1 focus:ring-[#5955D1]"
+                className="w-full px-3 py-1.5 text-sm border border-slate-300 rounded-lg outline-none focus:ring-1 focus:ring-[#c59b27]"
               />
             </div>
             <div className="space-y-1">
@@ -204,7 +214,7 @@ export default function AdminCmsAboutPage() {
                 type="text"
                 value={aboutData.statRating}
                 onChange={(e) => setAboutData({ ...aboutData, statRating: e.target.value })}
-                className="w-full px-3 py-1.5 text-sm border border-slate-300 rounded-lg outline-none focus:ring-1 focus:ring-[#5955D1]"
+                className="w-full px-3 py-1.5 text-sm border border-slate-300 rounded-lg outline-none focus:ring-1 focus:ring-[#c59b27]"
               />
             </div>
             <div className="space-y-1">
@@ -213,7 +223,7 @@ export default function AdminCmsAboutPage() {
                 type="text"
                 value={aboutData.statReviews}
                 onChange={(e) => setAboutData({ ...aboutData, statReviews: e.target.value })}
-                className="w-full px-3 py-1.5 text-sm border border-slate-300 rounded-lg outline-none focus:ring-1 focus:ring-[#5955D1]"
+                className="w-full px-3 py-1.5 text-sm border border-slate-300 rounded-lg outline-none focus:ring-1 focus:ring-[#c59b27]"
               />
             </div>
           </div>

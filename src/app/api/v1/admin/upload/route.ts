@@ -1,16 +1,9 @@
 import { NextRequest } from "next/server";
 import { getCurrentAdmin } from "@/server/auth/rbac";
 import { apiSuccess, apiCreated, apiError, apiUnauthorized } from "@/server/utils/api-response";
+import { detectImageBinarySignature } from "@/server/storage";
 import fs from "fs/promises";
 import path from "path";
-
-const ALLOWED_MIME_TYPES = [
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-  "image/avif",
-  "image/svg+xml",
-];
 
 const MAX_FILE_SIZE_BYTES = 8 * 1024 * 1024; // 8MB
 
@@ -34,15 +27,21 @@ export async function POST(req: NextRequest) {
       return apiError("No file provided. Please attach an image file.", 400);
     }
 
-    if (!ALLOWED_MIME_TYPES.includes(file.type)) {
-      return apiError(
-        `Invalid file type: '${file.type}'. Allowed: JPEG, PNG, WebP, AVIF, SVG.`,
-        400
-      );
-    }
-
     if (file.size > MAX_FILE_SIZE_BYTES) {
       return apiError("File exceeds maximum allowed size of 8MB.", 400);
+    }
+
+    // Convert to Buffer for binary magic-bytes inspection
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
+    // Deep binary signature verification (prevents malicious scripts with spoofed MIME headers)
+    const verifiedFormat = detectImageBinarySignature(buffer);
+    if (!verifiedFormat) {
+      return apiError(
+        "Invalid or corrupted file content. Binary signature does not match allowed image formats (JPEG, PNG, WebP).",
+        400
+      );
     }
 
     // Sanitize folder path to prevent directory traversal
@@ -52,18 +51,16 @@ export async function POST(req: NextRequest) {
     // Ensure directory exists
     await fs.mkdir(uploadDir, { recursive: true });
 
-    // Sanitize original file name and add timestamp
-    const ext = path.extname(file.name) || `.${file.type.split("/")[1] || "jpg"}`;
+    // Derive canonical safe extension strictly from verified binary signature
+    const safeExt = verifiedFormat.extension;
     const baseName = path
-      .basename(file.name, ext)
+      .basename(file.name, path.extname(file.name))
       .replace(/[^a-zA-Z0-9_-]/g, "_")
       .substring(0, 40);
-    const uniqueFileName = `${Date.now()}_${baseName}${ext}`;
+    const uniqueFileName = `${Date.now()}_${baseName}${safeExt}`;
     const fullPath = path.join(uploadDir, uniqueFileName);
 
-    // Convert to Buffer and write
-    const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
+    // Write verified buffer to disk
     await fs.writeFile(fullPath, buffer);
 
     const publicUrl = `/uploads/${safeFolder}/${uniqueFileName}`;
@@ -73,10 +70,11 @@ export async function POST(req: NextRequest) {
         url: publicUrl,
         fileName: uniqueFileName,
         originalName: file.name,
-        size: file.size,
-        mimeType: file.type,
+        format: verifiedFormat.formatName,
+        mimeType: verifiedFormat.mimeType,
+        size: buffer.length,
       },
-      "Image uploaded successfully."
+      "File uploaded and validated successfully."
     );
   } catch (err: any) {
     console.error("Admin image upload failed:", err);

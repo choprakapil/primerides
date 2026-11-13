@@ -17,21 +17,47 @@ export interface CurrentCustomer {
  * 1. HTTP-only cookie 'primerides_customer_token' (Web App)
  * 2. Header 'Authorization: Bearer <token>' (API / Mobile)
  */
-export async function getCurrentCustomer(): Promise<CurrentCustomer | null> {
+export async function getCurrentCustomer(
+  req?: Request | { headers?: Headers | { get(name: string): string | null }; cookies?: any }
+): Promise<CurrentCustomer | null> {
   try {
     let token: string | undefined;
 
-    // A. Check Authorization Bearer Header
-    const headerList = await headers();
-    const authHeader = headerList.get("authorization");
-    if (authHeader && authHeader.startsWith("Bearer ")) {
-      token = authHeader.substring(7);
+    // A. Check Authorization Header from passed req or Next.js headers
+    if (req && "headers" in req && req.headers) {
+      const authHeader =
+        typeof (req.headers as any).get === "function"
+          ? (req.headers as any).get("authorization")
+          : (req.headers as any).authorization;
+      if (authHeader && authHeader.startsWith("Bearer ")) {
+        token = authHeader.substring(7);
+      }
     }
 
-    // B. Check HTTP-only Web Cookie if no header
     if (!token) {
-      const cookieStore = await cookies();
-      token = cookieStore.get("primerides_customer_token")?.value;
+      try {
+        const headerList = await headers();
+        const authHeader = headerList.get("authorization");
+        if (authHeader && authHeader.startsWith("Bearer ")) {
+          token = authHeader.substring(7);
+        }
+      } catch {}
+    }
+
+    // B. Check HTTP-only Web Cookie
+    if (!token && req && "cookies" in req && req.cookies) {
+      if (typeof req.cookies.get === "function") {
+        token = req.cookies.get("primerides_customer_token")?.value;
+      } else if (typeof req.cookies === "object") {
+        token = (req.cookies as any).primerides_customer_token;
+      }
+    }
+
+    if (!token) {
+      try {
+        const cookieStore = await cookies();
+        token = cookieStore.get("primerides_customer_token")?.value;
+      } catch {}
     }
 
     if (!token) return null;

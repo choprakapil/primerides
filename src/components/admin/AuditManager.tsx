@@ -256,7 +256,10 @@ export default function AuditManager({ initialLogs, initialStats }: AuditManager
                 <Search className="w-4 h-4 text-muted" />
               </span>
               <input
+                id="admin-search-audit"
+                name="admin-search-audit"
                 type="text"
+                aria-label="Search audit logs by action, entity, actor name, or ID"
                 className="form-control form-control-sm border-start-0 ps-0"
                 placeholder="Search action, entity, actor name, or ID..."
                 value={searchQuery}
@@ -268,6 +271,9 @@ export default function AuditManager({ initialLogs, initialStats }: AuditManager
           {/* Entity Filter */}
           <div className="col-6 col-md-3">
             <select
+              id="admin-filter-audit-entity"
+              name="admin-filter-audit-entity"
+              aria-label="Filter audit logs by entity"
               className="form-select form-select-sm rounded-3"
               value={selectedEntity}
               onChange={(e) => setSelectedEntity(e.target.value)}
@@ -284,6 +290,9 @@ export default function AuditManager({ initialLogs, initialStats }: AuditManager
           {/* Action Filter */}
           <div className="col-6 col-md-3">
             <select
+              id="admin-filter-audit-action"
+              name="admin-filter-audit-action"
+              aria-label="Filter audit logs by action type"
               className="form-select form-select-sm rounded-3"
               value={selectedAction}
               onChange={(e) => setSelectedAction(e.target.value)}

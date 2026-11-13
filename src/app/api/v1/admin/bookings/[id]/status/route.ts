@@ -166,6 +166,26 @@ export async function PATCH(
         },
       });
 
+      // 3b. If status transitioned to cancelled, ensure cancellation record exists
+      if (status === "cancelled") {
+        await tx.cancellation.upsert({
+          where: { booking_id: bookingId },
+          create: {
+            booking_id: bookingId,
+            reason: notes || `Cancelled via Admin Operations by ${admin.username}`,
+            cancelled_by: `admin (${admin.username})`,
+            refund_amount: 0,
+            penalty_amount: 0,
+            processed_at: new Date(),
+          },
+          update: {
+            reason: notes || `Cancelled via Admin Operations by ${admin.username}`,
+            cancelled_by: `admin (${admin.username})`,
+            processed_at: new Date(),
+          },
+        });
+      }
+
       // 4. Record Status History Audit Trail
       await tx.bookingStatusHistory.create({
         data: {

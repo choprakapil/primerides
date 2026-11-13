@@ -1,4 +1,3 @@
-import { rateLimit } from 'express-rate-limit';
 import { NextRequest, NextResponse } from 'next/server';
 
 /**
@@ -184,4 +183,8 @@ export function getRateLimitStats() {
       resetIn: Math.max(0, Math.ceil((entry.resetTime - Date.now()) / 1000))
     }))
   };
+}
+
+export function clearRateLimitStore() {
+  rateLimitStore.clear();
 }

@@ -3,6 +3,7 @@ import { prisma } from "@/server/db/client";
 import { getCurrentAdmin, hasAdminPermission, ADMIN_PERMISSIONS } from "@/server/auth/rbac";
 import ForbiddenCard from "@/components/admin/ForbiddenCard";
 import TestimonialsManager from "@/components/admin/TestimonialsManager";
+import { PageContainer } from "@/components/admin/ui";
 import { REVIEWS_DATA } from "@/data/reviews";
 
 export const dynamic = "force-dynamic";
@@ -15,10 +16,12 @@ export default async function AdminTestimonialsPage() {
   const admin = await getCurrentAdmin();
   if (!admin || !hasAdminPermission(admin, ADMIN_PERMISSIONS.CONTENT_MANAGE)) {
     return (
-      <ForbiddenCard
-        permissionRequired="content.manage"
-        moduleName="Customer Testimonials & Reviews"
-      />
+      <PageContainer>
+        <ForbiddenCard
+          permissionRequired="content.manage"
+          moduleName="Customer Testimonials & Reviews"
+        />
+      </PageContainer>
     );
   }
 

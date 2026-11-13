@@ -3,8 +3,27 @@
 import React, { useState, useEffect, useRef } from "react";
 import { REVIEWS_DATA as TESTIMONIALS_DATA } from "@/data";
 
-export default function Testimonials() {
-  const [items, setItems] = useState(TESTIMONIALS_DATA);
+export interface TestimonialItem {
+  id: string;
+  name: string;
+  trip: string;
+  car: string;
+  img: string;
+  text: string;
+  rating: number;
+  isVerified?: boolean;
+}
+
+export default function Testimonials({
+  initialTestimonials,
+}: {
+  initialTestimonials?: TestimonialItem[];
+} = {}) {
+  const [items, setItems] = useState<TestimonialItem[]>(
+    initialTestimonials && initialTestimonials.length > 0
+      ? initialTestimonials
+      : (TESTIMONIALS_DATA as any)
+  );
   const [currentIndex, setCurrentIndex] = useState(0);
   const [visibleCount, setVisibleCount] = useState(3);
   const [isPaused, setIsPaused] = useState(false);
@@ -193,7 +212,7 @@ export default function Testimonials() {
                     <div className="d-flex align-items-center gap-3">
                       <img
                         src={t.img}
-                        alt={t.name}
+                        alt={`${t.name} Verified Reviewer Avatar`}
                         className="google-reviewer-avatar"
                       />
                       <div>
@@ -221,7 +240,7 @@ export default function Testimonials() {
                   </div>
 
                   {/* 5 Google Stars */}
-                  <div className="mb-2 d-flex align-items-center gap-1" style={{ color: "#f59e0b", fontSize: "14px" }}>
+                  <div className="mb-2 d-flex align-items-center gap-1" style={{ color: "#b45309", fontSize: "14px" }}>
                     {[...Array(5)].map((_, i) => (
                       <i key={i} className="fa-solid fa-star"></i>
                     ))}

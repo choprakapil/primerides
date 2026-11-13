@@ -4,31 +4,48 @@ import React from "react";
 import { MotionIcon } from "motion-icons-react";
 import { useModal } from "@/context/ModalContext";
 import { LOCATIONS_DATA } from "@/data";
-export default function ChooseLocation() {
-  const LOCATIONS = [
-    {
-      id: "delhi",
-      city: "Delhi NCR",
-      subtitle: "Capital Region & Hub",
-      desc: "IGI Airport T1/T2/T3, Aerocity, Gurugram Cyber Hub, Noida & 24/7 doorstep delivery across Delhi NCR.",
-      img: "/assets/img/locations/delhi.jpg",
-      carsCount: "50+ Cars Available",
-      highlight: "Airport Hub",
-      badgeIcon: "fa-plane-arrival",
-    },
-    {
-      id: "lucknow",
-      city: "Lucknow",
-      subtitle: "City of Nawabs & UP Hub",
-      desc: "Chaudhary Charan Singh Airport, Gomti Nagar, Hazratganj, and premium outstation self-drive rentals.",
-      img: "/assets/img/locations/lucknow.jpg",
-      carsCount: "30+ Cars Available",
-      highlight: "Doorstep Drop",
-      badgeIcon: "fa-map-pin",
-    },
-  ];
+export interface LocationCardItem {
+  id: string | number;
+  city: string;
+  subtitle?: string;
+  desc: string;
+  img: string;
+  carsCount: string;
+  highlight: string;
+  badgeIcon: string;
+}
 
-  const handleCityClick = (cityId: string) => {
+const DEFAULT_LOCATIONS: LocationCardItem[] = [
+  {
+    id: "delhi",
+    city: "Delhi NCR",
+    subtitle: "Capital Region & Hub",
+    desc: "IGI Airport T1/T2/T3, Aerocity, Gurugram Cyber Hub, Noida & 24/7 doorstep delivery across Delhi NCR.",
+    img: "/assets/img/locations/delhi.jpg",
+    carsCount: "50+ Cars Available",
+    highlight: "Airport Hub",
+    badgeIcon: "fa-plane-arrival",
+  },
+  {
+    id: "lucknow",
+    city: "Lucknow",
+    subtitle: "City of Nawabs & UP Hub",
+    desc: "Chaudhary Charan Singh Airport, Gomti Nagar, Hazratganj, and premium outstation self-drive rentals.",
+    img: "/assets/img/locations/lucknow.jpg",
+    carsCount: "30+ Cars Available",
+    highlight: "Doorstep Drop",
+    badgeIcon: "fa-map-pin",
+  },
+];
+
+interface ChooseLocationProps {
+  locations?: LocationCardItem[];
+}
+
+export default function ChooseLocation({ locations }: ChooseLocationProps) {
+  const LOCATIONS = locations && locations.length > 0 ? locations : DEFAULT_LOCATIONS;
+
+  const handleCityClick = (cityId: string | number) => {
     const categoriesSection = document.getElementById("categoriesSection");
     if (categoriesSection) {
       categoriesSection.scrollIntoView({ behavior: "smooth" });
@@ -79,7 +96,7 @@ export default function ChooseLocation() {
                 <div className="location-card-img-wrap position-relative flex-shrink-0">
                   <img
                     src={loc.img}
-                    alt={loc.city}
+                    alt={`${loc.city} PrimeRides Luxury Car Rental Hub`}
                     className="location-card-img"
                   />
                   <div className="location-card-tag position-absolute top-0 start-0 m-2">

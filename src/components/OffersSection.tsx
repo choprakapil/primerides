@@ -3,13 +3,17 @@
 import React, { useState } from "react";
 import { MotionIcon } from "motion-icons-react";
 import { useModal } from "@/context/ModalContext";
-import { OFFERS_DATA } from "@/data";
+import { OFFERS_DATA, OfferItem } from "@/data";
 
-export default function OffersSection() {
+export interface OffersSectionProps {
+  offers?: OfferItem[];
+}
+
+export default function OffersSection({ offers }: OffersSectionProps = {}) {
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const { openBookingModal } = useModal();
 
-  const OFFERS = OFFERS_DATA;
+  const OFFERS = offers && offers.length > 0 ? offers : OFFERS_DATA;
 
   const handleCopyCode = (code: string) => {
     navigator.clipboard.writeText(code);
@@ -66,7 +70,7 @@ export default function OffersSection() {
                 <div className="offer-car-backdrop position-absolute end-0 top-0 bottom-0 h-100">
                   <img
                     src={offer.carImg}
-                    alt={offer.title}
+                    alt={`${offer.title} Promotional Rental Vehicle`}
                     className="offer-car-thumb w-100 h-100"
                   />
                 </div>

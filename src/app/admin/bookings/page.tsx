@@ -3,6 +3,10 @@ import { prisma } from "@/server/db/client";
 import { getCurrentAdmin, hasAdminPermission, ADMIN_PERMISSIONS } from "@/server/auth/rbac";
 import ForbiddenCard from "@/components/admin/ForbiddenCard";
 import BookingsManager from "@/components/admin/BookingsManager";
+import { PageContainer } from "@/components/admin/ui";
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export default async function AdminBookingsPage() {
   const admin = await getCurrentAdmin();
@@ -10,10 +14,14 @@ export default async function AdminBookingsPage() {
     !admin ||
     !hasAdminPermission(admin, [ADMIN_PERMISSIONS.BOOKINGS_MANAGE, ADMIN_PERMISSIONS.BOOKINGS_VIEW])
   ) {
-    return <ForbiddenCard permissionRequired="bookings.view or bookings.manage" moduleName="Reservations & Bookings" />;
+    return (
+      <PageContainer>
+        <ForbiddenCard permissionRequired="bookings.view or bookings.manage" moduleName="Reservations & Bookings" />
+      </PageContainer>
+    );
   }
 
-  const [bookings, leads, verifiedCustomerDocs] = await Promise.all([
+  const [bookings, leads, verifiedCustomerDocs, availableCars, availableLocations] = await Promise.all([
     prisma.booking.findMany({
       where: { deleted_at: null },
       include: {
@@ -36,9 +44,68 @@ export default async function AdminBookingsPage() {
       },
       select: { customer_id: true },
     }),
+    prisma.car.findMany({
+      where: { deleted_at: null, is_available: true },
+      select: {
+        id: true,
+        name: true,
+        brand: true,
+        fuel_type: true,
+        transmission: true,
+        price_per_day: true,
+        location_id: true,
+        fleet_count: true,
+        rental_plans: {
+          where: { is_active: true },
+          select: {
+            id: true,
+            name: true,
+            plan_type: true,
+            price: true,
+            free_km: true,
+            extra_km_rate: true,
+            security_deposit: true,
+            duration_days: true,
+          },
+        },
+      },
+      orderBy: { name: "asc" },
+    }),
+    prisma.location.findMany({
+      where: { is_active: true },
+      select: { id: true, name: true, city: true },
+      orderBy: { name: "asc" },
+    }),
   ]);
 
   const verifiedCustomerIds = new Set(verifiedCustomerDocs.map((d) => d.customer_id));
+
+  const sanitizedCars = availableCars.map((c) => ({
+    id: c.id,
+    name: c.name,
+    brand: c.brand,
+    fuel_type: c.fuel_type,
+    transmission: c.transmission,
+    price_per_day: Number(c.price_per_day),
+    location_id: c.location_id,
+    fleet_count: c.fleet_count || 1,
+    rental_plans: c.rental_plans.map((p) => ({
+      id: p.id,
+      name: p.name,
+      plan_type: p.plan_type,
+      price: Number(p.price),
+      free_km: p.free_km,
+      extra_km_rate: Number(p.extra_km_rate),
+      security_deposit: Number(p.security_deposit),
+      duration_days: p.duration_days,
+    })),
+  }));
+
+  const sanitizedLocations = availableLocations.map((l) => ({
+    id: l.id,
+    name: l.name,
+    city: l.city,
+  }));
 
   const sanitizedBookings = bookings.map((b) => {
     const totalPaid = (b.payments || [])
@@ -113,6 +180,8 @@ export default async function AdminBookingsPage() {
     <BookingsManager
       initialBookings={sanitizedBookings}
       initialLeads={sanitizedLeads}
+      availableCars={sanitizedCars}
+      availableLocations={sanitizedLocations}
     />
   );
 }

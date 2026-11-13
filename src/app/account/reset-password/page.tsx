@@ -19,7 +19,7 @@ export default async function CustomerResetPasswordPage({
   return (
     <div className="min-h-screen bg-[#070709] text-white flex items-center justify-center p-4 py-16 relative overflow-hidden font-dashboard">
       {/* Ambient Luxury Lighting */}
-      <div className="absolute w-[500px] h-[500px] bg-[#eeedfc]0/10 rounded-full blur-[140px] pointer-events-none -top-32 -left-32" />
+      <div className="absolute w-[500px] h-[500px] bg-[#fdfaf2]0/10 rounded-full blur-[140px] pointer-events-none -top-32 -left-32" />
       <div className="absolute w-[500px] h-[500px] bg-amber-600/10 rounded-full blur-[140px] pointer-events-none -bottom-32 -right-32" />
 
       <div className="w-full max-w-md relative z-10">

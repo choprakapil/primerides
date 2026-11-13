@@ -1,6 +1,33 @@
+import { Platform } from "react-native";
 import { create } from "zustand";
 import { CustomerUser } from "../types";
 import { api, clearTokens, getStoredRefreshToken, setAccessToken } from "../services/api";
+
+async function syncDevicePushToken() {
+  try {
+    const Notifications = await import("expo-notifications").catch(() => null);
+    if (!Notifications) return;
+
+    const { status: existingStatus } = await Notifications.getPermissionsAsync();
+    let finalStatus = existingStatus;
+    if (existingStatus !== "granted") {
+      const { status } = await Notifications.requestPermissionsAsync();
+      finalStatus = status;
+    }
+    if (finalStatus !== "granted") return;
+
+    const tokenData = await Notifications.getExpoPushTokenAsync().catch(() => null);
+    if (tokenData?.data) {
+      await api.devices.registerDeviceToken({
+        deviceType: Platform.OS,
+        fcmToken: tokenData.data,
+      });
+    }
+  } catch (err) {
+    // Non-blocking in simulator or unsupported environments
+    console.log("Device token sync skipped:", err);
+  }
+}
 
 interface AuthState {
   user: CustomerUser | null;
@@ -11,6 +38,7 @@ interface AuthState {
   login: (identifier: string, pass: string) => Promise<boolean>;
   register: (fullName: string, phone: string, pass: string, email?: string) => Promise<boolean>;
   logout: () => Promise<void>;
+  deleteAccount: () => Promise<boolean>;
   restoreSession: () => Promise<boolean>;
 }
 
@@ -31,6 +59,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         isLoading: false,
         error: null,
       });
+      syncDevicePushToken().catch(() => {});
       return true;
     } else {
       set({
@@ -74,6 +103,26 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     });
   },
 
+  async deleteAccount() {
+    set({ isLoading: true });
+    const res = await api.auth.deleteAccount();
+    if (res.success) {
+      set({
+        user: null,
+        isAuthenticated: false,
+        isLoading: false,
+        error: null,
+      });
+      return true;
+    } else {
+      set({
+        isLoading: false,
+        error: res.error || "Failed to delete account.",
+      });
+      return false;
+    }
+  },
+
   async restoreSession() {
     set({ isLoading: true });
     try {
@@ -91,6 +140,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           isAuthenticated: true,
           isLoading: false,
         });
+        syncDevicePushToken().catch(() => {});
         return true;
       } else {
         await clearTokens();

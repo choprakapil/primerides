@@ -34,8 +34,17 @@ export async function DELETE(
     }
 
     return apiSuccess(
-      { booking_id: bookingId, status: "cancelled" },
-      "Your reservation has been cancelled successfully."
+      {
+        booking_id: bookingId,
+        status: "cancelled",
+        refund_amount: result.refundAmount,
+        penalty_amount: result.penaltyAmount,
+        refund_policy_tier: result.refundPolicyTier,
+        refund_gateway_ref: result.refundGatewayRef,
+      },
+      result.refundAmount && result.refundAmount > 0
+        ? `Your reservation has been cancelled. A refund of ₹${result.refundAmount.toLocaleString("en-IN")} has been initiated to your original payment method.`
+        : "Your reservation has been cancelled successfully."
     );
   } catch (err: any) {
     console.error("Cancel booking error:", err);

@@ -26,7 +26,10 @@ import {
   AlertTriangle,
   Sparkles,
   Zap,
+  CreditCard,
+  ArrowRight,
 } from "lucide-react-native";
+import { formatIstDate } from "../../src/utils/dates";
 
 export default function CarDetailScreen() {
   const { slug } = useLocalSearchParams<{ slug: string }>();
@@ -38,6 +41,8 @@ export default function CarDetailScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [bookingSuccessCode, setBookingSuccessCode] = useState<string | null>(null);
+  const [bookingSuccessId, setBookingSuccessId] = useState<number | null>(null);
+  const [bookingSuccessAmount, setBookingSuccessAmount] = useState<number | null>(null);
   const [conflictError, setConflictError] = useState<string | null>(null);
 
   // Booking Form State
@@ -76,8 +81,8 @@ export default function CarDetailScreen() {
     return {
       startDate: start.toISOString(),
       endDate: end.toISOString(),
-      startFormatted: start.toLocaleDateString("en-IN", { month: "short", day: "numeric" }),
-      endFormatted: end.toLocaleDateString("en-IN", { month: "short", day: "numeric" }),
+      startFormatted: formatIstDate(start, { month: "short", day: "numeric" }),
+      endFormatted: formatIstDate(end, { month: "short", day: "numeric" }),
     };
   }, [selectedPlan]);
 
@@ -125,6 +130,8 @@ export default function CarDetailScreen() {
 
       if (res.success && res.data) {
         setBookingSuccessCode(res.data.booking_code);
+        setBookingSuccessId(res.data.id);
+        setBookingSuccessAmount(Number(res.data.total_amount));
       } else {
         const errorMsg = res.error || "Reservation request could not be completed.";
         if (errorMsg.toLowerCase().includes("conflict") || errorMsg.toLowerCase().includes("already reserved")) {
@@ -222,16 +229,41 @@ export default function CarDetailScreen() {
         {/* Success Confirmation Card */}
         {bookingSuccessCode ? (
           <View style={styles.successCard}>
-            <CheckCircle size={36} color="#10b981" style={{ marginBottom: 8 }} />
+            <CheckCircle size={40} color="#10b981" style={{ marginBottom: 8 }} />
             <Text style={styles.successTitle}>Reservation Confirmed!</Text>
             <Text style={styles.successSub}>
               Booking reference: <Text style={styles.codeHighlight}>{bookingSuccessCode}</Text>
             </Text>
+
+            {bookingSuccessAmount ? (
+              <View style={styles.payableSummaryBox}>
+                <Text style={styles.payableSummaryLabel}>Rental Payable Total</Text>
+                <Text style={styles.payableSummaryVal}>₹{bookingSuccessAmount.toLocaleString("en-IN")}</Text>
+              </View>
+            ) : null}
+
+            {/* Prominent Gold Pay Now CTA */}
             <TouchableOpacity
-              style={styles.viewBookingsBtn}
+              style={styles.instantPayBtn}
+              onPress={() => {
+                router.push({
+                  pathname: "/account/payments",
+                  params: {
+                    bookingId: bookingSuccessId ? String(bookingSuccessId) : bookingSuccessCode,
+                    autoPay: "true",
+                  },
+                } as any);
+              }}
+            >
+              <CreditCard size={18} color="#000" style={{ marginRight: 8 }} />
+              <Text style={styles.instantPayBtnText}>Proceed to Payment (Razorpay / UPI) →</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.viewBookingsSecondaryBtn}
               onPress={() => router.replace("/(tabs)/bookings" as any)}
             >
-              <Text style={styles.viewBookingsBtnText}>View in My Rides</Text>
+              <Text style={styles.viewBookingsSecondaryText}>Or View in My Rides</Text>
             </TouchableOpacity>
           </View>
         ) : (
@@ -746,5 +778,59 @@ const styles = StyleSheet.create({
     color: "#000",
     fontSize: 12,
     fontWeight: "700",
+  },
+  payableSummaryBox: {
+    backgroundColor: "rgba(0, 0, 0, 0.4)",
+    borderWidth: 1,
+    borderColor: "rgba(245, 158, 11, 0.2)",
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 12,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    width: "100%",
+    marginBottom: 16,
+  },
+  payableSummaryLabel: {
+    color: "#a3a3a3",
+    fontSize: 12,
+    fontWeight: "600",
+  },
+  payableSummaryVal: {
+    color: "#f59e0b",
+    fontSize: 16,
+    fontWeight: "800",
+  },
+  instantPayBtn: {
+    backgroundColor: "#f59e0b",
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    borderRadius: 14,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    width: "100%",
+    marginBottom: 10,
+    shadowColor: "#f59e0b",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  instantPayBtnText: {
+    color: "#000",
+    fontSize: 14,
+    fontWeight: "800",
+  },
+  viewBookingsSecondaryBtn: {
+    paddingVertical: 8,
+    alignItems: "center",
+  },
+  viewBookingsSecondaryText: {
+    color: "#a3a3a3",
+    fontSize: 12,
+    fontWeight: "600",
+    textDecorationLine: "underline",
   },
 });

@@ -51,13 +51,20 @@ export async function GET(req: NextRequest) {
       });
     }
 
-    const [testimonials, totalCount, featuredCount] = await Promise.all([
+    const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
+    const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") || "20", 10)));
+    const skip = (page - 1) * limit;
+
+    const [testimonials, totalCount, featuredCount, filteredCount] = await Promise.all([
       prisma.testimonial.findMany({
         where,
         orderBy: { created_at: "desc" },
+        take: limit,
+        skip,
       }),
       prisma.testimonial.count({ where: { deleted_at: null } }),
       prisma.testimonial.count({ where: { deleted_at: null, is_featured: true } }),
+      prisma.testimonial.count({ where }),
     ]);
 
     const avgRating =
@@ -71,6 +78,12 @@ export async function GET(req: NextRequest) {
         total: totalCount,
         featured: featuredCount,
         averageRating: Number(avgRating),
+      },
+      pagination: {
+        total: filteredCount,
+        page,
+        limit,
+        pages: Math.ceil(filteredCount / limit),
       },
     });
   } catch (err: any) {

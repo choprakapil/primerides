@@ -31,7 +31,7 @@ body[data-bs-theme=dark] {
 
 :root {
   --custom-body-bg: #FDFDFF;
-  --app-sidebar-bg: #ffffff;
+  --app-sidebar-bg: #E5E7EB;
   --app-header-bg: var(--custom-body-bg);
 }
 
@@ -71,7 +71,7 @@ body[data-bs-theme=dark] {
   --bs-gray-700: #495057;
   --bs-gray-800: #343a40;
   --bs-gray-900: #212529;
-  --bs-primary: #5955D1;
+  --bs-primary: #c59b27;
   --bs-secondary: #29294B;
   --bs-success: #009966;
   --bs-info: #7008E7;
@@ -81,7 +81,7 @@ body[data-bs-theme=dark] {
   --bs-dark: #0C243C;
   --bs-white: #ffffff;
   --bs-gray: #97A1C0;
-  --bs-primary-rgb: 89, 85, 209;
+  --bs-primary-rgb: 197, 155, 39;
   --bs-secondary-rgb: 41, 41, 75;
   --bs-success-rgb: 0, 153, 102;
   --bs-info-rgb: 112, 8, 231;
@@ -14072,7 +14072,7 @@ strong {
   position: fixed;
   top: 0;
   z-index: 9;
-  background-color: var(--app-sidebar-bg);
+  background-color: var(--app-sidebar-bg) !important;
   transition-duration: 0.3s;
   transition-property: width, left;
   box-shadow: 0px 30px 30px 10px rgba(0, 0, 0, 0.02);
@@ -14171,7 +14171,7 @@ strong {
   padding: 15px 25px;
   transition-duration: 0.3s;
   transition-property: width;
-  background-color: var(--app-sidebar-bg);
+  background-color: var(--app-sidebar-bg) !important;
 }
 
 .app-header {

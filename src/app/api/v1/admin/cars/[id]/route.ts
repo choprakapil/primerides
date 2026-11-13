@@ -12,7 +12,7 @@ export async function PUT(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const admin = await getCurrentAdmin();
+    const admin = await getCurrentAdmin(req);
     if (!admin) return apiUnauthorized("Admin authentication required.");
 
     if (!hasAdminPermission(admin, ADMIN_PERMISSIONS.FLEET_MANAGE)) {
@@ -49,6 +49,7 @@ export async function PUT(
       badge,
       description,
       is_available,
+      fleet_count,
       rental_plans,
     } = body;
 
@@ -78,6 +79,7 @@ export async function PUT(
           badge: badge !== undefined ? badge : existingCar.badge,
           description: description !== undefined ? description : existingCar.description,
           is_available: is_available !== undefined ? Boolean(is_available) : existingCar.is_available,
+          ...(fleet_count !== undefined ? { fleet_count: parseInt(fleet_count, 10) || 1 } : {}),
         },
       });
 
@@ -132,7 +134,7 @@ export async function DELETE(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const admin = await getCurrentAdmin();
+    const admin = await getCurrentAdmin(req);
     if (!admin) return apiUnauthorized("Admin authentication required.");
 
     if (!hasAdminPermission(admin, ADMIN_PERMISSIONS.FLEET_MANAGE)) {
@@ -148,7 +150,59 @@ export async function DELETE(
       return apiError("Vehicle not found.", 404);
     }
 
+    // Guard against deleting a car that has active or upcoming reservations
+    const now = new Date();
+    const blockingBookings = await prisma.booking.findMany({
+      where: {
+        car_id: carId,
+        OR: [
+          { status: "active" },
+          {
+            status: { in: ["confirmed", "pending"] },
+            end_date: { gte: now },
+          },
+        ],
+      },
+      select: {
+        id: true,
+        booking_code: true,
+        status: true,
+        start_date: true,
+        end_date: true,
+      },
+    });
+
+    if (blockingBookings.length > 0) {
+      const codes = blockingBookings.map((b) => b.booking_code).slice(0, 3).join(", ");
+      const moreCount = blockingBookings.length > 3 ? ` and ${blockingBookings.length - 3} more` : "";
+      return apiError(
+        `Cannot delete vehicle '${car.name}': It has ${blockingBookings.length} active or upcoming reservation(s) (${codes}${moreCount}). Reassign or complete/cancel existing trips before decommissioning this vehicle.`,
+        400
+      );
+    }
+
     await prisma.$transaction(async (tx) => {
+      // Re-verify inside the transaction to prevent concurrent reservation creation
+      const concurrentBooking = await tx.booking.findFirst({
+        where: {
+          car_id: carId,
+          OR: [
+            { status: "active" },
+            {
+              status: { in: ["confirmed", "pending"] },
+              end_date: { gte: now },
+            },
+          ],
+        },
+        select: { booking_code: true },
+      });
+
+      if (concurrentBooking) {
+        throw new Error(
+          `Cannot delete vehicle '${car.name}': Active or upcoming reservation detected (${concurrentBooking.booking_code}). Reassign or complete/cancel existing trips first.`
+        );
+      }
+
       await tx.car.update({
         where: { id: carId },
         data: {
@@ -171,6 +225,7 @@ export async function DELETE(
 
     return apiSuccess({ deletedId: carId }, "Vehicle deleted successfully.");
   } catch (err: any) {
-    return apiError(err.message || "Failed to delete vehicle", 500);
+    const isValidationError = err.message?.includes("Cannot delete vehicle");
+    return apiError(err.message || "Failed to delete vehicle", isValidationError ? 400 : 500);
   }
 }

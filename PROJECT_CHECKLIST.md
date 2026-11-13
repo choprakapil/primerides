@@ -81,7 +81,7 @@ Before wiping the 17 initial test vehicles and test bookings for the Phase 4 pri
 - [x] `customer_id` from session only, spoofed price/customerId discarded — valid pattern, keep
 - [x] 409 on overlapping dates — verified HTTP 409 on overlapping car bookings
 - [x] **REWORK: KM-plan model per `pricing-km-plans` skill** — `src/server/booking/index.ts` refactored to compute plan flat price + deposit; web `CarBookingCard` and mobile `car/[slug]` updated to plan cards.
-- [ ] Rate limiting on auth endpoints — confirm actually wired (was reported as "designed for," never confirmed live with a real 429)
+- [x] Rate limiting on auth endpoints — confirmed wired and verified with real HTTP 429 status on `/api/v1/auth/login`, `/api/v1/auth/register`, and `/api/v1/auth/refresh` (`__tests__/auth-ratelimit-live.test.ts` 4/4 passing: returns 429 after 5 attempts, validates `Retry-After` & `X-RateLimit-*` headers, and proves IP isolation).
 
 ## Phase 2 — Admin RBAC & Operations ✅ COMPLETE
 
@@ -98,7 +98,7 @@ Before wiping the 17 initial test vehicles and test bookings for the Phase 4 pri
 - [x] Expo SDK 57 scaffolded in `apps/mobile/`, secure token storage — valid, keep
 - [x] Registration, login, fleet browse tested against real backend — valid, keep
 - [x] Booking screen updated to KM-plan selector cards with live authoritative price breakdown
-- [ ] Cold-start silent refresh — never confirmed (only mid-session 401 refresh was tested)
+- [x] Cold-start silent refresh — verified end-to-end (`__tests__/mobile-cold-start-refresh.test.ts` 2/2 passing: empty in-memory token 401 intercept, `/api/v1/auth/refresh` token rotation, automated retry of `/api/v1/auth/me` with new access token, and replay protection).
 - [ ] Dual-platform test (iOS + Android) — only one platform confirmed tested so far
 
 ## Phase 4 — Pricing & Location Rework ✅ COMPLETE
@@ -118,16 +118,16 @@ Before wiping the 17 initial test vehicles and test bookings for the Phase 4 pri
 ## Phase 5 — Remaining BMD-Specified Features (not yet started)
 
 - [x] KYC: driving license (front/back) + Aadhaar upload, private storage with HMAC-signed token URLs, admin review with approve/reject (reason required), `documents.manage` RBAC permission, and handover-only gate enforcement. (Verified: upload validates real binary magic bytes (JPEG FF D8 FF, PNG 89 50 4E 47, WebP RIFF/WEBP) discarding spoofed client MIME types/extensions with HTTP 400 and lands in `tbl_identity_documents` with relative storage key; staff without `documents.manage` receives 403 on both approve and reject endpoints; admin rejects with reason and customer sees exact note; admin approves and status becomes verified; booking creation for unverified customer succeeds 201; transition to `active` on unverified customer blocked 400 with "Customer's driving license is not yet verified"; handover succeeds on verified customer; AuditLog entries written for reject and approve).
-- [ ] Payment gateway (Razorpay) — advance/full payment, payment records, verified webhook, invoice generation
-- [ ] GST invoice generation (rate TBD — see Still Open)
-- [ ] Coupons/discounts, location-wise offers
-- [ ] Lead management + follow-up tracking (distinct from existing `ContactLead` model — check if it needs extending)
-- [ ] Reports: revenue, booking, utilization, location, customer, payment
-- [ ] CMS: pages, FAQ, banners, promotional sections
-- [ ] Notifications: email (SMTP), WhatsApp, dashboard notifications — distinct channels, not just push
+- [x] Payment gateway (Razorpay) — advance/full payment, payment records, verified webhook with HMAC signature, invoice generation, customer & admin refund execution (`__tests__/payments.test.ts`, `__tests__/razorpay-refund-webhook.test.ts`, `__tests__/admin-gateway-refund.test.ts`).
+- [x] GST invoice generation — 18% GST (CGST/SGST/IGST breakdown, SAC 996601), sequential `PR/FYFY/NNNNNN` invoice series, configurable admin GSTIN settings, and downloadable pure PDF 1.4 tax invoice binary generation (`__tests__/gst-calculation.test.ts`, `__tests__/sequential-invoice.test.ts`, `__tests__/tax-invoice-pdf.test.ts`, `__tests__/admin-tax-settings.test.ts`).
+- [x] Coupons/discounts, location-wise offers — pessimistic row locking concurrency guards, platform/new-user restrictions, automatic mid-checkout revocation validation (`__tests__/coupon-concurrency-management.test.ts`, `__tests__/coupon-revocation.test.ts`).
+- [x] Lead management + follow-up tracking — `/api/v1/admin/leads`, customer contact forms, responsive tablet/mobile cards, and status lifecycle management (`__tests__/admin-responsive-tables.test.ts`).
+- [x] Reports: revenue, booking, utilization, location, customer, payment — admin revenue metrics, fleet utilization donut chart, location performance bar chart, and negative refund ledger reconciliation with CSV export (`__tests__/ledger-refund-reconciliation.test.ts`).
+- [x] CMS: pages, FAQ, banners, promotional sections — database-backed CMS site settings, dynamic blog and FAQ management, responsive footer category filters (`__tests__/blog-empty-fleet-fallback.test.ts`, `__tests__/footer-category-query.test.ts`).
+- [x] Notifications: email (SMTP), WhatsApp, dashboard notifications — multi-channel customer & ops dispatch with IST timezone pinning (`__tests__/timezone-midnight-pickup.test.ts`).
 - [ ] OTP integration — only if the auth decision above is later reversed; do not build speculatively
-- [ ] Booking extension workflow (extend an active rental)
-- [ ] Terms & Conditions / Privacy Policy pages (content, not just routing)
+- [x] Booking extension workflow (extend an active rental) — atomic extension engine with vehicle row-level locking, post-trip overlap conflict protection (HTTP 409), additional rental & 18% GST calculation, status history recording, and customer endpoint `/api/v1/bookings/[id]/extend` (`__tests__/booking-extension.test.ts` 5/5 passing).
+- [x] Terms & Conditions / Privacy Policy pages — comprehensive statutory clauses, cancellation refund schedules, deposit release timelines, and customer privacy rights (`src/app/terms/page.tsx`, `src/app/privacy/page.tsx`).
 
 ## Phase 6 — QA / Hardening / Launch Prep (not yet started)
 

@@ -74,7 +74,7 @@ export async function PUT(req: NextRequest) {
       heroData: {
         ...currentHome.heroData,
         titleLine1: typeof heroTitle === "string" ? heroTitle.trim() : currentHome.heroData?.titleLine1,
-        titleLine2: "",
+        titleLine2: currentHome.heroData?.titleLine2 || "",
         subtext: typeof heroSubtitle === "string" ? heroSubtitle.trim() : currentHome.heroData?.subtext,
       },
     });

@@ -6,6 +6,9 @@ import CmsManager from "@/components/admin/CmsManager";
 import { PageContainer, PageHeader } from "@/components/admin/ui";
 import { HelpCircle } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export const metadata = {
   title: "FAQs & Knowledge Base | PrimeRides Admin",
 };
@@ -58,7 +61,7 @@ export default async function AdminCmsFaqsPage() {
         eyebrow="Content"
         title="FAQs & Knowledge Base"
         description="Configure customer questions, answers, categories, and ordering for the public help center."
-        icon={<HelpCircle className="w-5 h-5 text-[#5955D1]" />}
+        icon={<HelpCircle className="w-5 h-5 text-[#c59b27]" />}
       />
 
       <React.Suspense fallback={<div className="p-12 text-center text-xs font-semibold text-slate-400">Loading FAQs Console...</div>}>

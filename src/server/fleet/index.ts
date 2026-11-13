@@ -12,21 +12,163 @@ export interface GetCarsOptions {
   search?: string;
 }
 
-/**
- * Public & Admin: Fetches active fleet vehicles from MySQL, optionally filtered by Location.
- */
-export async function getFleetCars(options?: GetCarsOptions) {
+export function buildCategoryWhere(categoryId?: number, categorySlug?: string) {
+  if (categoryId) {
+    return { category_id: categoryId };
+  }
+  if (!categorySlug || categorySlug === "all") {
+    return {};
+  }
+  const slug = categorySlug.toLowerCase();
+  if (slug === "hatchback") {
+    return { category: { slug: { in: ["hatchback", "premium-hatchbacks", "hatchbacks"] } } };
+  }
+  if (slug === "suv") {
+    return { category: { slug: { in: ["suv", "suvs", "7-seater-suv"] } } };
+  }
+  if (slug === "compact-suv") {
+    return { category: { slug: { in: ["compact-suv", "compact-suvs"] } } };
+  }
+  if (slug === "adventure") {
+    return { category: { slug: { in: ["adventure", "4x4", "adventure-4x4"] } } };
+  }
+  if (slug === "luxury" || slug === "sedan") {
+    return { category: { slug: { in: ["luxury", "sedan", "sedans", "luxury-sedans"] } } };
+  }
+  return { category: { slug } };
+}
+
+export interface GetCarsWithAvailabilityOptions extends GetCarsOptions {
+  startDate?: string | Date;
+  endDate?: string | Date;
+  transmission?: string;
+  fuelType?: string;
+  seats?: number;
+  minPrice?: number;
+  maxPrice?: number;
+  sort?: "price-asc" | "price-desc" | "seats-desc" | "featured";
+  limit?: number;
+  skip?: number;
+}
+
+export async function getFleetCarsWithAvailability(options?: GetCarsWithAvailabilityOptions) {
   try {
+    const categoryClause = buildCategoryWhere(options?.categoryId, options?.categorySlug);
+
     const cars = await prisma.car.findMany({
       where: {
         deleted_at: null,
         is_available: true,
         ...(options?.locationId ? { location_id: options.locationId } : {}),
         ...(options?.locationSlug ? { location: { slug: options.locationSlug } } : {}),
-        ...(options?.categoryId ? { category_id: options.categoryId } : {}),
+        ...categoryClause,
         ...(options?.featuredOnly ? { is_featured: true } : {}),
         ...(options?.brand ? { brand: { contains: options.brand } } : {}),
-        ...(options?.categorySlug ? { category: { slug: options.categorySlug } } : {}),
+        ...(options?.transmission ? { transmission: options.transmission } : {}),
+        ...(options?.fuelType ? { fuel_type: options.fuelType } : {}),
+        ...(options?.seats ? { seats: options.seats } : {}),
+        ...(options?.minPrice || options?.maxPrice
+          ? {
+              price_per_day: {
+                ...(options?.minPrice ? { gte: options.minPrice } : {}),
+                ...(options?.maxPrice ? { lte: options.maxPrice } : {}),
+              },
+            }
+          : {}),
+        ...(options?.search
+          ? {
+              OR: [
+                { name: { contains: options.search } },
+                { brand: { contains: options.search } },
+                { description: { contains: options.search } },
+              ],
+            }
+          : {}),
+      },
+      include: {
+        category: true,
+        location: true,
+        rental_plans: {
+          where: { is_active: true },
+          orderBy: { price: "asc" },
+        },
+      },
+      orderBy:
+        options?.sort === "price-asc"
+          ? { price_per_day: "asc" }
+          : options?.sort === "price-desc"
+          ? { price_per_day: "desc" }
+          : options?.sort === "seats-desc"
+          ? { seats: "desc" }
+          : { sort_order: "asc" },
+      ...(options?.skip ? { skip: options.skip } : {}),
+      ...(options?.limit ? { take: options.limit } : {}),
+    });
+
+    if (options?.startDate && options?.endDate) {
+      const start = new Date(options.startDate);
+      const end = new Date(options.endDate);
+
+      const activeBookings = await prisma.booking.findMany({
+        where: {
+          status: { in: ["pending", "confirmed", "active"] },
+          start_date: { lt: end },
+          end_date: { gt: start },
+        },
+        select: { car_id: true },
+      });
+
+      const bookedCountMap: Record<number, number> = {};
+      for (const b of activeBookings) {
+        if (b.car_id) {
+          bookedCountMap[b.car_id] = (bookedCountMap[b.car_id] || 0) + 1;
+        }
+      }
+
+      return cars.map((c) => {
+        const fleetCount = (c as any).fleet_count ?? 1;
+        const booked = bookedCountMap[c.id] || 0;
+        const availableUnits = Math.max(0, fleetCount - booked);
+        return {
+          ...c,
+          fleet_count: fleetCount,
+          available_units: availableUnits,
+          is_sold_out: availableUnits <= 0,
+        };
+      });
+    }
+
+    return cars.map((c) => {
+      const fleetCount = (c as any).fleet_count ?? 1;
+      return {
+        ...c,
+        fleet_count: fleetCount,
+        available_units: fleetCount,
+        is_sold_out: false,
+      };
+    });
+  } catch (err) {
+    console.error("Failed to fetch fleet with availability:", err);
+    return [];
+  }
+}
+
+/**
+ * Public & Admin: Fetches active fleet vehicles from MySQL, optionally filtered by Location.
+ */
+export async function getFleetCars(options?: GetCarsOptions) {
+  try {
+    const categoryClause = buildCategoryWhere(options?.categoryId, options?.categorySlug);
+
+    const cars = await prisma.car.findMany({
+      where: {
+        deleted_at: null,
+        is_available: true,
+        ...(options?.locationId ? { location_id: options.locationId } : {}),
+        ...(options?.locationSlug ? { location: { slug: options.locationSlug } } : {}),
+        ...categoryClause,
+        ...(options?.featuredOnly ? { is_featured: true } : {}),
+        ...(options?.brand ? { brand: { contains: options.brand } } : {}),
         ...(options?.search ? {
           OR: [
             { name: { contains: options.search } },
@@ -58,8 +200,14 @@ export async function getFleetCars(options?: GetCarsOptions) {
  */
 export async function getCarBySlug(slug: string) {
   try {
+    const slugAliases: Record<string, string> = {
+      cullinan: "rolls-royce",
+      urus: "lamborghini-urus",
+    };
+    const lookupSlug = slugAliases[slug.toLowerCase()] || slug;
+
     return await prisma.car.findUnique({
-      where: { slug },
+      where: { slug: lookupSlug },
       include: {
         category: true,
         location: true,

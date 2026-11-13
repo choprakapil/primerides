@@ -85,7 +85,7 @@ export async function POST(req: NextRequest) {
 
             await tx.auditLog.create({
               data: {
-                actor_id: 0,
+                actor_id: null,
                 actor_type: "system",
                 action: "WEBHOOK_PAYMENT_CAPTURED",
                 entity: "Payment",
@@ -128,6 +128,205 @@ export async function POST(req: NextRequest) {
             },
           },
         });
+      }
+    } else if (event === "refund.processed") {
+      const refundEntity = payload.refund?.entity;
+      if (refundEntity?.id) {
+        const refundId = String(refundEntity.id);
+        const paymentId = refundEntity.payment_id ? String(refundEntity.payment_id) : null;
+        const amountInRupees = Number(refundEntity.amount || 0) / 100;
+        const bookingIdNote = refundEntity.notes?.bookingId;
+        const bookingCodeNote = refundEntity.notes?.bookingCode;
+
+        // 1. Locate existing refund payment row (created during admin/customer refund action)
+        const existingRefund = await prisma.payment.findFirst({
+          where: { transaction_ref: refundId },
+          include: { booking: true },
+        });
+
+        if (existingRefund) {
+          await prisma.$transaction(async (tx) => {
+            await tx.payment.update({
+              where: { id: existingRefund.id },
+              data: {
+                status: "refunded",
+                metadata: {
+                  ...(existingRefund.metadata as object),
+                  webhookProcessedAt: new Date().toISOString(),
+                  razorpayRefundStatus: refundEntity.status || "processed",
+                  speedProcessed: refundEntity.speed_processed,
+                },
+              },
+            });
+
+            await tx.auditLog.create({
+              data: {
+                actor_id: null,
+                actor_type: "system",
+                action: "WEBHOOK_REFUND_PROCESSED",
+                entity: "Payment",
+                entity_id: existingRefund.id,
+                before_state: { status: existingRefund.status },
+                after_state: {
+                  status: "refunded",
+                  refundId,
+                  amount: amountInRupees,
+                  event,
+                },
+              },
+            });
+          });
+        } else {
+          // 2. External refund initiated directly in Razorpay Dashboard: Reconcile ledger
+          let targetBookingId: number | null = bookingIdNote ? parseInt(String(bookingIdNote), 10) : null;
+          let primaryPayment = null;
+
+          if (paymentId) {
+            primaryPayment = await prisma.payment.findFirst({
+              where: { transaction_ref: paymentId },
+              include: { booking: true },
+            });
+            if (primaryPayment?.booking_id) {
+              targetBookingId = primaryPayment.booking_id;
+            }
+          }
+
+          if (!targetBookingId && bookingCodeNote) {
+            const bookingByCode = await prisma.booking.findUnique({
+              where: { booking_code: String(bookingCodeNote) },
+            });
+            if (bookingByCode) {
+              targetBookingId = bookingByCode.id;
+            }
+          }
+
+          if (targetBookingId) {
+            await prisma.$transaction(async (tx) => {
+              const createdPayment = await tx.payment.create({
+                data: {
+                  booking_id: targetBookingId!,
+                  amount: amountInRupees,
+                  currency: refundEntity.currency || "INR",
+                  status: "refunded",
+                  gateway: primaryPayment?.gateway || "razorpay",
+                  transaction_ref: refundId,
+                  payment_method: "refund",
+                  metadata: {
+                    source: "razorpay_dashboard_webhook",
+                    razorpayEvent: "refund.processed",
+                    originalPaymentRef: paymentId,
+                    reconciledAt: new Date().toISOString(),
+                    speedProcessed: refundEntity.speed_processed,
+                    notes: refundEntity.notes,
+                  },
+                },
+              });
+
+              await tx.cancellation.upsert({
+                where: { booking_id: targetBookingId! },
+                create: {
+                  booking_id: targetBookingId!,
+                  reason: refundEntity.notes?.reason || "Refund processed via Razorpay Dashboard",
+                  cancelled_by: "gateway_webhook",
+                  refund_amount: amountInRupees,
+                  penalty_amount: 0,
+                  processed_at: new Date(),
+                },
+                update: {
+                  refund_amount: amountInRupees,
+                  processed_at: new Date(),
+                },
+              });
+
+              await tx.auditLog.create({
+                data: {
+                  actor_id: null,
+                  actor_type: "system",
+                  action: "WEBHOOK_EXTERNAL_REFUND_RECONCILED",
+                  entity: "Payment",
+                  entity_id: createdPayment.id,
+                  after_state: {
+                    booking_id: targetBookingId,
+                    refundId,
+                    amount: amountInRupees,
+                    source: "razorpay_webhook",
+                  },
+                },
+              });
+            });
+          }
+        }
+      }
+    } else if (event === "refund.failed") {
+      const refundEntity = payload.refund?.entity;
+      if (refundEntity?.id) {
+        const refundId = String(refundEntity.id);
+        const errorCode = refundEntity.error_code || "REFUND_FAILED";
+        const errorDescription = refundEntity.error_description || "Gateway failed to disburse refund to customer account.";
+        const amountInRupees = Number(refundEntity.amount || 0) / 100;
+
+        const existingRefund = await prisma.payment.findFirst({
+          where: { transaction_ref: refundId },
+          include: { booking: true },
+        });
+
+        if (existingRefund) {
+          await prisma.$transaction(async (tx) => {
+            await tx.payment.update({
+              where: { id: existingRefund.id },
+              data: {
+                status: "failed",
+                metadata: {
+                  ...(existingRefund.metadata as object),
+                  webhookFailedAt: new Date().toISOString(),
+                  errorCode,
+                  errorDescription,
+                  gatewayRefundStatus: "failed",
+                },
+              },
+            });
+
+            await tx.auditLog.create({
+              data: {
+                actor_id: null,
+                actor_type: "system",
+                action: "WEBHOOK_REFUND_FAILED_ALERT",
+                entity: "Payment",
+                entity_id: existingRefund.id,
+                before_state: { status: existingRefund.status },
+                after_state: {
+                  status: "failed",
+                  refundId,
+                  amount: amountInRupees,
+                  errorCode,
+                  errorDescription,
+                  alert: "ATTENTION_REQUIRED_MANUAL_PAYOUT",
+                },
+              },
+            });
+          });
+        }
+      }
+    } else if (event === "refund.speed_changed") {
+      const refundEntity = payload.refund?.entity;
+      if (refundEntity?.id) {
+        const existingRefund = await prisma.payment.findFirst({
+          where: { transaction_ref: String(refundEntity.id) },
+        });
+
+        if (existingRefund) {
+          await prisma.payment.update({
+            where: { id: existingRefund.id },
+            data: {
+              metadata: {
+                ...(existingRefund.metadata as object),
+                speedRequested: refundEntity.speed_requested,
+                speedProcessed: refundEntity.speed_processed,
+                speedUpdatedAt: new Date().toISOString(),
+              },
+            },
+          });
+        }
       }
     }
 

@@ -128,7 +128,7 @@ export function verifyPaymentSignature(params: {
  * Header: x-razorpay-signature
  */
 export function verifyWebhookSignature(rawBody: string, signature: string, customSecret?: string): boolean {
-  const secret = customSecret || webhookSecret;
+  const secret = customSecret || process.env.RAZORPAY_WEBHOOK_SECRET || webhookSecret;
   if (!secret || !signature) return false;
 
   const expectedSignature = crypto
@@ -144,4 +144,59 @@ export function verifyWebhookSignature(rawBody: string, signature: string, custo
   } catch {
     return false;
   }
+}
+
+export interface CreateRefundParams {
+  paymentId: string;
+  amountInRupees: number;
+  notes?: Record<string, string>;
+  speed?: "normal" | "optimum";
+}
+
+export interface RazorpayRefundResult {
+  id: string;
+  amount: number; // in paise
+  currency: string;
+  paymentId: string;
+  status: string;
+  isMock: boolean;
+}
+
+/**
+ * Executes a refund on a Razorpay payment.
+ * If live keys are configured and payment is not a simulated mock ID, issues refund via Razorpay API.
+ * Otherwise produces a simulated refund result for development/test environments.
+ */
+export async function createRazorpayRefund(params: CreateRefundParams): Promise<RazorpayRefundResult> {
+  const { paymentId, amountInRupees, notes = {}, speed = "normal" } = params;
+  const amountInPaise = Math.round(amountInRupees * 100);
+  const client = getRazorpayClient();
+
+  if (client && !paymentId.startsWith("pay_sim_") && !paymentId.startsWith("pay_test_")) {
+    const refund = await (client.payments as any).refund(paymentId, {
+      amount: amountInPaise,
+      speed,
+      notes,
+    });
+
+    return {
+      id: refund.id,
+      amount: Number(refund.amount),
+      currency: refund.currency || "INR",
+      paymentId: String(refund.payment_id),
+      status: refund.status || "processed",
+      isMock: false,
+    };
+  }
+
+  // Simulated gateway refund for local testing or simulated payments
+  const mockRefundId = `rfnd_sim_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+  return {
+    id: mockRefundId,
+    amount: amountInPaise,
+    currency: "INR",
+    paymentId,
+    status: "processed",
+    isMock: true,
+  };
 }

@@ -6,6 +6,9 @@ import CmsManager from "@/components/admin/CmsManager";
 import { PageContainer, PageHeader } from "@/components/admin/ui";
 import { FileText } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export const metadata = {
   title: "Travel Journal & Blogs | PrimeRides Admin",
 };
@@ -58,7 +61,7 @@ export default async function AdminCmsBlogsPage() {
         eyebrow="Content"
         title="Travel Journal & Blogs"
         description="Publish luxury travel experiences, destination road trip guides, and fleet editorial stories."
-        icon={<FileText className="w-5 h-5 text-[#5955D1]" />}
+        icon={<FileText className="w-5 h-5 text-[#c59b27]" />}
       />
 
       <React.Suspense fallback={<div className="p-12 text-center text-xs font-semibold text-slate-400">Loading Blog Console...</div>}>

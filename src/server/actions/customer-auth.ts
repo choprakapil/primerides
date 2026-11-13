@@ -11,6 +11,7 @@ import {
   markPasswordResetTokenUsed,
 } from "../auth/password-reset";
 import { getCurrentCustomer } from "../auth/customer";
+import { notifyPasswordReset } from "../notifications";
 
 export async function customerRegisterAction(formData: FormData) {
   const fullName = (formData.get("fullName") as string)?.trim();
@@ -200,6 +201,16 @@ export async function customerRequestPasswordResetAction(formData: FormData) {
     if (customer) {
       const { rawToken } = await createPasswordResetToken(customer.id);
       resetToken = rawToken;
+      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://primerides.in";
+      const resetUrl = `${siteUrl}/account/reset-password?token=${rawToken}`;
+      // Dispatch email & SMS notification
+      await notifyPasswordReset({
+        customerName: customer.full_name || "Valued Guest",
+        customerEmail: customer.email,
+        customerPhone: customer.phone,
+        resetUrl,
+        expiresInMinutes: 60,
+      }).catch((err) => console.error("[customerRequestPasswordResetAction] Notification dispatch error:", err));
     }
   } catch (err: any) {
     if (err?.message?.includes("NEXT_REDIRECT")) throw err;

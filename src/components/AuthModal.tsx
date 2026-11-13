@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useFocusTrap } from "@/lib/useFocusTrap";
 import {
   User,
   Phone,
@@ -31,6 +32,7 @@ export default function AuthModal({
 }: AuthModalProps) {
   const router = useRouter();
   const [mode, setMode] = useState<"login" | "register">(initialMode);
+  const modalRef = useFocusTrap<HTMLDivElement>({ isOpen, onClose });
 
   // Login form state
   const [loginIdentifier, setLoginIdentifier] = useState("");
@@ -142,10 +144,18 @@ export default function AuthModal({
     <div
       className="modal fade show d-block"
       tabIndex={-1}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="auth-modal-title"
       style={{ background: "rgba(9, 14, 26, 0.78)", backdropFilter: "blur(6px)", zIndex: 1060 }}
       onClick={onClose}
     >
-      <div className="modal-dialog modal-dialog-centered" style={{ maxWidth: "440px" }} onClick={(e) => e.stopPropagation()}>
+      <div
+        ref={modalRef}
+        className="modal-dialog modal-dialog-centered"
+        style={{ maxWidth: "440px" }}
+        onClick={(e) => e.stopPropagation()}
+      >
         <div
           className="modal-content shadow-2xl"
           style={{
@@ -167,7 +177,7 @@ export default function AuthModal({
             <div className="d-flex align-items-center gap-3">
               <img src="/assets/img/PRLogo.png" alt="Primerides" style={{ height: "36px", width: "auto" }} />
               <div>
-                <h5 className="modal-title text-white font-bold mb-0 text-base tracking-wide uppercase">
+                <h5 id="auth-modal-title" className="modal-title text-white font-bold mb-0 text-base tracking-wide uppercase">
                   PRIME<span style={{ color: "#c59b27" }}>RIDES</span>
                 </h5>
                 <small className="text-[11px] font-medium" style={{ color: "#c59b27" }}>
@@ -179,7 +189,7 @@ export default function AuthModal({
               type="button"
               className="btn-close btn-close-white"
               onClick={onClose}
-              aria-label="Close"
+              aria-label="Close authentication modal"
             ></button>
           </div>
 

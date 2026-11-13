@@ -15,9 +15,10 @@ interface HeroSectionProps {
     usp2?: string;
     usp3?: string;
   };
+  locations?: Array<{ id: number; name: string; city: string }>;
 }
 
-export default function HeroSection({ heroData }: HeroSectionProps) {
+export default function HeroSection({ heroData, locations }: HeroSectionProps) {
   const { openBookingModal } = useModal();
   const [pickupLoc, setPickupLoc] = useState("Delhi - IGI Airport Terminal 3 (Arrivals Gate)");
   const [dropoffLoc, setDropoffLoc] = useState("Delhi - IGI Airport Terminal 3");
@@ -119,11 +120,13 @@ export default function HeroSection({ heroData }: HeroSectionProps) {
                   {/* Where You From (Pickup) */}
                   <div className="col-lg-3 col-md-6 col-12">
                     <div className="turbo-input-group">
-                      <label className="turbo-input-label">
+                      <label htmlFor="hero-pickup-location" className="turbo-input-label">
                         <MotionIcon name="MapPin" animation="pulse" trigger="always" size={13} color="#c59b27" />
                         <span>Where you from</span>
                       </label>
                       <select
+                        id="hero-pickup-location"
+                        aria-label="Pick up Location"
                         className="turbo-select"
                         value={pickupLoc}
                         onChange={(e) => setPickupLoc(e.target.value)}
@@ -144,11 +147,13 @@ export default function HeroSection({ heroData }: HeroSectionProps) {
                   {/* Where You Go (Drop-off) */}
                   <div className="col-lg-3 col-md-6 col-12">
                     <div className="turbo-input-group">
-                      <label className="turbo-input-label">
+                      <label htmlFor="hero-dropoff-location" className="turbo-input-label">
                         <MotionIcon name="Navigation" animation="nudge" trigger="always" size={13} color="#c59b27" />
                         <span>Where you go</span>
                       </label>
                       <select
+                        id="hero-dropoff-location"
+                        aria-label="Drop off Location"
                         className="turbo-select"
                         value={dropoffLoc}
                         onChange={(e) => setDropoffLoc(e.target.value)}
@@ -166,11 +171,13 @@ export default function HeroSection({ heroData }: HeroSectionProps) {
                   {/* Choose Dates */}
                   <div className="col-lg-4 col-md-6 col-12">
                     <div className="turbo-input-group">
-                      <label className="turbo-input-label">
+                      <label htmlFor="hero-pickup-date" className="turbo-input-label">
                         <MotionIcon name="Calendar" animation="pulse" trigger="always" size={13} color="#c59b27" />
                         <span>Choose Dates</span>
                       </label>
                       <input
+                        id="hero-pickup-date"
+                        aria-label="Pickup Date"
                         type="date"
                         className="turbo-input"
                         value={pickupDate}

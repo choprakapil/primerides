@@ -5,6 +5,19 @@ import { Radio, Navigation, ShieldCheck, Zap } from "lucide-react";
 import TrendArrowBadge from "../ui/TrendArrowBadge";
 
 export default function LiveFleetTelemetryCard() {
+  const [activeCarsCount, setActiveCarsCount] = React.useState<number>(18);
+
+  React.useEffect(() => {
+    fetch("/api/v1/admin/bookings?status=active")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((json) => {
+        if (json?.data && Array.isArray(json.data) && json.data.length > 0) {
+          setActiveCarsCount(json.data.length);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   return (
     <div className="card h-100 border pastel-card pastel-card-peach">
       <div className="card-body p-4">
@@ -38,7 +51,7 @@ export default function LiveFleetTelemetryCard() {
                 <Navigation className="w-3 h-3 text-amber-600" />
                 <span>On-Road In Trip</span>
               </div>
-              <div className="h4 mb-0 fw-bold text-dark">18 Cars</div>
+              <div className="h4 mb-0 fw-bold text-dark">{activeCarsCount} Cars</div>
               <div className="text-[10px] text-muted mt-0.5">Speed &lt; 90 km/h nominal</div>
             </div>
           </div>
@@ -59,14 +72,14 @@ export default function LiveFleetTelemetryCard() {
         <div className="mt-3 pt-2 border-top border-amber-100">
           <div className="d-flex align-items-center justify-content-between text-xs mb-1.5">
             <span className="text-muted font-medium d-flex align-items-center gap-1">
-              <Zap className="w-3 h-3 text-amber-500" />
+              <Zap className="w-3 h-3 text-amber-700" />
               Fastag Fleet Wallet
             </span>
             <span className="fw-bold text-dark">₹84,250 (Auto-Reload On)</span>
           </div>
           <div className="progress progress-sm rounded-pill bg-slate-200/80" style={{ height: "5px" }}>
             <div
-              className="progress-bar bg-amber-500 rounded-pill"
+              className="progress-bar bg-amber-600 rounded-pill"
               style={{ width: "82%" }}
               role="progressbar"
             />

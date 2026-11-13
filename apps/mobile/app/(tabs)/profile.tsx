@@ -1,16 +1,45 @@
-import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
+import React, { useState } from "react";
+import { View, Text, StyleSheet, TouchableOpacity, Image, Alert, ActivityIndicator } from "react-native";
 import { useRouter } from "expo-router";
 import { useAuthStore } from "../../src/stores/authStore";
-import { User, Phone, Mail, ShieldCheck, LogOut, ChevronRight, Key, CreditCard, FileText, Receipt } from "lucide-react-native";
+import { User, Phone, Mail, ShieldCheck, LogOut, ChevronRight, Key, CreditCard, FileText, Receipt, Trash2 } from "lucide-react-native";
 
 export default function ProfileScreen() {
   const router = useRouter();
-  const { user, isAuthenticated, logout } = useAuthStore();
+  const { user, isAuthenticated, logout, deleteAccount } = useAuthStore();
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleLogout = async () => {
     await logout();
     router.replace("/(tabs)" as any);
+  };
+
+  const handleDeleteAccount = () => {
+    Alert.alert(
+      "Delete Account",
+      "Are you sure you want to permanently delete your PrimeRides account? This will revoke active sessions, remove your profile, and cancel pending requests. This action cannot be undone.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete My Account",
+          style: "destructive",
+          onPress: async () => {
+            setIsDeleting(true);
+            const success = await deleteAccount();
+            setIsDeleting(false);
+            if (success) {
+              Alert.alert(
+                "Account Deleted",
+                "Your account has been deleted. Thank you for using PrimeRides.",
+                [{ text: "OK", onPress: () => router.replace("/(tabs)" as any) }]
+              );
+            } else {
+              Alert.alert("Error", "Could not delete account. Please try again or contact support.");
+            }
+          },
+        },
+      ]
+    );
   };
 
   if (!isAuthenticated || !user) {
@@ -110,10 +139,27 @@ export default function ProfileScreen() {
         )}
       </View>
 
-      <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
-        <LogOut size={16} color="#ef4444" style={{ marginRight: 8 }} />
-        <Text style={styles.logoutBtnText}>Sign Out</Text>
-      </TouchableOpacity>
+      <View style={styles.actionButtons}>
+        <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
+          <LogOut size={16} color="#ef4444" style={{ marginRight: 8 }} />
+          <Text style={styles.logoutBtnText}>Sign Out</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.deleteBtn}
+          onPress={handleDeleteAccount}
+          disabled={isDeleting}
+        >
+          {isDeleting ? (
+            <ActivityIndicator size="small" color="#888" />
+          ) : (
+            <>
+              <Trash2 size={13} color="#737373" style={{ marginRight: 6 }} />
+              <Text style={styles.deleteBtnText}>Delete Account</Text>
+            </>
+          )}
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -262,5 +308,19 @@ const styles = StyleSheet.create({
     color: "#ef4444",
     fontSize: 13,
     fontWeight: "700",
+  },
+  actionButtons: {
+    gap: 12,
+  },
+  deleteBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 12,
+  },
+  deleteBtnText: {
+    color: "#737373",
+    fontSize: 12,
+    fontWeight: "600",
   },
 });

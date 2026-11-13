@@ -14,7 +14,7 @@ export default async function AdminLoginPage({
         <div className="mb-4 text-center">
           <div
             className="avatar rounded-3 bg-primary text-white mx-auto mb-3 d-flex align-items-center justify-content-center fw-bold fs-4 shadow-sm"
-            style={{ width: "48px", height: "48px" }}
+            style={{ width: "48px", height: "48px", background: "var(--primary-color, #c59b27)" }}
           >
             PR
           </div>
@@ -40,9 +40,8 @@ export default async function AdminLoginPage({
                 type="text"
                 name="username"
                 required
-                defaultValue="admin"
                 className="form-control ps-5"
-                placeholder="e.g. admin"
+                placeholder="e.g. admin or staff email"
               />
             </div>
           </div>
@@ -55,7 +54,6 @@ export default async function AdminLoginPage({
                 type="password"
                 name="password"
                 required
-                defaultValue="admin123"
                 className="form-control ps-5"
                 placeholder="••••••••"
               />
@@ -69,12 +67,16 @@ export default async function AdminLoginPage({
                 Remember session
               </label>
             </div>
-            <span className="badge bg-purple-subtle text-purple font-monospace" style={{ fontSize: "10px" }}>
+            <span className="badge bg-warning-subtle text-warning border border-warning-subtle font-monospace" style={{ fontSize: "10px" }}>
               Argon2id Guard
             </span>
           </div>
 
-          <button type="submit" className="btn btn-primary w-100 py-2.5 fw-semibold shadow-sm">
+          <button
+            type="submit"
+            className="btn btn-primary w-100 py-2.5 fw-semibold shadow-sm"
+            style={{ background: "var(--primary-color, #c59b27)", borderColor: "var(--primary-color, #c59b27)" }}
+          >
             Sign In to Console
           </button>
         </form>

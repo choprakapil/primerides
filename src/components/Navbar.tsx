@@ -153,7 +153,7 @@ export default function Navbar() {
         <Link className="navbar-brand" href="/" onClick={() => setIsMobileMenuOpen(false)}>
           <img
             src={logoData.url}
-            alt="Primerides"
+            alt="PrimeRides Luxury Car Rental Logo"
             style={{
               height: `${logoData.height}px`,
             }}

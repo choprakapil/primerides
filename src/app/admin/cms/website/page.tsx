@@ -60,7 +60,7 @@ export default async function AdminCmsWebsitePage() {
         eyebrow="Content"
         title="Website Sections & Banners"
         description="Manage promotional announcement banners, homepage hero propositions, and regional hub delivery displays."
-        icon={<Layout className="w-5 h-5 text-[#5955D1]" />}
+        icon={<Layout className="w-5 h-5 text-[#c59b27]" />}
       />
 
       <React.Suspense fallback={<div className="p-12 text-center text-xs font-semibold text-slate-400">Loading Website Sections...</div>}>

@@ -45,7 +45,7 @@ export function AdminLoadingState({
 }) {
   return (
     <div className={`p-8 text-center rounded-lg bg-white border border-[#e8edf2] shadow-sm flex items-center justify-center gap-2.5 text-xs text-slate-600 font-medium ${className}`}>
-      <RefreshCw className="w-4 h-4 animate-spin text-[#5955D1] shrink-0" />
+      <RefreshCw className="w-4 h-4 animate-spin text-[#c59b27] shrink-0" />
       <span>{message}</span>
     </div>
   );

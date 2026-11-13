@@ -25,8 +25,18 @@ export default async function CustomerPaymentsPage() {
   const unpaidBookings = JSON.parse(JSON.stringify(rawUnpaidBookings));
 
   const totalCaptured = payments
-    .filter((p: any) => p.status === "captured")
+    .filter((p: any) => (p.status === "captured" || p.status === "successful") && p.payment_method !== "refund")
     .reduce((sum: number, p: any) => sum + Number(p.amount || 0), 0);
+
+  const refundPayments = payments.filter(
+    (p: any) => p.status === "refunded" || p.payment_method === "refund"
+  );
+  const totalRefunded = refundPayments.reduce(
+    (sum: number, p: any) => sum + Number(p.amount || 0),
+    0
+  );
+
+  const netSettled = Math.max(0, totalCaptured - totalRefunded);
 
   const totalAuthorized = payments
     .filter((p: any) => p.status === "authorized")
@@ -47,7 +57,7 @@ export default async function CustomerPaymentsPage() {
             Payments &amp; Ledger
           </h4>
           <p className="text-muted mb-0" style={{ fontSize: "13px" }}>
-            View completed transactions, security deposit authorizations, and Razorpay receipts.
+            View completed transactions, refund disbursements, security deposit authorizations, and Razorpay receipts.
           </p>
         </div>
 
@@ -59,25 +69,48 @@ export default async function CustomerPaymentsPage() {
         </div>
       </div>
 
-      {/* 3 Metric Cards */}
+      {/* 4 Metric Cards */}
       <div className="row g-4 mb-4">
-        <div className="col-12 col-md-4">
+        {/* Net Settled */}
+        <div className="col-12 col-sm-6 col-xl-3">
           <div className="card border h-100">
             <div className="card-header pb-0 border-0 bg-transparent pt-3 px-4 d-flex align-items-center justify-content-between">
               <div className="avatar rounded-circle bg-success-subtle text-success d-flex align-items-center justify-content-center" style={{ width: "44px", height: "44px" }}>
                 <i className="fi fi-rr-check-circle" style={{ fontSize: "20px" }}></i>
               </div>
-              <span className="badge bg-success-subtle text-success rounded-pill px-2.5 py-1.5">Settled</span>
+              <span className="badge bg-success-subtle text-success rounded-pill px-2.5 py-1.5">Net Paid</span>
             </div>
             <div className="card-body pt-3 px-4 pb-4">
-              <p className="text-muted mb-1 text-uppercase fw-semibold" style={{ fontSize: "11px", letterSpacing: "0.5px" }}>Total Captured</p>
-              <h2 className="mb-0 fw-bold text-dark">₹{totalCaptured.toLocaleString("en-IN")}</h2>
-              <small className="text-muted d-block mt-1">Settled rental charges &amp; fees</small>
+              <p className="text-muted mb-1 text-uppercase fw-semibold" style={{ fontSize: "11px", letterSpacing: "0.5px" }}>Net Settled</p>
+              <h2 className="mb-0 fw-bold text-dark">₹{netSettled.toLocaleString("en-IN")}</h2>
+              <small className="text-muted d-block mt-1">
+                {totalRefunded > 0 ? `Gross ₹${totalCaptured.toLocaleString("en-IN")} (after refunds)` : "Settled rental charges & fees"}
+              </small>
             </div>
           </div>
         </div>
 
-        <div className="col-12 col-md-4">
+        {/* Refunds & Credits */}
+        <div className="col-12 col-sm-6 col-xl-3">
+          <div className="card border h-100">
+            <div className="card-header pb-0 border-0 bg-transparent pt-3 px-4 d-flex align-items-center justify-content-between">
+              <div className="avatar rounded-circle bg-purple-subtle text-purple d-flex align-items-center justify-content-center" style={{ width: "44px", height: "44px" }}>
+                <i className="fi fi-rr-undo" style={{ fontSize: "20px" }}></i>
+              </div>
+              <span className="badge bg-purple-subtle text-purple rounded-pill px-2.5 py-1.5">Refunds</span>
+            </div>
+            <div className="card-body pt-3 px-4 pb-4">
+              <p className="text-muted mb-1 text-uppercase fw-semibold" style={{ fontSize: "11px", letterSpacing: "0.5px" }}>Refunds Credited</p>
+              <h2 className="mb-0 fw-bold text-purple-700">₹{totalRefunded.toLocaleString("en-IN")}</h2>
+              <small className="text-muted d-block mt-1">
+                {refundPayments.length} refund transactions returned
+              </small>
+            </div>
+          </div>
+        </div>
+
+        {/* Security Deposits */}
+        <div className="col-12 col-sm-6 col-xl-3">
           <div className="card border h-100">
             <div className="card-header pb-0 border-0 bg-transparent pt-3 px-4 d-flex align-items-center justify-content-between">
               <div className="avatar rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center" style={{ width: "44px", height: "44px" }}>
@@ -93,7 +126,8 @@ export default async function CustomerPaymentsPage() {
           </div>
         </div>
 
-        <div className="col-12 col-md-4">
+        {/* Pending Payments */}
+        <div className="col-12 col-sm-6 col-xl-3">
           <div className="card border h-100">
             <div className="card-header pb-0 border-0 bg-transparent pt-3 px-4 d-flex align-items-center justify-content-between">
               <div className="avatar rounded-circle bg-warning-subtle text-warning d-flex align-items-center justify-content-center" style={{ width: "44px", height: "44px" }}>

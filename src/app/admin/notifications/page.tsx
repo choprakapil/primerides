@@ -74,7 +74,7 @@ export default function AdminNotificationsPage() {
         eyebrow="Communications & Broadcast"
         title="Notifications Management"
         description="Configure public website announcement tickers, automated WhatsApp & SMS templates, and operations staff alert rules."
-        icon={<Bell className="w-5 h-5 text-[#5955D1]" />}
+        icon={<Bell className="w-5 h-5 text-[#c59b27]" />}
         actions={
           <AdminButton
             onClick={handleSave}
@@ -106,7 +106,7 @@ export default function AdminNotificationsPage() {
         <AdminCard className="card border mb-4">
           <div className="flex items-center justify-between border-b border-slate-100 pb-3">
             <div className="flex items-center gap-2">
-              <Megaphone className="w-4 h-4 text-[#5955D1]" />
+              <Megaphone className="w-4 h-4 text-[#c59b27]" />
               <h2 className="text-base font-bold text-slate-900">Website Top Announcement Bar</h2>
             </div>
             <label className="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer">
@@ -119,7 +119,7 @@ export default function AdminNotificationsPage() {
                     announcementBar: { ...data.announcementBar, enabled: e.target.checked },
                   })
                 }
-                className="w-4 h-4 text-[#5955D1] rounded focus:ring-[#5955D1]"
+                className="w-4 h-4 text-[#c59b27] rounded focus:ring-[#c59b27]"
               />
               <span>{data.announcementBar.enabled ? "Active on Website" : "Disabled"}</span>
             </label>
@@ -204,7 +204,7 @@ export default function AdminNotificationsPage() {
                       },
                     })
                   }
-                  className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded-lg outline-none focus:ring-1 focus:ring-[#5955D1]"
+                  className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded-lg outline-none focus:ring-1 focus:ring-[#c59b27]"
                 />
               </div>
             </AdminCard>
@@ -232,7 +232,7 @@ export default function AdminNotificationsPage() {
                       },
                     })
                   }
-                  className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded-lg outline-none focus:ring-1 focus:ring-[#5955D1]"
+                  className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded-lg outline-none focus:ring-1 focus:ring-[#c59b27]"
                 />
               </div>
             </AdminCard>
@@ -243,7 +243,7 @@ export default function AdminNotificationsPage() {
         <AdminCard className="p-5 bg-white border border-[#e8edf2] rounded-3 shadow-xs space-y-4">
           <div className="flex items-center justify-between border-b border-slate-100 pb-3">
             <div className="flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-[#5955D1]" />
+              <ShieldCheck className="w-4 h-4 text-[#c59b27]" />
               <h3 className="font-bold text-sm text-slate-900">Operations Staff Event Dispatch</h3>
             </div>
           </div>
@@ -260,7 +260,7 @@ export default function AdminNotificationsPage() {
                     adminAlerts: { ...data.adminAlerts, alertEmail: e.target.value },
                   })
                 }
-                className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded-lg outline-none focus:ring-1 focus:ring-[#5955D1]"
+                className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded-lg outline-none focus:ring-1 focus:ring-[#c59b27]"
               />
             </div>
             <div className="space-y-2">
@@ -274,7 +274,7 @@ export default function AdminNotificationsPage() {
                     adminAlerts: { ...data.adminAlerts, alertPhone: e.target.value },
                   })
                 }
-                className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded-lg outline-none focus:ring-1 focus:ring-[#5955D1]"
+                className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded-lg outline-none focus:ring-1 focus:ring-[#c59b27]"
               />
             </div>
           </div>

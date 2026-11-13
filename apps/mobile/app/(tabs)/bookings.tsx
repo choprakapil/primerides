@@ -13,6 +13,7 @@ import { api } from "../../src/services/api";
 import { useAuthStore } from "../../src/stores/authStore";
 import { Booking } from "../../src/types";
 import { CalendarCheck, Shield, Clock, ArrowRight } from "lucide-react-native";
+import { formatIstDate } from "../../src/utils/dates";
 
 export default function BookingsScreen() {
   const router = useRouter();
@@ -82,8 +83,8 @@ export default function BookingsScreen() {
 
   const renderBookingCard = ({ item }: { item: Booking }) => {
     const statusStyle = getStatusColor(item.status);
-    const startDate = new Date(item.start_date).toLocaleDateString("en-IN", { month: "short", day: "numeric" });
-    const endDate = new Date(item.end_date).toLocaleDateString("en-IN", { month: "short", day: "numeric" });
+    const startDate = formatIstDate(item.start_date, { month: "short", day: "numeric" });
+    const endDate = formatIstDate(item.end_date, { month: "short", day: "numeric" });
 
     return (
       <View style={styles.bookingCard}>
@@ -113,6 +114,22 @@ export default function BookingsScreen() {
             <Text style={styles.amountLabel}>Total Amount</Text>
             <Text style={styles.amountValue}>₹{Number(item.total_amount || 0).toLocaleString("en-IN")}</Text>
           </View>
+          {item.status === "pending" && (
+            <TouchableOpacity
+              style={styles.payNowBtn}
+              onPress={() => {
+                router.push({
+                  pathname: "/account/payments",
+                  params: {
+                    bookingId: String(item.id),
+                    autoPay: "true",
+                  },
+                } as any);
+              }}
+            >
+              <Text style={styles.payNowBtnText}>Pay Now →</Text>
+            </TouchableOpacity>
+          )}
         </View>
       </View>
     );
@@ -274,5 +291,16 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     fontWeight: "800",
+  },
+  payNowBtn: {
+    backgroundColor: "#f59e0b",
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 10,
+  },
+  payNowBtnText: {
+    color: "#000",
+    fontSize: 12,
+    fontWeight: "700",
   },
 });

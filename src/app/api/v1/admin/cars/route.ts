@@ -7,22 +7,32 @@ import { apiError, apiSuccess, apiCreated, apiUnauthorized } from "@/server/util
  * GET /api/v1/admin/cars
  * List all cars for admin management
  */
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
     const admin = await getCurrentAdmin();
     if (!admin) return apiUnauthorized("Admin authentication required.");
 
-    const cars = await prisma.car.findMany({
-      where: { deleted_at: null },
-      include: {
-        category: true,
-        location: true,
-        rental_plans: { orderBy: { free_km: "asc" } },
-      },
-      orderBy: { sort_order: "asc" },
-    });
+    const { searchParams } = new URL(req.url);
+    const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
+    const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") || "20", 10)));
+    const skip = (page - 1) * limit;
 
-    return apiSuccess(cars);
+    const [cars, total] = await Promise.all([
+      prisma.car.findMany({
+        where: { deleted_at: null },
+        include: {
+          category: true,
+          location: true,
+          rental_plans: { orderBy: { free_km: "asc" } },
+        },
+        orderBy: { sort_order: "asc" },
+        take: limit,
+        skip,
+      }),
+      prisma.car.count({ where: { deleted_at: null } }),
+    ]);
+
+    return apiSuccess({ cars, pagination: { total, page, limit, pages: Math.ceil(total / limit) } });
   } catch (err: any) {
     return apiError(err.message || "Failed to fetch cars", 500);
   }
@@ -59,6 +69,7 @@ export async function POST(req: NextRequest) {
       badge,
       description,
       is_available,
+      fleet_count,
       rental_plans,
     } = body;
 
@@ -94,6 +105,7 @@ export async function POST(req: NextRequest) {
           badge: badge || null,
           description: description || null,
           is_available: is_available !== undefined ? Boolean(is_available) : true,
+          fleet_count: fleet_count ? parseInt(fleet_count, 10) : 1,
         },
       });
 

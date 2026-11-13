@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { formatIstDate } from "@/lib/dates";
 
 interface BookingItem {
   id: number;
@@ -200,7 +201,7 @@ export default function BookingsListClient({
                     </span>
                     {getStatusBadge(b.status)}
                     {b.with_chauffeur && (
-                      <span className="badge bg-purple-subtle text-purple">Chauffeur Driven</span>
+                      <span className="badge bg-warning-subtle text-warning border border-warning-subtle">Chauffeur Driven</span>
                     )}
                   </div>
 
@@ -234,20 +235,29 @@ export default function BookingsListClient({
                         <div>
                           <small className="text-muted d-block text-uppercase" style={{ fontSize: "10px" }}>START DATE</small>
                           <span className="fw-semibold text-dark">
-                            {new Date(b.start_date).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                            {formatIstDate(b.start_date)}
                           </span>
                         </div>
                         <i className="fi fi-rr-arrow-right text-muted"></i>
                         <div>
                           <small className="text-muted d-block text-uppercase" style={{ fontSize: "10px" }}>END DATE</small>
                           <span className="fw-semibold text-dark">
-                            {new Date(b.end_date).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                            {formatIstDate(b.end_date)}
                           </span>
                         </div>
                       </div>
                     </div>
 
-                    <div className="col-12 col-md-3 text-md-end">
+                    <div className="col-12 col-md-3 text-md-end d-flex flex-wrap align-items-center justify-content-md-end gap-2">
+                      <Link
+                        href={`/account/bookings/${b.id}/invoice`}
+                        className="btn btn-outline-dark btn-sm px-2.5 d-inline-flex align-items-center gap-1"
+                        title="View & Download Official GST Tax Invoice"
+                      >
+                        <i className="fi fi-rr-file-invoice"></i>
+                        <span>Tax Invoice</span>
+                      </Link>
+
                       {["pending", "confirmed"].includes(b.status) && (
                         <button
                           type="button"
@@ -292,6 +302,16 @@ export default function BookingsListClient({
                             <div className="d-flex justify-content-between pt-2 border-top">
                               <span className="fw-bold text-dark">Total Paid</span>
                               <span className="fw-bold text-primary fs-6">₹{Number(b.total_amount || 0).toLocaleString("en-IN")}</span>
+                            </div>
+                            <div className="mt-3 pt-2 border-top">
+                              <a
+                                href={`/api/v1/bookings/${b.id}/invoice`}
+                                download={`Invoice-${(b.booking_code || b.booking_number || 'PR').replace(/[^a-zA-Z0-9_-]/g, '_')}.pdf`}
+                                className="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1.5 text-xs w-100 justify-content-center"
+                              >
+                                <i className="fi fi-rr-download"></i>
+                                <span>Download Official PDF Invoice</span>
+                              </a>
                             </div>
                           </div>
                         </div>

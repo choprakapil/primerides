@@ -1,4 +1,5 @@
 import React from "react";
+import { Platform } from "react-native";
 import { Tabs } from "expo-router";
 import { Car, CalendarCheck, User } from "lucide-react-native";
 
@@ -11,8 +12,8 @@ export default function TabLayout() {
         tabBarStyle: {
           backgroundColor: "#0d0d0d",
           borderTopColor: "#1f1f1f",
-          height: 60,
-          paddingBottom: 8,
+          height: Platform.OS === "android" ? 72 : 80,
+          paddingBottom: Platform.OS === "android" ? 14 : 20,
           paddingTop: 8,
         },
         headerStyle: {

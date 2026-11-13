@@ -28,7 +28,7 @@ export default async function CustomerRegisterPage({
             <div
               className="w-12 h-12 rounded-3 flex items-center justify-center shadow-md group-hover:scale-105 transition-transform"
               style={{
-                background: "linear-gradient(135deg, #5955D1 0%, #5955D1 100%)",
+                background: "linear-gradient(135deg, #c59b27 0%, #c59b27 100%)",
                 boxShadow: "0 4px 14px rgba(197, 155, 39, 0.35)",
               }}
             >
@@ -36,7 +36,7 @@ export default async function CustomerRegisterPage({
             </div>
           </Link>
           <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-[#1c274c] uppercase">
-            Create Your <span className="text-[#5955D1]">PrimeRides</span> Account
+            Create Your <span className="text-[#c59b27]">PrimeRides</span> Account
           </h1>
           <p className="text-xs text-slate-500 mt-2">
             Unlock seamless luxury self-drive reservations, instant confirmations, and VIP trip support.
@@ -59,7 +59,7 @@ export default async function CustomerRegisterPage({
           <form action={customerRegisterAction} className="space-y-4">
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                Full Name <span className="text-[#5955D1]">*</span>
+                Full Name <span className="text-[#c59b27]">*</span>
               </label>
               <div className="relative">
                 <User className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
@@ -68,14 +68,14 @@ export default async function CustomerRegisterPage({
                   name="fullName"
                   required
                   placeholder="e.g. Vikram Malhotra"
-                  className="w-full bg-slate-50 border border-[#e8edf2] rounded-xl pl-11 pr-4 py-3 text-sm text-[#1c274c] placeholder-slate-400 focus:outline-none focus:border-[#5955D1] focus:bg-white transition-all"
+                  className="w-full bg-slate-50 border border-[#e8edf2] rounded-xl pl-11 pr-4 py-3 text-sm text-[#1c274c] placeholder-slate-400 focus:outline-none focus:border-[#c59b27] focus:bg-white transition-all"
                 />
               </div>
             </div>
 
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                Phone Number (WhatsApp Preferred) <span className="text-[#5955D1]">*</span>
+                Phone Number (WhatsApp Preferred) <span className="text-[#c59b27]">*</span>
               </label>
               <div className="relative">
                 <Phone className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
@@ -84,7 +84,7 @@ export default async function CustomerRegisterPage({
                   name="phone"
                   required
                   placeholder="+91 98765 43210"
-                  className="w-full bg-slate-50 border border-[#e8edf2] rounded-xl pl-11 pr-4 py-3 text-sm text-[#1c274c] placeholder-slate-400 focus:outline-none focus:border-[#5955D1] focus:bg-white transition-all"
+                  className="w-full bg-slate-50 border border-[#e8edf2] rounded-xl pl-11 pr-4 py-3 text-sm text-[#1c274c] placeholder-slate-400 focus:outline-none focus:border-[#c59b27] focus:bg-white transition-all"
                 />
               </div>
             </div>
@@ -99,14 +99,14 @@ export default async function CustomerRegisterPage({
                   type="email"
                   name="email"
                   placeholder="vikram@example.com"
-                  className="w-full bg-slate-50 border border-[#e8edf2] rounded-xl pl-11 pr-4 py-3 text-sm text-[#1c274c] placeholder-slate-400 focus:outline-none focus:border-[#5955D1] focus:bg-white transition-all"
+                  className="w-full bg-slate-50 border border-[#e8edf2] rounded-xl pl-11 pr-4 py-3 text-sm text-[#1c274c] placeholder-slate-400 focus:outline-none focus:border-[#c59b27] focus:bg-white transition-all"
                 />
               </div>
             </div>
 
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                Create Password <span className="text-[#5955D1]">*</span>
+                Create Password <span className="text-[#c59b27]">*</span>
               </label>
               <div className="relative">
                 <Lock className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
@@ -116,7 +116,7 @@ export default async function CustomerRegisterPage({
                   required
                   minLength={6}
                   placeholder="Minimum 6 characters"
-                  className="w-full bg-slate-50 border border-[#e8edf2] rounded-xl pl-11 pr-4 py-3 text-sm text-[#1c274c] placeholder-slate-400 focus:outline-none focus:border-[#5955D1] focus:bg-white transition-all"
+                  className="w-full bg-slate-50 border border-[#e8edf2] rounded-xl pl-11 pr-4 py-3 text-sm text-[#1c274c] placeholder-slate-400 focus:outline-none focus:border-[#c59b27] focus:bg-white transition-all"
                 />
               </div>
             </div>
@@ -126,7 +126,7 @@ export default async function CustomerRegisterPage({
                 type="submit"
                 className="w-full py-3.5 px-4 rounded-full text-white font-bold text-sm shadow-md transition-all active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer"
                 style={{
-                  background: "linear-gradient(135deg, #5955D1 0%, #5955D1 100%)",
+                  background: "linear-gradient(135deg, #c59b27 0%, #c59b27 100%)",
                   boxShadow: "0 4px 14px rgba(197, 155, 39, 0.35)",
                 }}
               >
@@ -139,7 +139,7 @@ export default async function CustomerRegisterPage({
           <div className="mt-6 pt-6 border-t border-slate-100 text-center">
             <p className="text-xs text-slate-500">
               Already have an account?{" "}
-              <Link href="/account/login" className="text-[#5955D1] hover:underline font-bold">
+              <Link href="/account/login" className="text-[#c59b27] hover:underline font-bold">
                 Sign In
               </Link>
             </p>

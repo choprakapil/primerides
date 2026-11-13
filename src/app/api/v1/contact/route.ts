@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { prisma } from "@/server/db/client";
 import { apiCreated, apiError } from "@/server/utils/api-response";
 import { contactRateLimiter } from "@/lib/rateLimit";
+import { sendEmail } from "@/server/notifications";
 
 export async function POST(req: NextRequest) {
   // Apply rate limiting (5 submissions per hour per IP)
@@ -37,6 +38,15 @@ export async function POST(req: NextRequest) {
         status: "new",
       },
     });
+
+    // Send automated luxury branded acknowledgement email
+    if (cleanEmail) {
+      sendEmail({
+        to: cleanEmail,
+        subject: "We have received your PrimeRides luxury inquiry",
+        body: `Dear ${cleanName},\n\nThank you for reaching out to PrimeRides Luxury Mobility. Our 24/7 reservations concierge has received your request${cleanCar ? ` regarding ${cleanCar}` : ""}.\n\nOur team is checking vehicle availability and will contact you shortly.\n\nFor immediate assistance, chat with our concierge desk on WhatsApp: +91-90453-01702.\n\nWarm regards,\nPrimeRides Concierge Team`,
+      }).catch((err) => console.error("[ContactLead] Auto-reply email failed:", err));
+    }
 
     return apiCreated(
       {

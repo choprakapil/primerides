@@ -186,6 +186,7 @@ model Car {
   
   is_available     Boolean      @default(true)
   is_featured      Boolean      @default(false)
+  fleet_count      Int          @default(1)
   sort_order       Int          @default(0)
   created_at       DateTime     @default(now())
   updated_at       DateTime     @updatedAt
@@ -196,6 +197,7 @@ model Car {
   price_snapshots  PriceSnapshot[]
 
   @@index([location_id])
+  @@index([category_id])
   @@map("tbl_cars")
 }
 
@@ -299,6 +301,7 @@ model Booking {
   @@index([car_id, start_date, end_date])
   @@index([status])
   @@index([location_id])
+  @@index([customer_id])
   @@map("tbl_bookings")
 }
 
@@ -536,8 +539,12 @@ model Coupon {
   max_discount_amount Decimal?     @db.Decimal(10, 2) // Cap for percentage discount
   valid_from          DateTime?
   valid_until         DateTime?
-  usage_limit         Int?         // Total times coupon can be used
+  usage_limit         Int?         // Total times coupon can be used across entire platform
   used_count          Int          @default(0)
+  per_user_limit      Int?         @default(1) // Maximum times a single user/phone can redeem this coupon
+  new_users_only      Boolean      @default(false) // If true, only first-time customers with 0 prior bookings can use
+  applicable_platforms String      @default("web,android,ios") @db.VarChar(50) // Comma-separated: 'web', 'android', 'ios'
+  show_in_slider      Boolean      @default(false) // If true, featured in homepage promotional slider/banners
   is_active           Boolean      @default(true)
   created_at          DateTime     @default(now())
   updated_at          DateTime     @updatedAt
@@ -547,4 +554,22 @@ model Coupon {
 
   @@index([code, is_active])
   @@map("tbl_coupons")
+}
+
+model SiteSetting {
+  id         Int      @id @default(autoincrement())
+  key        String   @unique @db.VarChar(100)
+  value      Json
+  updated_at DateTime @updatedAt
+
+  @@map("tbl_site_settings")
+}
+
+model InvoiceSequence {
+  id            Int      @id @default(autoincrement())
+  series_prefix String   @unique @db.VarChar(20) // e.g. 'PR/2627' (financial year Apr 2026 - Mar 2027)
+  last_number   Int      @default(0)              // Last issued sequential number
+  updated_at    DateTime @updatedAt
+
+  @@map("tbl_invoice_sequences")
 }

@@ -65,6 +65,18 @@ export default function RootLayout() {
             headerStyle: { backgroundColor: "#121212" },
           }}
         />
+        <Stack.Screen
+          name="account/documents"
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="account/payments"
+          options={{
+            headerShown: false,
+          }}
+        />
       </Stack>
     </ThemeProvider>
   );

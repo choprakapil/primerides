@@ -150,6 +150,17 @@ export default function AccountsManager({
   // Modals
   const [inspectingPayment, setInspectingPayment] = useState<PaymentRecord | null>(null);
 
+  // Manual Offline Payment Modal State
+  const [isManualModalOpen, setIsManualModalOpen] = useState(false);
+  const [manualBookingCode, setManualBookingCode] = useState("");
+  const [manualAmount, setManualAmount] = useState("");
+  const [manualMethod, setManualMethod] = useState("cash");
+  const [manualRef, setManualRef] = useState("");
+  const [manualNotes, setManualNotes] = useState("");
+  const [isSubmittingManual, setIsSubmittingManual] = useState(false);
+  const [manualError, setManualError] = useState<string | null>(null);
+  const [manualSuccess, setManualSuccess] = useState<string | null>(null);
+
   // Calculate Key Financial Metrics
   const metrics = useMemo(() => {
     let captured = 0;
@@ -158,13 +169,17 @@ export default function AccountsManager({
     let curbsidePos = 0;
     let authorized = 0;
     let refunded = 0;
+    let refundedCount = 0;
+    let capturedCount = 0;
 
     payments.forEach((p) => {
       const amt = Number(p.amount || 0);
-      const isSettled = p.status === "captured" || p.status === "successful";
+      const isRefund = p.status === "refunded" || p.payment_method === "refund";
+      const isSettled = (p.status === "captured" || p.status === "successful") && !isRefund;
 
       if (isSettled) {
         captured += amt;
+        capturedCount += 1;
 
         if (p.gateway === "razorpay" || p.payment_method === "card_online") {
           online += amt;
@@ -183,28 +198,34 @@ export default function AccountsManager({
       if (p.status === "authorized") {
         authorized += amt;
       }
-      if (p.status === "refunded") {
+      if (isRefund) {
         refunded += amt;
+        refundedCount += 1;
       }
     });
+
+    const netRealized = Math.max(0, captured - refunded);
 
     const uncollectedBalance = initialBookings
       .filter((b) => b.status === "pending" || b.status === "confirmed")
       .reduce((sum, b) => {
         const total = Number(b.total_amount || 0);
         const paid = (b.payments || [])
-          .filter((p) => p.status === "captured" || p.status === "successful")
+          .filter((p) => (p.status === "captured" || p.status === "successful") && p.payment_method !== "refund")
           .reduce((s, p) => s + Number(p.amount || 0), 0);
         return sum + Math.max(0, total - paid);
       }, 0);
 
     return {
       captured,
+      capturedCount,
+      netRealized,
       online,
       upi,
       curbsidePos,
       authorized,
       refunded,
+      refundedCount,
       uncollectedBalance,
       totalCount: payments.length,
     };
@@ -221,15 +242,19 @@ export default function AccountsManager({
 
   const filteredPayments = useMemo(() => {
     return payments.filter((p) => {
+      const isRefund = p.status === "refunded" || p.payment_method === "refund";
       if (statusFilter !== "all") {
-        if (statusFilter === "captured" && p.status !== "captured" && p.status !== "successful") {
+        if (statusFilter === "captured" && ((p.status !== "captured" && p.status !== "successful") || isRefund)) {
           return false;
         }
         if (statusFilter === "authorized" && p.status !== "authorized") return false;
-        if (statusFilter === "refunded" && p.status !== "refunded") return false;
+        if (statusFilter === "refunded" && !isRefund) return false;
       }
 
       if (methodFilter !== "all") {
+        if (methodFilter === "refund" && !isRefund) {
+          return false;
+        }
         if (methodFilter === "online" && p.gateway !== "razorpay" && p.payment_method !== "card_online") {
           return false;
         }
@@ -279,6 +304,50 @@ export default function AccountsManager({
     setTimeout(() => setCopiedRef(null), 1800);
   };
 
+    const handleRecordManualPayment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!manualBookingCode.trim() || !manualAmount.trim()) {
+      setManualError("Please provide booking code and amount.");
+      return;
+    }
+
+    setIsSubmittingManual(true);
+    setManualError(null);
+    setManualSuccess(null);
+
+    try {
+      const res = await fetch("/api/v1/customer/payments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          bookingCode: manualBookingCode.trim(),
+          amount: parseFloat(manualAmount),
+          paymentMethod: manualMethod,
+          transactionRef: manualRef.trim() || `MANUAL-${Date.now()}`,
+          notes: manualNotes.trim() || undefined,
+        }),
+      });
+
+      const json = await res.json();
+      if (!res.ok || !json.success) {
+        throw new Error(json.error || "Failed to record manual settlement.");
+      }
+
+      setManualSuccess("Settlement recorded successfully!");
+      if (json.data) {
+        setPayments((prev) => [json.data, ...prev]);
+      }
+      setTimeout(() => {
+        setIsManualModalOpen(false);
+        setManualSuccess(null);
+      }, 1200);
+    } catch (err: any) {
+      setManualError(err.message || "Failed to record settlement.");
+    } finally {
+      setIsSubmittingManual(false);
+    }
+  };
+
   const exportToCSV = () => {
     const headers = [
       "Transaction Reference",
@@ -294,19 +363,23 @@ export default function AccountsManager({
       "Amount (INR)",
     ];
 
-    const rows = filteredPayments.map((p) => [
-      `"${p.transaction_ref}"`,
-      `"${new Date(p.created_at).toLocaleString("en-IN")}"`,
-      `"${p.booking?.booking_code || ""}"`,
-      `"${p.booking?.full_name || ""}"`,
-      `"${p.booking?.phone || ""}"`,
-      `"${p.booking?.car_name || p.booking?.car?.name || ""}"`,
-      `"${p.booking?.location?.city || ""}"`,
-      `"${p.payment_method || "online"}"`,
-      `"${p.gateway}"`,
-      `"${p.status}"`,
-      Number(p.amount || 0),
-    ]);
+    const rows = filteredPayments.map((p) => {
+      const isRefund = p.status === "refunded" || p.payment_method === "refund";
+      const amt = isRefund ? -Math.abs(Number(p.amount || 0)) : Number(p.amount || 0);
+      return [
+        `"${p.transaction_ref}"`,
+        `"${new Date(p.created_at).toLocaleString("en-IN")}"`,
+        `"${p.booking?.booking_code || ""}"`,
+        `"${p.booking?.full_name || ""}"`,
+        `"${p.booking?.phone || ""}"`,
+        `"${p.booking?.car_name || p.booking?.car?.name || ""}"`,
+        `"${p.booking?.location?.city || ""}"`,
+        `"${isRefund ? "refund" : p.payment_method || "online"}"`,
+        `"${p.gateway}"`,
+        `"${p.status}"`,
+        amt,
+      ];
+    });
 
     const csvContent =
       "data:text/csv;charset=utf-8," +
@@ -328,6 +401,14 @@ export default function AccountsManager({
     const m = (method || "").toLowerCase();
     const g = (gateway || "").toLowerCase();
 
+    if (m === "refund" || g === "refund") {
+      return (
+        <span className="badge bg-purple-subtle text-purple border border-purple-subtle rounded-pill d-inline-flex align-items-center gap-1">
+          <RotateCcw className="w-3 h-3" />
+          <span>Refund Disbursement</span>
+        </span>
+      );
+    }
     if (m === "cash" || g === "cash") {
       return (
         <span className="badge bg-success-subtle text-success border border-success-subtle rounded-pill d-inline-flex align-items-center gap-1">
@@ -379,7 +460,7 @@ export default function AccountsManager({
         );
       case "refunded":
         return (
-          <span className="badge bg-secondary-subtle text-secondary border rounded-pill d-inline-flex align-items-center gap-1">
+          <span className="badge bg-purple-subtle text-purple border border-purple-subtle rounded-pill d-inline-flex align-items-center gap-1">
             <RotateCcw className="w-3 h-3" />
             <span>Refunded</span>
           </span>
@@ -413,6 +494,23 @@ export default function AccountsManager({
             </button>
             <button
               type="button"
+              className="btn btn-outline-primary btn-sm d-inline-flex align-items-center gap-1.5"
+              onClick={() => {
+                setManualBookingCode("");
+                setManualAmount("");
+                setManualMethod("cash");
+                setManualRef("");
+                setManualNotes("");
+                setManualError(null);
+                setManualSuccess(null);
+                setIsManualModalOpen(true);
+              }}
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>Record Settlement</span>
+            </button>
+            <button
+              type="button"
               className="btn btn-primary btn-sm d-inline-flex align-items-center gap-1.5"
               onClick={exportToCSV}
             >
@@ -436,13 +534,19 @@ export default function AccountsManager({
             </div>
             <div className="card-body pt-3 px-4 pb-3">
               <p className="text-muted mb-1 text-uppercase fw-semibold" style={{ fontSize: "11px", letterSpacing: "0.5px" }}>
-                Total Collections
+                Total Collections (Gross)
               </p>
               <h3 className="mb-1 fw-bold text-dark">
                 ₹{metrics.captured.toLocaleString("en-IN")}
               </h3>
-              <small className="text-muted d-block" style={{ fontSize: "12px" }}>
-                From {payments.filter((p) => p.status === "captured" || p.status === "successful").length} completed settlements
+              <div className="d-flex align-items-center justify-content-between mt-1 pt-1 border-top" style={{ fontSize: "12px" }}>
+                <span className="text-muted">Net Realized:</span>
+                <strong className="text-emerald-700 fw-bold">
+                  ₹{metrics.netRealized.toLocaleString("en-IN")}
+                </strong>
+              </div>
+              <small className="text-muted d-block mt-0.5" style={{ fontSize: "11px" }}>
+                {metrics.capturedCount} settlements (excl. {metrics.refundedCount} refunds)
               </small>
             </div>
           </div>
@@ -570,6 +674,13 @@ export default function AccountsManager({
               <span className="text-muted">UPI QR Transfer:</span>
               <strong className="text-dark">₹{metrics.upi.toLocaleString("en-IN")} ({modeDistribution.upiPct}%)</strong>
             </div>
+            {metrics.refunded > 0 && (
+              <div className="d-flex align-items-center gap-2">
+                <span className="badge bg-purple rounded-circle p-1" style={{ width: "8px", height: "8px" }}></span>
+                <span className="text-muted">Refund Disbursements:</span>
+                <strong className="text-purple-700">₹{metrics.refunded.toLocaleString("en-IN")} ({metrics.refundedCount})</strong>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -625,6 +736,7 @@ export default function AccountsManager({
                 <option value="online">Online Gateway</option>
                 <option value="curbside">Curbside POS & Cash</option>
                 <option value="upi">UPI QR Code</option>
+                <option value="refund">Refund Disbursements</option>
               </select>
 
               <select
@@ -639,8 +751,11 @@ export default function AccountsManager({
 
               <div className="position-relative" style={{ minWidth: "220px" }}>
                 <input
+                  id="admin-search-accounts"
+                  name="admin-search-accounts"
                   type="text"
                   placeholder="Search Txn ID, customer..."
+                  aria-label="Search transactions by ID, customer, or method"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="form-control form-control-sm ps-5"
@@ -778,12 +893,25 @@ export default function AccountsManager({
 
                       {/* Amount */}
                       <td className="py-3 px-4 text-end">
-                        <div className="fw-bold text-dark" style={{ fontSize: "14px" }}>
-                          ₹{Number(p.amount || 0).toLocaleString("en-IN")}
-                        </div>
-                        <small className="text-muted text-uppercase" style={{ fontSize: "10.5px" }}>
-                          {p.currency || "INR"}
-                        </small>
+                        {p.status === "refunded" || p.payment_method === "refund" ? (
+                          <div>
+                            <div className="fw-bold text-purple-700" style={{ fontSize: "14px" }}>
+                              -₹{Number(p.amount || 0).toLocaleString("en-IN")}
+                            </div>
+                            <small className="text-purple fw-semibold text-uppercase" style={{ fontSize: "10px" }}>
+                              REFUND CREDIT
+                            </small>
+                          </div>
+                        ) : (
+                          <div>
+                            <div className="fw-bold text-dark" style={{ fontSize: "14px" }}>
+                              ₹{Number(p.amount || 0).toLocaleString("en-IN")}
+                            </div>
+                            <small className="text-muted text-uppercase" style={{ fontSize: "10.5px" }}>
+                              {p.currency || "INR"}
+                            </small>
+                          </div>
+                        )}
                       </td>
 
                       {/* Actions */}
@@ -850,9 +978,16 @@ export default function AccountsManager({
               </div>
               <div className="text-end">
                 <small className="text-muted text-uppercase fw-semibold d-block" style={{ fontSize: "11px" }}>
-                  Collected Amount
+                  {inspectingPayment.status === "refunded" || inspectingPayment.payment_method === "refund"
+                    ? "Refund Disbursement"
+                    : "Collected Amount"}
                 </small>
-                <h4 className="fw-bold text-dark mb-0">
+                <h4 className={`fw-bold mb-0 ${
+                  inspectingPayment.status === "refunded" || inspectingPayment.payment_method === "refund"
+                    ? "text-purple-700"
+                    : "text-dark"
+                }`}>
+                  {inspectingPayment.status === "refunded" || inspectingPayment.payment_method === "refund" ? "-" : ""}
                   ₹{Number(inspectingPayment.amount || 0).toLocaleString("en-IN")}
                 </h4>
               </div>
@@ -969,6 +1104,131 @@ export default function AccountsManager({
           </div>
         )}
       </AdminModal>
+      {/* MODAL 2: Record Manual Offline Payment Modal */}
+      {isManualModalOpen && (
+        <AdminModal
+          isOpen={isManualModalOpen}
+          onClose={() => setIsManualModalOpen(false)}
+          title="Record Curbside & Offline Settlement"
+          subtitle="Log cash collections, curbside POS terminal swipes, UPI transfers, or bank deposits."
+          size="md"
+        >
+          {manualSuccess && (
+            <div className="p-3 bg-success-subtle border border-success-subtle text-success small rounded-3 mb-3 d-flex align-items-center gap-2">
+              <CheckCircle2 className="w-4 h-4" />
+              <span>{manualSuccess}</span>
+            </div>
+          )}
+
+          {manualError && (
+            <div className="p-3 bg-danger-subtle border border-danger-subtle text-danger small rounded-3 mb-3 d-flex align-items-center gap-2">
+              <AlertCircle className="w-4 h-4" />
+              <span>{manualError}</span>
+            </div>
+          )}
+
+          <form onSubmit={handleRecordManualPayment} className="d-flex flex-column gap-3">
+            <div>
+              <label className="form-label fw-bold small text-dark mb-1">
+                Booking Number / Code *
+              </label>
+              <input
+                type="text"
+                required
+                className="form-control form-control-sm font-monospace"
+                placeholder="e.g. PR-2026-102941 or 12"
+                value={manualBookingCode}
+                onChange={(e) => setManualBookingCode(e.target.value)}
+              />
+              <small className="text-muted d-block mt-0.5" style={{ fontSize: "11px" }}>
+                Enter the booking code or ID to attribute this collection.
+              </small>
+            </div>
+
+            <div className="row g-2">
+              <div className="col-12 col-sm-6">
+                <label className="form-label fw-bold small text-dark mb-1">
+                  Amount Collected (₹ INR) *
+                </label>
+                <div className="input-group input-group-sm">
+                  <span className="input-group-text">₹</span>
+                  <input
+                    type="number"
+                    step="0.01"
+                    required
+                    min="1"
+                    className="form-control form-control-sm fw-bold"
+                    placeholder="e.g. 5000"
+                    value={manualAmount}
+                    onChange={(e) => setManualAmount(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="col-12 col-sm-6">
+                <label className="form-label fw-bold small text-dark mb-1">
+                  Payment Mode *
+                </label>
+                <select
+                  className="form-select form-select-sm"
+                  value={manualMethod}
+                  onChange={(e) => setManualMethod(e.target.value)}
+                >
+                  <option value="cash">Cash at Curbside</option>
+                  <option value="card_pos">Curbside POS Terminal (Card)</option>
+                  <option value="upi">UPI Direct / QR Code</option>
+                  <option value="bank_transfer">Bank Transfer (NEFT/RTGS)</option>
+                  <option value="cheque">Corporate Cheque</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label className="form-label fw-bold small text-dark mb-1">
+                Transaction / Slip Reference No.
+              </label>
+              <input
+                type="text"
+                className="form-control form-control-sm font-monospace"
+                placeholder="e.g. POS-98412 or UPI UTR No."
+                value={manualRef}
+                onChange={(e) => setManualRef(e.target.value)}
+              />
+            </div>
+
+            <div>
+              <label className="form-label fw-bold small text-dark mb-1">
+                Settlement Notes / Handover Agent
+              </label>
+              <textarea
+                rows={2}
+                className="form-control form-control-sm"
+                placeholder="e.g. Collected by Driver Amit at Terminal 3 handover..."
+                value={manualNotes}
+                onChange={(e) => setManualNotes(e.target.value)}
+              />
+            </div>
+
+            <div className="d-flex align-items-center justify-content-end gap-2 pt-3 border-top mt-2">
+              <button
+                type="button"
+                onClick={() => setIsManualModalOpen(false)}
+                className="btn btn-sm btn-white border rounded-pill px-3"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={isSubmittingManual}
+                className="btn btn-sm btn-primary rounded-pill px-4 d-inline-flex align-items-center gap-1.5"
+              >
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>{isSubmittingManual ? "Recording..." : "Record Settlement"}</span>
+              </button>
+            </div>
+          </form>
+        </AdminModal>
+      )}
     </PageContainer>
   );
 }

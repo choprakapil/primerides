@@ -25,10 +25,8 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
       <SlideToast />
       <AdminHeader />
       <Sidebar />
-      <main className="app-wrapper">
-        <div className="container-fluid">
+      <main className={`app-wrapper${isCollapsed ? " sidebar-collapsed" : ""}`}>
           {children}
-        </div>
       </main>
     </div>
   );

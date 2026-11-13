@@ -1,6 +1,8 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React from "react";
+import { X } from "lucide-react";
+import { useFocusTrap } from "@/lib/useFocusTrap";
 
 interface AdminModalProps {
   isOpen: boolean;
@@ -21,16 +23,7 @@ export default function AdminModal({
   footer,
   size = "md",
 }: AdminModalProps) {
-  const modalRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!isOpen) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen, onClose]);
+  const modalRef = useFocusTrap<HTMLDivElement>({ isOpen, onClose });
 
   if (!isOpen) return null;
 
@@ -47,37 +40,54 @@ export default function AdminModal({
       tabIndex={-1}
       role="dialog"
       aria-modal="true"
-      style={{ backgroundColor: "rgba(28, 39, 76, 0.45)", backdropFilter: "blur(4px)", zIndex: 1055 }}
+      style={{
+        backgroundColor: "rgba(15, 23, 42, 0.65)",
+        backdropFilter: "blur(8px)",
+        WebkitBackdropFilter: "blur(8px)",
+        zIndex: 1055,
+      }}
       onClick={onClose}
     >
       <div
         ref={modalRef}
         className={`modal-dialog modal-dialog-centered ${sizeClasses[size]}`}
+        style={{ maxWidth: size === "xl" ? "1060px" : undefined }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
-          <div className="modal-header py-3 px-4 border-bottom d-flex align-items-center justify-content-between">
-            <div>
-              <h5 className="modal-title fw-bold text-dark mb-0">{title}</h5>
-              {subtitle && <small className="text-muted d-block mt-0.5">{subtitle}</small>}
+        <div className="modal-content border border-slate-200/90 shadow-2xl rounded-3xl overflow-hidden bg-white">
+          {/* Top subtle luxury brandline */}
+          <div className="h-1.5 w-full bg-gradient-to-r from-[#1c274c] via-[#c59b27] to-[#1c274c] shrink-0" />
+
+          <div className="modal-header py-4 px-6 border-bottom border-slate-100 bg-gradient-to-r from-white via-slate-50/40 to-white d-flex align-items-center justify-content-between">
+            <div className="min-w-0 pr-4">
+              <h5 className="modal-title font-heading font-black text-[#1c274c] mb-0 tracking-tight fs-5">
+                {title}
+              </h5>
+              {subtitle && (
+                <p className="text-slate-500 text-xs mb-0 mt-1 font-medium">
+                  {subtitle}
+                </p>
+              )}
             </div>
             <button
               type="button"
-              className="btn-close"
+              className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200/90 text-slate-500 hover:text-slate-800 d-flex align-items-center justify-center transition-all border border-slate-200/70 shadow-2xs shrink-0 cursor-pointer"
               aria-label="Close"
               onClick={onClose}
-            ></button>
+            >
+              <X className="w-4 h-4" />
+            </button>
           </div>
 
           <div
-            className="modal-body p-4"
-            style={{ maxHeight: "calc(80vh - 120px)", overflowY: "auto" }}
+            className="modal-body p-4 sm:p-5 bg-slate-100/40 max-h-[calc(100vh-160px)] overflow-y-auto"
+            style={{ maxHeight: "calc(85vh - 130px)", overflowY: "auto" }}
           >
             {children}
           </div>
 
           {footer && (
-            <div className="modal-footer py-3 px-4 border-top bg-light d-flex align-items-center justify-content-end gap-2">
+            <div className="modal-footer py-3.5 px-6 border-top border-slate-100 bg-slate-50/80 d-flex align-items-center justify-content-end gap-2.5">
               {footer}
             </div>
           )}

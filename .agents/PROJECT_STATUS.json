@@ -1,0 +1,430 @@
+{
+  "project": "PrimeRides Platform Optimization & Forensic Resolution",
+  "version": "2.0.0",
+  "lastUpdated": "2026-09-30T22:10:00.000Z",
+  "homepageLocked": true,
+  "themeToken": "#c59b27",
+  "summary": {
+    "totalTasks": 46,
+    "completed": 46,
+    "inProgress": 0,
+    "pending": 0,
+    "ecosystemStatus": "100% Production Ready Across Web, iOS, Android & Admin"
+  },
+  "tasks": [
+    {
+      "id": "SEO-01",
+      "phase": 1,
+      "title": "Create Server SEO Data Layer",
+      "file": "src/server/seo/index.ts",
+      "description": "Typed helpers: getPageMeta(route), upsertPageMeta(route, data), getAllPageMetas() using prisma.pageMeta.",
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "id": "SEO-02",
+      "phase": 1,
+      "title": "Create SEO Admin REST API",
+      "file": "src/app/api/v1/admin/seo/route.ts",
+      "description": "GET and PUT handlers for managing PageMeta records with authentication and validation.",
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "id": "SEO-03",
+      "phase": 1,
+      "title": "Build Admin SEO Manager Workspace",
+      "file": "src/app/admin/cms/seo/page.tsx",
+      "description": "Luxury Gold UI with route selector, meta tags, OpenGraph previews, and live Google SERP preview.",
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "id": "SEO-04",
+      "phase": 1,
+      "title": "Add SEO to Admin Sidebar Navigation",
+      "file": "src/components/admin/Sidebar.tsx",
+      "description": "Add 'SEO & Meta Tags' link under CMS submenu in admin sidebar.",
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "id": "SEO-05",
+      "phase": 1,
+      "title": "Build Dynamic XML Sitemap Engine",
+      "file": "src/app/sitemap.ts",
+      "description": "Dynamic Next.js sitemap fetching cars (prisma.car) and blogs (prisma.blog).",
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "id": "SEO-06",
+      "phase": 1,
+      "title": "Build Dynamic Robots.txt",
+      "file": "src/app/robots.ts",
+      "description": "Dynamic robots.txt with disallow rules for /admin, /account, /api.",
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "id": "SEO-07",
+      "phase": 1,
+      "title": "Fix metadataBase in Root Layout",
+      "file": "src/app/layout.tsx",
+      "description": "Set metadataBase to process.env.NEXT_PUBLIC_SITE_URL or https://primerides.in.",
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "id": "SEO-08",
+      "phase": 1,
+      "title": "Dynamic SEO on Static Subpages",
+      "file": "src/app/contact/page.tsx & src/app/locations/page.tsx",
+      "description": "Export generateMetadata() on subpages to query getPageMeta().",
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "id": "CMS-01",
+      "phase": 2,
+      "title": "Create Contact CMS REST API",
+      "file": "src/app/api/v1/admin/cms/contact/route.ts",
+      "description": "GET and PUT handlers for persistedContact.json and persistedSiteSettings.json.",
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "id": "CMS-02",
+      "phase": 2,
+      "title": "Connect Contact CMS Admin Page",
+      "file": "src/app/admin/cms/contact/page.tsx",
+      "description": "Wire handleSave to real fetch PUT /api/v1/admin/cms/contact.",
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "id": "CMS-03",
+      "phase": 2,
+      "title": "Create Fleet CMS REST API",
+      "file": "src/app/api/v1/admin/cms/fleet/route.ts",
+      "description": "GET and PUT handlers for persistedFleet.json.",
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "id": "CMS-04",
+      "phase": 2,
+      "title": "Connect Fleet CMS Admin Page",
+      "file": "src/app/admin/cms/fleet/page.tsx",
+      "description": "Wire handleSave to real fetch PUT /api/v1/admin/cms/fleet.",
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "id": "WORKFLOW-01",
+      "phase": 3,
+      "title": "Auto-Log BookingModal Leads",
+      "file": "src/components/BookingModal.tsx",
+      "description": "POST lead to /api/v1/contact before opening WhatsApp without changing homepage design.",
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "id": "WORKFLOW-02",
+      "phase": 3,
+      "title": "Clean Customer Login Page",
+      "file": "src/app/account/login/page.tsx",
+      "description": "Remove dummy pre-filled values, add register link and forgot-password link.",
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "id": "WORKFLOW-03",
+      "phase": 3,
+      "title": "Clean Admin Login Page",
+      "file": "src/app/admin/login/page.tsx",
+      "description": "Remove hardcoded credentials and fix purple badge to luxury gold.",
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "id": "WORKFLOW-04",
+      "phase": 3,
+      "title": "Fix Purple Accents in Account Section",
+      "file": "src/components/account/BookingsListClient.tsx",
+      "description": "Change purple chauffeur badge to luxury gold.",
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "id": "SUBPAGE-01",
+      "phase": 4,
+      "title": "Connect /faq to Database with Fallback",
+      "file": "src/app/faq/page.tsx",
+      "description": "Query prisma.fAQ on server subpage while leaving homepage FaqSection untouched.",
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "id": "SUBPAGE-02",
+      "phase": 4,
+      "title": "Standardize /locations with PageHeader and Live Hubs",
+      "file": "src/app/locations/page.tsx & src/components/locations/LocationsPageClient.tsx",
+      "description": "Use PageHeader luxury banner and render active hubs from prisma.location with filters.",
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "id": "SUBPAGE-03",
+      "phase": 4,
+      "title": "Standardize Legal Pages (/terms & /privacy)",
+      "file": "src/app/terms/page.tsx & src/app/privacy/page.tsx",
+      "description": "Use PageHeader and Bootstrap 5 layout; read dynamic clauses from persistedPolicies.json.",
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "id": "SUBPAGE-04",
+      "phase": 4,
+      "title": "Clean Showcase Video & Connect About Stats",
+      "file": "src/components/VideoBanner.tsx & src/app/about/page.tsx",
+      "description": "Replace placeholder Rick Astley video with authentic vehicle showcase reel; read stats from persistedAbout.json.",
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "id": "STABILITY-01",
+      "phase": 5,
+      "title": "Create Branded 404 & 500 Error Boundaries",
+      "file": "src/app/not-found.tsx & src/app/error.tsx",
+      "description": "Implement luxury gold branded 404 Not Found and 500 Global Error Boundary.",
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "id": "STABILITY-02",
+      "phase": 5,
+      "title": "Archive Orphaned Components",
+      "file": "src/components/RentalCalculator.tsx, VehicleSpotlight.tsx, SearchBar.tsx",
+      "description": "Safely archive unreferenced components to src/components/archive/ to keep codebase clean.",
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "id": "MOBILE-01",
+      "phase": 6,
+      "title": "Mobile App Dependencies & Clean Build",
+      "file": "apps/mobile/package.json & tsconfig.json",
+      "description": "Install node_modules in apps/mobile, fix tsconfig, and achieve 0 error TypeScript build.",
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "id": "ENV-01",
+      "phase": 7,
+      "title": "Create Comprehensive Root .env.example",
+      "file": ".env.example",
+      "description": "Document all environment variables across Web, Database, Payments, Auth, Email, and Storage with production and development guidelines.",
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "id": "ENV-02",
+      "phase": 7,
+      "title": "Synchronize Root .env & .env.local",
+      "file": ".env & .env.local",
+      "description": "Define NEXT_PUBLIC_SITE_URL, EMAIL_FROM, and optional notification keys.",
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "id": "ENV-03",
+      "phase": 7,
+      "title": "Create apps/mobile/.env.example and apps/mobile/.env",
+      "file": "apps/mobile/.env.example & apps/mobile/.env",
+      "description": "Expose EXPO_PUBLIC_API_URL with setup instructions for physical devices, Android Emulator, and iOS Simulator.",
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "id": "ENV-04",
+      "phase": 7,
+      "title": "Harden next.config.ts with Remote Image Domains",
+      "file": "next.config.ts",
+      "description": "Add images.remotePatterns for external image CDNs, enable React strict mode and compiler optimizations.",
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "id": "ENV-05",
+      "phase": 7,
+      "title": "Configure Monorepo Workspace in Root package.json",
+      "file": "package.json",
+      "description": "Declare workspaces: ['apps/*'] and add convenience scripts for mobile app management.",
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "id": "DB-01",
+      "phase": 8,
+      "title": "Add SiteSetting Model to Prisma Schema",
+      "file": "prisma/schema.prisma",
+      "description": "Define SiteSetting model (key String @unique, value Json, updated_at DateTime) to eliminate serverless file persistence risk.",
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "id": "DB-02",
+      "phase": 8,
+      "title": "Create JSON-to-Database Migration Utility",
+      "file": "scripts/migrate-json-to-db.ts",
+      "description": "Build automated script to import existing JSON configurations into tbl_site_settings.",
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "id": "DB-03",
+      "phase": 8,
+      "title": "Refactor Settings Layer to Database-First",
+      "file": "src/server/settings/index.ts",
+      "description": "Update settings functions to read/write from prisma.siteSetting with fallback to local JSON.",
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "id": "DB-04",
+      "phase": 8,
+      "title": "Build Cloud Storage Adapter Interface",
+      "file": "src/server/storage/index.ts",
+      "description": "Add extensible S3/R2/Cloudinary adapter interface so uploads can target cloud storage instead of local disk.",
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "id": "HOME-01",
+      "phase": 9,
+      "title": "Hero Section Dynamic Date & Hub Locations",
+      "file": "src/components/HeroSection.tsx",
+      "description": "Initialize date picker to current date dynamically; pass active locations from prisma.location with existing fallback options.",
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "id": "HOME-02",
+      "phase": 9,
+      "title": "Choose Location Dynamic Hubs",
+      "file": "src/components/ChooseLocation.tsx",
+      "description": "Connect to dynamic locations data while preserving the road journey SVG, animations, badges, and card layout.",
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "id": "HOME-03",
+      "phase": 9,
+      "title": "Cars Category Carousel Dynamic Fleet",
+      "file": "src/components/CarsCategory.tsx",
+      "description": "Accept live fleet data from prisma.car while preserving exact card layout, badge styling, KM selector chips, and modal triggers.",
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "id": "HOME-04",
+      "phase": 9,
+      "title": "Exclusive Offers Section Dynamic Coupons",
+      "file": "src/components/OffersSection.tsx",
+      "description": "Pass active coupons from prisma.coupon with fallback to OFFERS_DATA while keeping exact card gradients and copy-code button.",
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "id": "HOME-05",
+      "phase": 9,
+      "title": "Homepage Blog Carousel Dynamic Wiring",
+      "file": "src/components/BlogSection.tsx & src/app/page.tsx",
+      "description": "Pass getBlogs() from page.tsx server component into BlogSection while retaining carousel swipe.",
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "id": "HOME-06",
+      "phase": 9,
+      "title": "Homepage FAQ Accordion Dynamic Wiring",
+      "file": "src/components/FaqSection.tsx & src/app/page.tsx",
+      "description": "Pass getFaqs() from page.tsx server component to FaqSection items prop.",
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "id": "CHART-01",
+      "phase": 10,
+      "title": "Admin Revenue Trend API Endpoint",
+      "file": "src/app/api/v1/admin/dashboard/revenue/route.ts",
+      "description": "Create endpoint calculating revenue and trip counts from tbl_payments and tbl_bookings grouped by 7D, 30D, and 12M.",
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "id": "CHART-02",
+      "phase": 10,
+      "title": "Connect Revenue Trend Area Chart",
+      "file": "src/components/admin/charts/RevenueTrendAreaChart.tsx",
+      "description": "Fetch dynamic revenue trends from API with loading skeleton and fallback.",
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "id": "CHART-03",
+      "phase": 10,
+      "title": "Connect Fleet Utilization Donut Chart",
+      "file": "src/components/admin/charts/FleetUtilizationDonutChart.tsx",
+      "description": "Calculate real fleet category distribution from tbl_cars (Sedans, SUVs, Adventure 4x4, Luxury).",
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "id": "CHART-04",
+      "phase": 10,
+      "title": "Connect Hub Performance Bar Chart",
+      "file": "src/components/admin/charts/LocationPerformanceBarChart.tsx",
+      "description": "Aggregate total bookings and active vehicles grouped by tbl_locations.",
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "id": "CHART-05",
+      "phase": 10,
+      "title": "Connect Live Fleet Radar Card",
+      "file": "src/components/admin/charts/LiveFleetTelemetryCard.tsx",
+      "description": "Wire to count of active trips from prisma.booking.",
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "id": "NOTIF-01",
+      "phase": 11,
+      "title": "Resend Production Email Adapter",
+      "file": "src/server/notifications/index.ts",
+      "description": "Format HTML email templates for booking confirmations, KYC approvals, and password resets with brand header and Luxury Gold buttons.",
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "id": "NOTIF-02",
+      "phase": 11,
+      "title": "Fast2SMS / MSG91 Indian SMS Gateway Adapter",
+      "file": "src/server/notifications/index.ts",
+      "description": "Add DLT-compliant SMS sending helper with environment toggle.",
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "id": "NOTIF-03",
+      "phase": 11,
+      "title": "WhatsApp Notification Link Generator",
+      "file": "src/server/notifications/index.ts",
+      "description": "Create pre-filled WhatsApp API links for instant concierge response.",
+      "status": "completed",
+      "verified": true
+    }
+  ]
+}

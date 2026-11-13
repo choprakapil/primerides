@@ -204,13 +204,13 @@ export default function AdminCmsFooterPage() {
       {/* 4 Luxury Pastel KPI Summary Cards */}
       <div className="row g-3 mb-4">
         <div className="col-12 col-sm-6 col-xl-3">
-          <div className="card h-100 border pastel-card pastel-card-lavender">
+          <div className="card h-100 border pastel-card pastel-card-peach">
             <div className="card-body p-3.5">
               <div className="d-flex align-items-center justify-content-between mb-2">
-                <div className="avatar avatar-md rounded-circle bg-purple-100 text-purple-700 d-flex align-items-center justify-content-center">
+                <div className="avatar avatar-md rounded-circle bg-amber-100 text-amber-800 d-flex align-items-center justify-content-center">
                   <Link2 className="w-5 h-5" />
                 </div>
-                <TrendArrowBadge value="Published" period="Footer" pastelTheme="lavender" />
+                <TrendArrowBadge value="Published" period="Footer" pastelTheme="peach" />
               </div>
               <div className="text-muted text-xs font-semibold text-uppercase tracking-wider">
                 Quick Navigation Links
@@ -312,7 +312,7 @@ export default function AdminCmsFooterPage() {
           <div className="col-12 col-lg-4">
             <img
               src="/assets/img/PRLogo.png"
-              alt="Logo"
+              alt="PrimeRides Brand Logo Footer Preview"
               style={{ maxHeight: "36px", filter: "brightness(0) invert(1)" }}
               className="mb-2.5"
             />
@@ -414,7 +414,7 @@ export default function AdminCmsFooterPage() {
       {activeTab === "content" && (
         <div className="row g-4">
           <div className="col-12 col-xl-7">
-            <div className="card border pastel-card pastel-card-lavender h-100">
+            <div className="card border pastel-card pastel-card-peach h-100">
               <div className="card-header bg-transparent border-bottom p-3.5">
                 <h6 className="mb-0 fw-bold text-dark">About Bio & Copyright Notice</h6>
               </div>

@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { cookies } from "next/headers";
 import { prisma } from "@/server/db/client";
-import { verifyAccessToken } from "@/server/auth/jwt";
+import { verifyAccessToken, getJwtSecret } from "@/server/auth/jwt";
 import { apiSuccess } from "@/server/utils/api-response";
 
 export async function POST(req: NextRequest) {
@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
     // If a refreshToken is explicitly sent in body, revoke by hash
     if (body.refreshToken) {
       const encoder = new TextEncoder();
-      const JWT_SECRET = process.env.JWT_SECRET || "primerides_super_secure_jwt_secret_2026_fallback";
+      const JWT_SECRET = getJwtSecret();
       const hashBuffer = await crypto.subtle.digest("SHA-256", encoder.encode(body.refreshToken + JWT_SECRET));
       const refreshTokenHash = Buffer.from(hashBuffer).toString("hex");
 

@@ -7,7 +7,7 @@ interface AdminPageContainerProps {
 
 export function AdminPageContainer({ children, className = "" }: AdminPageContainerProps) {
   return (
-    <div className={`w-100 py-2 ${className}`}>
+    <div className={`dash-page-container ${className}`}>
       {children}
     </div>
   );

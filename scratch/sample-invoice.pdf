@@ -1,0 +1,55 @@
+%PDF-1.4
+%‚„œ”
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Contents 4 0 R /Resources << /Font << /F1 5 0 R /F2 6 0 R >> >> >>
+endobj
+4 0 obj
+<< /Length 993 >>
+stream
+0.772 0.607 0.153 rg
+40 760 515 40 re f
+1 1 1 rg
+BT /F2 16 Tf 50 775 Td (PRIMERIDES TAX INVOICE) Tj ET
+0.1 0.1 0.1 rg
+BT /F1 10 Tf 50 730 Td (Legal Entity: PrimeRides Mobility Solutions Private Limited) Tj ET
+BT /F1 10 Tf 50 714 Td (GSTIN: 07AABCP1234F1Z5 | SAC Code: 996601) Tj ET
+BT /F1 10 Tf 50 698 Td (Invoice Number: PR/2627/000345) Tj ET
+BT /F1 10 Tf 50 682 Td (Date: 02 Oct 2026) Tj ET
+BT /F1 10 Tf 50 666 Td (Customer: Rahul Sharma \(+91 99999 11111\)) Tj ET
+BT /F1 10 Tf 50 650 Td (Vehicle: BMW 5 Series \(Luxury Sedan\)) Tj ET
+BT /F1 10 Tf 50 634 Td (Rental Plan: Unlimited KM Weekend Explorer) Tj ET
+BT /F1 10 Tf 50 618 Td (Taxable Base Amount: INR 7,500.00) Tj ET
+BT /F1 10 Tf 50 602 Td (CGST \(9%\): INR 675.00) Tj ET
+BT /F1 10 Tf 50 586 Td (SGST \(9%\): INR 675.00) Tj ET
+BT /F1 10 Tf 50 570 Td (Total GST \(18%\): INR 1,350.00) Tj ET
+BT /F1 10 Tf 50 554 Td (Security Deposit \(Tax Exempt\): INR 5,000.00) Tj ET
+BT /F1 10 Tf 50 538 Td (Total Invoice Amount: INR 13,850.00) Tj ET
+
+endstream
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+6 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>
+endobj
+xref
+0 7
+0000000000 65535 f 
+0000000019 00000 n 
+0000000068 00000 n 
+0000000125 00000 n 
+0000000267 00000 n 
+0000001311 00000 n 
+0000001381 00000 n 
+trailer
+<< /Size 7 /Root 1 0 R >>
+startxref
+1456
+%%EOF
