@@ -89,9 +89,9 @@ export default async function PrivacyPage() {
     <>
       <PageHeader
         title="Privacy Policy"
-        subtitle="Data Protection & Security"
-        breadcrumb="Privacy"
-        bgImage="/assets/img/slider/1.jpg"
+        breadcrumb="Privacy Policy"
+        badge1="Data Protection Standards"
+        badge2="Consumer Transparency"
       />
 
       <section className="section-padding bg-light">

@@ -16,9 +16,9 @@ export default function AboutPage() {
     <>
       <PageHeader
         title="About Primerides"
-        subtitle="Our Journey & Vision"
         breadcrumb="About Us"
-        bgImage="/assets/img/slider/5.jpg"
+        badge1="Luxury Mobility Standard"
+        badge2="Prime Verified Fleet"
       />
       <AboutSection />
       <TrustBar />

@@ -38,9 +38,9 @@ export default async function FaqPage() {
     <>
       <PageHeader
         title="Frequently Asked Questions"
-        subtitle="Policies & Clarity"
-        breadcrumb="FAQs"
-        bgImage="/assets/img/slider/1.jpg"
+        breadcrumb="FAQs & Rental Policies"
+        badge1="Instant Self-Service Help"
+        badge2="24/7 Handover Desk"
       />
       <FaqSection showAll={true} items={dbFaqs.length > 0 ? dbFaqs : undefined} />
       <TrustBar />

@@ -38,6 +38,16 @@
       "order": 5
     }
   ],
+  "pageBanners": {
+    "/cars": "",
+    "/blogs": "",
+    "/contact": "",
+    "/about": "",
+    "/faq": "",
+    "/locations": "",
+    "/privacy": "",
+    "/terms": ""
+  },
   "buttons": {
     "authButton": {
       "enabled": true,

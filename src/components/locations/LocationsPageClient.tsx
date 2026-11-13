@@ -44,9 +44,9 @@ export default function LocationsPageClient({ dbLocations }: LocationsPageClient
       {/* Standardized Luxury PageHeader */}
       <PageHeader
         title="Delhi NCR & Lucknow Mobility Networks"
-        subtitle="Strategic Rental Hubs"
-        breadcrumb="Locations"
-        bgImage="/assets/img/slider/1.jpg"
+        breadcrumb="Airport Hubs & Locations"
+        badge1="Stationed: Delhi NCR & Lucknow"
+        badge2="24/7 Handover Desks"
       />
 
       {/* Quick Action Sub-Strip */}

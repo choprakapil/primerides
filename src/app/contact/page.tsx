@@ -85,9 +85,9 @@ export default function ContactPage() {
     <>
       <PageHeader
         title="Contact Primerides"
-        subtitle="24/7 Delhi NCR Concierge"
-        breadcrumb="Contact"
-        bgImage="/assets/img/slider/4.jpg"
+        breadcrumb="Contact Concierge"
+        badge1="Stationed: Delhi NCR & Lucknow"
+        badge2="24/7 Handover Desk"
       />
 
       <section className="section-padding section-white">

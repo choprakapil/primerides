@@ -17,9 +17,9 @@ export default async function BlogsPage() {
     <>
       <PageHeader
         title="Road Trip Journal & Travel Guides"
-        subtitle="Expeditions & Tips"
-        breadcrumb="Blogs"
-        bgImage="/assets/img/slider/3.jpg"
+        breadcrumb="Travel Guides"
+        badge1="Prime Editorial Desk"
+        badge2="Verified Road Itineraries"
       />
       <BlogsCatalog initialBlogs={blogs} />
       <TrustBar />

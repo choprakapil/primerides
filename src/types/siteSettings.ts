@@ -32,6 +32,7 @@ export interface HeaderConfig {
   logoUrl: string;
   logoHeight: number;
   menuItems: HeaderMenuItem[];
+  pageBanners?: Record<string, string>; // Maps route e.g. "/cars", "/blogs" to banner image url (empty string = minimal breadcrumb)
   buttons: {
     authButton: {
       enabled: boolean;
@@ -126,6 +127,16 @@ export const DEFAULT_HEADER_CONFIG: HeaderConfig = {
     { id: "blogs", label: "BLOGS", href: "/blogs", isVisible: true, order: 4 },
     { id: "contact", label: "CONTACT", href: "/contact", isVisible: true, order: 5 },
   ],
+  pageBanners: {
+    "/cars": "",
+    "/blogs": "",
+    "/contact": "",
+    "/about": "",
+    "/faq": "",
+    "/locations": "",
+    "/privacy": "",
+    "/terms": "",
+  },
   buttons: {
     authButton: {
       enabled: true,

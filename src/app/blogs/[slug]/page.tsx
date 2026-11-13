@@ -84,20 +84,33 @@ export default async function BlogPostPage({
   return (
     <div className="min-h-screen bg-[#fafbfc] text-slate-900 pt-28 sm:pt-32 pb-20 font-sans">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-        {/* Breadcrumb Bar */}
-        <nav className="flex items-center gap-2 text-xs font-medium text-slate-500 pb-2 border-b border-slate-200/80">
-          <Link href="/" className="hover:text-amber-700 transition-colors">
-            Home
-          </Link>
-          <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-          <Link href="/blogs" className="hover:text-amber-700 transition-colors">
-            Travel Guides
-          </Link>
-          <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-          <span className="text-slate-800 font-semibold truncate max-w-xs sm:max-w-md">
-            {post.title}
-          </span>
-        </nav>
+        {/* Breadcrumb Bar matching /cars/[slug] */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-slate-200/80">
+          <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs font-medium text-slate-500">
+            <Link href="/" className="hover:text-amber-700 transition-colors">
+              Home
+            </Link>
+            <span className="text-slate-400">/</span>
+            <Link href="/blogs" className="hover:text-amber-700 transition-colors">
+              Travel Guides
+            </Link>
+            <span className="text-slate-400">/</span>
+            <span className="text-slate-800 font-semibold truncate max-w-xs sm:max-w-md">
+              {post.title}
+            </span>
+          </nav>
+
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-900 border border-amber-200 shadow-2xs">
+              <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+              <span>Prime Editorial Desk</span>
+            </span>
+            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 shadow-2xs">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+              <span>Verified Guide</span>
+            </span>
+          </div>
+        </div>
 
         {/* Article Header */}
         <header className="space-y-4">

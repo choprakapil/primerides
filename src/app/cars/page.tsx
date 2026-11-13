@@ -34,9 +34,9 @@ export default async function CarsPage({
     <>
       <PageHeader
         title="Verified Car Rental Fleet"
-        subtitle="Explore Fleet & Check Live Availability"
-        breadcrumb="Fleet Search"
-        bgImage="/assets/img/slider/2.jpg"
+        breadcrumb="Fleet Inventory"
+        badge1="Stationed: Delhi NCR & Lucknow"
+        badge2="Available for Booking"
       />
       <Suspense fallback={<div className="text-center py-12 text-slate-500 font-medium">Loading Live Fleet Inventory...</div>}>
         <FleetSearchResults initialCars={initialCars} />

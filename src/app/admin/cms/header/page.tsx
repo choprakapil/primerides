@@ -47,6 +47,17 @@ const QUICK_PRESET_LINKS = [
   { label: "REVIEWS", href: "/testimonials" },
 ];
 
+const STANDARD_PAGES = [
+  { route: "/cars", label: "Fleet Catalog", path: "/cars", description: "Main vehicle listing and filter view" },
+  { route: "/blogs", label: "Prime Journal", path: "/blogs", description: "Editorial luxury stories and travel guides" },
+  { route: "/contact", label: "Concierge & Contact", path: "/contact", description: "Direct hotline, bookings desk, and support" },
+  { route: "/about", label: "About Prime Rides", path: "/about", description: "Brand heritage and self-drive philosophy" },
+  { route: "/faq", label: "Frequently Asked Questions", path: "/faq", description: "Rental policies, deposits, and coverage answers" },
+  { route: "/locations", label: "Hubs & Locations", path: "/locations", description: "Delhi NCR, Lucknow, and airport handover hubs" },
+  { route: "/privacy", label: "Privacy Policy", path: "/privacy", description: "Customer privacy and GDPR compliance" },
+  { route: "/terms", label: "Terms of Service", path: "/terms", description: "Rental agreements, speed limits, and obligations" },
+];
+
 export default function AdminCmsHeaderPage() {
   const [headerConfig, setHeaderConfig] = useState<HeaderConfig>(DEFAULT_HEADER_CONFIG);
   const [isLoading, setIsLoading] = useState(true);
@@ -54,8 +65,45 @@ export default function AdminCmsHeaderPage() {
   const [isSaved, setIsSaved] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  // Active Sub-Tab: "menu" | "logo" | "actions"
-  const [activeTab, setActiveTab] = useState<"menu" | "logo" | "actions">("menu");
+  // Active Sub-Tab: "menu" | "logo" | "actions" | "banners"
+  const [activeTab, setActiveTab] = useState<"menu" | "logo" | "actions" | "banners">("menu");
+
+  const handleBannerUpload = async (route: string, file: File) => {
+    setIsUploading(true);
+    setUploadError(null);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("folder", "banners");
+      const res = await fetch("/api/v1/admin/upload", {
+        method: "POST",
+        body: formData,
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Upload failed");
+      setHeaderConfig((prev) => ({
+        ...prev,
+        pageBanners: {
+          ...(prev.pageBanners || {}),
+          [route]: json.data.url,
+        },
+      }));
+    } catch (err: any) {
+      setUploadError(err.message || "Banner upload failed");
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleRemoveBanner = (route: string) => {
+    setHeaderConfig((prev) => ({
+      ...prev,
+      pageBanners: {
+        ...(prev.pageBanners || {}),
+        [route]: "",
+      },
+    }));
+  };
 
   // Navbar Simulation State
   const [simScrolled, setSimScrolled] = useState(false);
@@ -501,6 +549,18 @@ export default function AdminCmsHeaderPage() {
             >
               <Sliders className="w-3.5 h-3.5" />
               Action Buttons & Concierge Triggers
+            </button>
+          </li>
+          <li className="nav-item">
+            <button
+              type="button"
+              onClick={() => setActiveTab("banners")}
+              className={`nav-link rounded-pill px-3.5 py-2 text-xs fw-bold d-flex align-items-center gap-2 ${
+                activeTab === "banners" ? "active bg-primary text-white shadow-sm" : "text-secondary"
+              }`}
+            >
+              <Layout className="w-3.5 h-3.5" />
+              Page Banners &amp; Breadcrumbs
             </button>
           </li>
         </ul>
@@ -1093,6 +1153,129 @@ export default function AdminCmsHeaderPage() {
                   <span className="fw-bold text-dark d-block mb-1">When Logged In:</span>
                   Automatically displays the logged-in customer's name with an account dropdown (Reservations, Payments, KYC, Logout).
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* TAB 4: Page Banners & Breadcrumbs Management */}
+      {activeTab === "banners" && (
+        <div className="space-y-4">
+          <div className="card border pastel-card pastel-card-peach mb-4">
+            <div className="card-header bg-transparent border-bottom d-flex align-items-center justify-content-between p-3.5">
+              <div>
+                <h6 className="mb-0 fw-bold text-dark">Page Banners &amp; Breadcrumb Configuration</h6>
+                <p className="text-muted text-xs mb-0">
+                  Control hero banner images vs. minimal luxury breadcrumbs across all public website pages.
+                </p>
+              </div>
+              <AdminButton
+                variant="primary"
+                size="sm"
+                onClick={handleSave}
+                disabled={isSaving}
+                icon={<Save className="w-3.5 h-3.5" />}
+              >
+                {isSaving ? "Saving..." : "Save Banner Changes"}
+              </AdminButton>
+            </div>
+            <div className="card-body p-4">
+              <div className="alert alert-info border-0 rounded-3 text-xs mb-4 d-flex align-items-center gap-2.5">
+                <Sparkles className="w-4 h-4 text-primary shrink-0" />
+                <span>
+                  <strong>Minimal Luxury Breadcrumbs Active by Default:</strong> When no image is uploaded (or removed), pages render the clean, high-contrast horizontal breadcrumb bar matching the vehicle detail view (with Delhi NCR &amp; Lucknow availability badges). Uploading an image below activates the dark hero image banner for that specific page.
+                </span>
+              </div>
+
+              <div className="row g-3">
+                {STANDARD_PAGES.map((page) => {
+                  const currentImage = headerConfig.pageBanners?.[page.route] || "";
+                  const hasImage = Boolean(currentImage.trim());
+
+                  return (
+                    <div key={page.route} className="col-12 col-md-6">
+                      <div className="card border rounded-3 p-3.5 h-100 bg-white shadow-xs">
+                        <div className="d-flex align-items-center justify-content-between mb-2">
+                          <div>
+                            <h6 className="mb-0 fw-bold text-dark text-sm">{page.label}</h6>
+                            <code className="text-xs text-muted">{page.route}</code>
+                          </div>
+                          <Link
+                            href={page.path}
+                            target="_blank"
+                            className="btn btn-xs btn-outline-secondary rounded-pill d-inline-flex align-items-center gap-1 text-[11px]"
+                          >
+                            <ExternalLink className="w-3 h-3" />
+                            <span>View</span>
+                          </Link>
+                        </div>
+                        <p className="text-muted text-xs mb-3">{page.description}</p>
+
+                        {/* Status Badge */}
+                        <div className="mb-3">
+                          {hasImage ? (
+                            <span className="badge bg-warning bg-opacity-15 text-amber-800 border border-amber-300 rounded-pill px-2.5 py-1 text-[11px] fw-semibold d-inline-flex align-items-center gap-1">
+                              <Sparkles className="w-3 h-3 text-amber-600" />
+                              Custom Hero Banner Active
+                            </span>
+                          ) : (
+                            <span className="badge bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-pill px-2.5 py-1 text-[11px] fw-semibold d-inline-flex align-items-center gap-1">
+                              <Check className="w-3 h-3 text-emerald-600" />
+                              Minimal Luxury Breadcrumb Active (No Image)
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Image Preview if active */}
+                        {hasImage && (
+                          <div className="mb-3 position-relative rounded-3 overflow-hidden border" style={{ height: "100px" }}>
+                            <img
+                              src={currentImage}
+                              alt={page.label}
+                              className="w-100 h-100 object-fit-cover"
+                            />
+                            <div
+                              className="position-absolute bottom-0 start-0 end-0 p-1.5 text-center text-white text-[11px]"
+                              style={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(2px)" }}
+                            >
+                              Active Header Image
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Actions */}
+                        <div className="d-flex align-items-center gap-2 flex-wrap">
+                          <label className="btn btn-sm btn-outline-primary rounded-pill d-inline-flex align-items-center gap-1.5 cursor-pointer mb-0 text-xs">
+                            <UploadCloud className="w-3.5 h-3.5" />
+                            <span>{hasImage ? "Replace Image" : "Upload Banner Image"}</span>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="d-none"
+                              disabled={isUploading}
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) handleBannerUpload(page.route, file);
+                              }}
+                            />
+                          </label>
+
+                          {hasImage && (
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveBanner(page.route)}
+                              className="btn btn-sm btn-outline-danger rounded-pill d-inline-flex align-items-center gap-1.5 text-xs"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                              <span>Remove Image (Use Minimal Breadcrumb)</span>
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>
