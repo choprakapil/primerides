@@ -22,6 +22,15 @@
 }
 
 :root {
+  /* Override Bootstrap Blue Leakage */
+  --bs-blue: #c59b27 !important;
+  --bs-primary: #c59b27 !important;
+  --bs-primary-rgb: 197, 155, 39 !important;
+  --bs-link-color: #c59b27 !important;
+  --bs-link-hover-color: #b88d22 !important;
+  --bs-link-color-rgb: 197, 155, 39 !important;
+  --bs-link-hover-color-rgb: 184, 141, 34 !important;
+
   /* Brand Palette - Logo Gold Theme (#c59b27 / #d8a834) */
   --primary-color: #c59b27;
   --primary-gradient: linear-gradient(135deg, #d8a834 0%, #b88d22 100%);
@@ -128,6 +137,11 @@ a {
   color: var(--primary-color);
   text-decoration: none;
   transition: all 0.25s ease;
+}
+
+a:hover {
+  color: #b88d22;
+  text-decoration: none;
 }
 
 /* Section Header Badges & Utilities */
@@ -4040,6 +4054,12 @@ a {
   background: linear-gradient(135deg, #b08518 0%, #c59b27 100%) !important;
   box-shadow: 0 8px 22px rgba(197, 155, 39, 0.5) !important;
   transform: translateY(-2px) !important;
+  color: #ffffff !important;
+}
+
+.modern-card-btn *,
+.modern-card-btn:hover *,
+.modern-card-btn:focus * {
   color: #ffffff !important;
 }
 

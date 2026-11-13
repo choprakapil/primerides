@@ -196,14 +196,16 @@ export default function CarSearchCard({ car, startDate, endDate }: CarSearchCard
           <div className="flex items-center gap-2">
             <Link
               href={bookingUrl}
-              className={`px-4 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 transition-all ${
+              className={`modern-card-btn !text-white hover:!text-white text-xs py-2.5 px-4 flex items-center justify-center gap-1.5 text-decoration-none shadow-[0_4px_14px_rgba(197,155,39,0.35)] shrink-0 transition-all ${
                 isSoldOut
-                  ? "bg-slate-200 text-slate-500 pointer-events-none cursor-not-allowed"
-                  : "bg-gradient-to-r from-[#c59b27] via-[#d4a838] to-[#b88d22] text-[#0b0f19] shadow-[0_4px_16px_rgba(197,155,39,0.3)] hover:brightness-105 active:scale-98"
+                  ? "bg-slate-200 !text-slate-500 pointer-events-none cursor-not-allowed opacity-60 shadow-none"
+                  : ""
               }`}
             >
-              <span>{isSoldOut ? "Sold Out" : "Book Now"}</span>
-              {!isSoldOut && <ArrowRight className="w-3.5 h-3.5" />}
+              <span className="!text-white font-bold text-xs uppercase tracking-wider">
+                {isSoldOut ? "Sold Out" : "Book Now"}
+              </span>
+              {!isSoldOut && <ArrowRight className="w-3.5 h-3.5 !text-white arrow-icon shrink-0" />}
             </Link>
           </div>
         </div>
