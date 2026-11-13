@@ -119,8 +119,13 @@ export default function FleetSearchResults({
 
         const res = await fetch(`/api/v1/cars?${query.toString()}`);
         const data = await res.json();
-        if (!isCancelled && data?.success && Array.isArray(data.data)) {
-          setCars(data.data);
+        const carList = Array.isArray(data?.data?.cars)
+          ? data.data.cars
+          : Array.isArray(data?.data)
+          ? data.data
+          : [];
+        if (!isCancelled && (data?.success || carList.length > 0)) {
+          setCars(carList);
         }
       } catch (err) {
         console.error("Failed to load filtered cars:", err);

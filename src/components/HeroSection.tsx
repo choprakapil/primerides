@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import { MotionIcon } from "motion-icons-react";
 import { useModal } from "@/context/ModalContext";
 
@@ -18,6 +19,7 @@ interface HeroSectionProps {
 }
 
 export default function HeroSection({ heroData }: HeroSectionProps) {
+  const router = useRouter();
   const { openBookingModal } = useModal();
   const [pickupLoc, setPickupLoc] = useState("Delhi - IGI Airport Terminal 3 (Arrivals Gate)");
   const [dropoffLoc, setDropoffLoc] = useState("Delhi - IGI Airport Terminal 3");
@@ -31,10 +33,13 @@ export default function HeroSection({ heroData }: HeroSectionProps) {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    const categoriesSection = document.getElementById("categoriesSection");
-    if (categoriesSection) {
-      categoriesSection.scrollIntoView({ behavior: "smooth" });
+    const citySlug = pickupLoc.toLowerCase().includes("lucknow") ? "lucknow" : "delhi-ncr";
+    const query = new URLSearchParams();
+    query.set("location", citySlug);
+    if (pickupDate) {
+      query.set("startDate", pickupDate);
     }
+    router.push(`/cars?${query.toString()}`);
   };
 
   return (

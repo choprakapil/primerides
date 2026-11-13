@@ -1,33 +1,45 @@
 import React, { Suspense } from "react";
 import PageHeader from "@/components/PageHeader";
-import CarsCategory from "@/components/CarsCategory";
+import FleetSearchResults from "@/components/fleet/FleetSearchResults";
 import TrustBar from "@/components/TrustBar";
+import { getFleetCarsWithAvailability } from "@/server/fleet";
 
 export const metadata = {
-  title: "Our Fleet & Car Categories - Primerides Self Drive Delhi NCR",
+  title: "Verified Fleet Inventory & Live Pricing - PrimeRides Delhi NCR & Lucknow",
   description:
-    "Explore Primerides fleet of self-drive vehicles: 7-Seater Innova Crysta, Fortuner 4x4, Thar 4x4, Creta, Swift and Luxury sedans with unlimited KMs.",
+    "Explore PrimeRides verified self-drive fleet with live availability: 7-Seater Innova Crysta, Fortuner 4x4, Thar 4x4, Creta, Baleno and luxury cruisers with zero deposit.",
 };
 
 export default async function CarsPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ category?: string; filter?: string }>;
+  searchParams?: Promise<{ category?: string; filter?: string; location?: string }>;
 } = {}) {
   const resolvedParams = searchParams ? await searchParams : {};
   const category = resolvedParams.category || resolvedParams.filter;
-  // categorySlug: category && category !== "all" ? category : undefined
+  const location = resolvedParams.location;
+
+  let initialCars: any[] = [];
+  try {
+    const rawCars = await getFleetCarsWithAvailability({
+      categorySlug: category && category !== "all" ? category : undefined,
+      locationSlug: location && location !== "all" ? location : undefined,
+    });
+    initialCars = JSON.parse(JSON.stringify(rawCars));
+  } catch (err) {
+    console.error("[CarsPage] Failed to load server-side fleet:", err);
+  }
 
   return (
     <>
       <PageHeader
         title="Verified Car Rental Fleet"
-        subtitle="Explore By Category"
-        breadcrumb="Our Fleet"
+        subtitle="Explore Fleet & Check Live Availability"
+        breadcrumb="Fleet Search"
         bgImage="/assets/img/slider/2.jpg"
       />
-      <Suspense fallback={<div className="text-center py-5">Loading Fleet...</div>}>
-        <CarsCategory />
+      <Suspense fallback={<div className="text-center py-12 text-slate-500 font-medium">Loading Live Fleet Inventory...</div>}>
+        <FleetSearchResults initialCars={initialCars} />
       </Suspense>
       <TrustBar />
     </>
