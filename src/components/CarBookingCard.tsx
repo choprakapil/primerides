@@ -369,8 +369,8 @@ export default function CarBookingCard({ car, customer, slug }: CarBookingCardPr
         </div>
 
         {/* Instant Online Reservation Dark Luxury Box */}
-        <div className="p-4 rounded-2xl bg-gradient-to-br from-[#090e1a] to-[#141b2d] text-white border border-slate-800 shadow-md space-y-1.5">
-          <div className="flex items-center gap-2 text-[#f7d58b] font-bold text-xs uppercase tracking-wider">
+        <div className="p-4 rounded-2xl bg-[#0b0f19] text-white border border-[#1a2333] shadow-md space-y-1.5">
+          <div className="flex items-center gap-2 text-[#c59b27] font-bold text-xs uppercase tracking-wider">
             <Sparkles className="w-3.5 h-3.5 text-[#c59b27]" />
             <span>Instant Reservation Online</span>
           </div>

@@ -129,16 +129,16 @@ export default async function CarDetailPage({
         </div>
 
         {/* MAIN TITLE & STAR RATING HEADER */}
-        <div className="space-y-1.5">
+        <div className="space-y-2 pb-1">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="px-2.5 py-0.5 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-slate-900 text-white">
+            <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-[#0b0f19] text-[#c59b27] border border-[#0b0f19]">
               {car.brand}
             </span>
-            <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider bg-[#fdfaf2] text-amber-800 border border-amber-300">
+            <span className="px-3 py-1 rounded-full text-xs font-semibold bg-[#fffdf7] text-[#936e16] border border-[#e5b94f]/50">
               {car.category?.name || "Luxury SUV"}
             </span>
             {car.badge && (
-              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-gradient-to-r from-amber-400 to-yellow-400 text-black shadow-xs">
+              <span className="px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-amber-400 to-yellow-400 text-black shadow-2xs">
                 {car.badge}
               </span>
             )}
@@ -146,7 +146,7 @@ export default async function CarDetailPage({
 
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pt-1">
             <div>
-              <h1 className="text-3xl sm:text-4xl lg:text-[40px] font-extrabold text-[#090e1a] tracking-tight font-heading leading-tight">
+              <h1 className="!text-3xl sm:!text-4xl lg:!text-[38px] font-extrabold text-[#0b0f19] tracking-tight font-heading leading-tight">
                 {car.name}
               </h1>
               <p className="text-xs sm:text-sm text-slate-500 font-medium mt-1">
@@ -154,14 +154,14 @@ export default async function CarDetailPage({
               </p>
             </div>
 
-            <div className="flex items-center gap-3 bg-white px-4 py-2.5 rounded-2xl border border-slate-200/90 shadow-xs shrink-0">
+            <div className="flex items-center gap-3 bg-white px-4 py-2.5 rounded-2xl border border-slate-200/90 shadow-2xs shrink-0">
               <div className="flex items-center text-amber-500">
                 {[...Array(5)].map((_, i) => (
                   <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
                 ))}
               </div>
               <div className="text-xs border-l border-slate-200 pl-3">
-                <span className="font-extrabold text-[#090e1a] block">4.96 / 5.0</span>
+                <span className="font-extrabold text-[#0b0f19] block">4.96 / 5.0</span>
                 <span className="text-[10.5px] text-slate-400 font-medium">95+ Happy Renters</span>
               </div>
             </div>
@@ -185,48 +185,50 @@ export default async function CarDetailPage({
 
             {/* Quick Specs Grid (Light Luxury Cards) */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <div className="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-xs hover:border-amber-300 transition-all space-y-1">
-                <div className="flex items-center gap-1.5 text-amber-700 text-xs font-bold uppercase tracking-wider">
-                  <Users className="w-4 h-4 text-amber-600" />
+              <div className="p-3.5 sm:p-4 rounded-2xl bg-white border border-slate-200/90 shadow-2xs hover:border-[#c59b27]/60 transition-all space-y-1">
+                <div className="flex items-center gap-1.5 text-[#936e16] text-[11px] font-bold uppercase tracking-wider">
+                  <Users className="w-3.5 h-3.5 text-[#c59b27]" />
                   <span>Seating</span>
                 </div>
-                <p className="text-base font-extrabold text-[#090e1a]">{car.seats} Adults</p>
+                <p className="text-base font-extrabold text-[#0b0f19]">{car.seats} Adults</p>
                 <span className="text-[10px] text-slate-400 block font-medium">Luggage Capacity: 2 Large</span>
               </div>
 
-              <div className="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-xs hover:border-amber-300 transition-all space-y-1">
-                <div className="flex items-center gap-1.5 text-amber-700 text-xs font-bold uppercase tracking-wider">
-                  <Gauge className="w-4 h-4 text-amber-600" />
+              <div className="p-3.5 sm:p-4 rounded-2xl bg-white border border-slate-200/90 shadow-2xs hover:border-[#c59b27]/60 transition-all space-y-1">
+                <div className="flex items-center gap-1.5 text-[#936e16] text-[11px] font-bold uppercase tracking-wider">
+                  <Gauge className="w-3.5 h-3.5 text-[#c59b27]" />
                   <span>Transmission</span>
                 </div>
-                <p className="text-base font-extrabold text-[#090e1a]">{car.transmission}</p>
+                <p className="text-base font-extrabold text-[#0b0f19]">{car.transmission}</p>
                 <span className="text-[10px] text-slate-400 block font-medium">Smooth Paddle Shift</span>
               </div>
 
-              <div className="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-xs hover:border-amber-300 transition-all space-y-1">
-                <div className="flex items-center gap-1.5 text-amber-700 text-xs font-bold uppercase tracking-wider">
-                  <Fuel className="w-4 h-4 text-amber-600" />
+              <div className="p-3.5 sm:p-4 rounded-2xl bg-white border border-slate-200/90 shadow-2xs hover:border-[#c59b27]/60 transition-all space-y-1">
+                <div className="flex items-center gap-1.5 text-[#936e16] text-[11px] font-bold uppercase tracking-wider">
+                  <Fuel className="w-3.5 h-3.5 text-[#c59b27]" />
                   <span>Fuel Type</span>
                 </div>
-                <p className="text-base font-extrabold text-[#090e1a]">{car.fuel_type}</p>
+                <p className="text-base font-extrabold text-[#0b0f19]">{car.fuel_type}</p>
                 <span className="text-[10px] text-slate-400 block font-medium">High Mileage Economy</span>
               </div>
 
-              <div className="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-xs hover:border-amber-300 transition-all space-y-1">
-                <div className="flex items-center gap-1.5 text-amber-700 text-xs font-bold uppercase tracking-wider">
-                  <Zap className="w-4 h-4 text-amber-600" />
+              <div className="p-3.5 sm:p-4 rounded-2xl bg-white border border-slate-200/90 shadow-2xs hover:border-[#c59b27]/60 transition-all space-y-1">
+                <div className="flex items-center gap-1.5 text-[#936e16] text-[11px] font-bold uppercase tracking-wider">
+                  <Zap className="w-3.5 h-3.5 text-[#c59b27]" />
                   <span>Engine Output</span>
                 </div>
-                <p className="text-base font-extrabold text-[#090e1a]">{car.engine_hp || 105} HP</p>
+                <p className="text-base font-extrabold text-[#0b0f19]">{car.engine_hp || 105} HP</p>
                 <span className="text-[10px] text-slate-400 block font-medium">Responsive Drive</span>
               </div>
             </div>
 
             {/* Vehicle Overview Dossier */}
-            <div className="p-6 sm:p-8 rounded-3xl bg-white border border-slate-200/90 shadow-[0_10px_35px_rgba(0,0,0,0.04)] space-y-6">
+            <div className="p-6 sm:p-7 rounded-3xl bg-white border border-slate-200/90 shadow-[0_4px_24px_rgba(0,0,0,0.04)] space-y-6">
               <div>
-                <h2 className="text-lg font-bold text-[#090e1a] font-heading mb-2 flex items-center gap-2">
-                  <CarIcon className="w-5 h-5 text-amber-600" />
+                <h2 className="!text-lg sm:!text-xl font-bold text-[#0b0f19] font-heading mb-2 flex items-center gap-2.5">
+                  <span className="w-7 h-7 rounded-lg bg-amber-50 text-[#c59b27] flex items-center justify-center shrink-0">
+                    <CarIcon className="w-4 h-4" />
+                  </span>
                   <span>Vehicle Overview &amp; Driving Experience</span>
                 </h2>
                 <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal">
@@ -237,15 +239,17 @@ export default async function CarDetailPage({
 
               {/* Inclusions Checkmarks */}
               <div>
-                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 mb-3 flex items-center gap-1.5">
-                  <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                <h3 className="!text-xs font-bold uppercase tracking-wider text-slate-700 mb-3 flex items-center gap-2">
+                  <span className="w-5 h-5 rounded-md bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                    <ShieldCheck className="w-3.5 h-3.5" />
+                  </span>
                   <span>Guaranteed Inclusions with Every Booking</span>
                 </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                   {featuresList.map((feat, idx) => (
                     <div
                       key={idx}
-                      className="flex items-start gap-2.5 p-2.5 rounded-xl bg-slate-50 border border-slate-100 text-xs text-slate-700 font-medium"
+                      className="flex items-start gap-2.5 p-2.5 rounded-xl bg-[#f8fafc] border border-slate-100 text-xs text-slate-700 font-medium"
                     >
                       <div className="w-4 h-4 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center shrink-0 mt-0.5">
                         <Check className="w-2.5 h-2.5 stroke-[3]" />
@@ -257,27 +261,27 @@ export default async function CarDetailPage({
               </div>
 
               {/* Fair Rental Policy & Security Deposit Guarantee */}
-              <div className="p-4 sm:p-5 rounded-2xl bg-amber-50/70 border border-amber-200/80 space-y-3">
-                <div className="flex items-center gap-2 font-bold text-xs text-amber-900 uppercase tracking-wider">
-                  <CreditCard className="w-4 h-4 text-amber-600" />
+              <div className="p-4 sm:p-5 rounded-2xl bg-[#fffdf7] border border-[#e5b94f]/40 space-y-3">
+                <div className="flex items-center gap-2 font-bold text-xs text-[#936e16] uppercase tracking-wider">
+                  <CreditCard className="w-4 h-4 text-[#c59b27]" />
                   <span>Transparent Rental Policy &amp; Security Deposit</span>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
                   <div>
-                    <span className="text-amber-800 font-bold block">100% Refundable Deposit</span>
-                    <p className="text-[11px] text-amber-900/80 mt-0.5">
+                    <span className="text-[#0b0f19] font-bold block">100% Refundable Deposit</span>
+                    <p className="text-[11px] text-slate-600 mt-0.5">
                       ₹{securityDepositNum.toLocaleString("en-IN")} released within 24-48 hrs post-trip.
                     </p>
                   </div>
                   <div>
-                    <span className="text-amber-800 font-bold block">Fair Extra KM Tariff</span>
-                    <p className="text-[11px] text-amber-900/80 mt-0.5">
+                    <span className="text-[#0b0f19] font-bold block">Fair Extra KM Tariff</span>
+                    <p className="text-[11px] text-slate-600 mt-0.5">
                       Flat ₹7/km if your journey exceeds chosen package.
                     </p>
                   </div>
                   <div>
-                    <span className="text-amber-800 font-bold block">Fuel Policy</span>
-                    <p className="text-[11px] text-amber-900/80 mt-0.5">
+                    <span className="text-[#0b0f19] font-bold block">Fuel Policy</span>
+                    <p className="text-[11px] text-slate-600 mt-0.5">
                       Same-to-same return level. No inflated refueling markups.
                     </p>
                   </div>
@@ -324,16 +328,16 @@ export default async function CarDetailPage({
           <div className="pt-10 border-t border-slate-200">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <span className="text-xs font-bold text-amber-700 uppercase tracking-widest block">
+                <span className="text-xs font-bold text-[#936e16] uppercase tracking-widest block">
                   More Options
                 </span>
-                <h3 className="text-2xl font-bold text-[#090e1a] font-heading mt-0.5">
+                <h3 className="!text-2xl font-bold text-[#0b0f19] font-heading mt-0.5">
                   Other Cars Available in {car.location?.city || "Delhi NCR"}
                 </h3>
               </div>
               <Link
                 href="/cars"
-                className="text-xs font-bold text-amber-700 hover:text-amber-800 flex items-center gap-1"
+                className="text-xs font-bold text-[#c59b27] hover:text-[#936e16] flex items-center gap-1 transition-colors"
               >
                 <span>View All Fleet</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -395,7 +399,7 @@ export default async function CarDetailPage({
                         {/* Title */}
                         <Link
                           href={`/cars/${other.slug}`}
-                          className="text-base sm:text-lg font-bold text-slate-950 hover:text-amber-700 transition-colors block leading-snug line-clamp-1"
+                          className="text-base sm:text-lg font-bold !text-[#0b0f19] hover:!text-[#c59b27] transition-colors block leading-snug line-clamp-1 font-heading"
                         >
                           {displayName}
                         </Link>
@@ -437,7 +441,7 @@ export default async function CarDetailPage({
 
                         <Link
                           href={`/cars/${other.slug}`}
-                          className="modern-card-btn text-xs py-2 px-3.5 flex items-center gap-1.5 text-decoration-none shadow-xs shrink-0"
+                          className="modern-card-btn !text-white hover:!text-white text-xs py-2 px-3.5 flex items-center gap-1.5 text-decoration-none shadow-xs shrink-0"
                         >
                           <span>Explore</span>
                           <ArrowRight className="w-3.5 h-3.5 arrow-icon" />
