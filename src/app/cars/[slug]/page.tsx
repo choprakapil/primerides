@@ -79,7 +79,7 @@ export default async function CarDetailPage({
   return (
     <div
       className="min-h-screen bg-[#fcfbf9] text-slate-900 pb-20 font-sans"
-      style={{ paddingTop: "130px" }}
+      style={{ paddingTop: "145px" }}
     >
       {/* Background Decorative Warm Ambient Gradient */}
       <div

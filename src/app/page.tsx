@@ -161,11 +161,11 @@ export default async function HomePage() {
       />
       <TrustBar items={config.trustHighlights} />
       <ChooseLocation />
-      <CarsCategory cars={mappedCars} />
-      <OffersSection offers={mappedOffers} />
+      <CarsCategory cars={mappedCars && mappedCars.length >= 6 ? mappedCars : undefined} />
+      <OffersSection offers={mappedOffers && mappedOffers.length >= 3 ? mappedOffers : undefined} />
       <AboutSection />
       <CtaSection />
-      <Testimonials initialTestimonials={mappedTestimonials} />
+      <Testimonials initialTestimonials={mappedTestimonials && mappedTestimonials.length >= 3 ? mappedTestimonials : undefined} />
       <BlogSection blogs={mappedBlogs} />
       <FaqSection items={mappedFaqs} />
       <SeoContentSection />

@@ -1,13 +1,13 @@
 {
   "heroData": {
-    "badgeText": "VERIFIED LUXURY FLEET • DELHI NCR & LUCKNOW",
-    "titleLine1": "Experience The Pinnacle Of",
-    "titleLine2": "Luxury Self-Drive Freedom",
-    "subtext": "More than 50+ luxury sedans, 4x4 SUVs, and executive cars delivered to your doorstep or airport terminal with zero hidden fees.",
+    "badgeText": "LUXURY & SELF-DRIVE FLEET DELHI NCR",
+    "titleLine1": "Make Your Ride Easy & Fast with PrimeRides",
+    "titleLine2": "",
+    "subtext": "More than 50+ luxury sedans, 4x4 SUVs, and premium self-drive cars near your location across Delhi NCR for the ultimate driving experience.",
     "bgImage": "/assets/img/banner_1.png",
-    "usp1": "Zero Security Deposit Option",
-    "usp2": "Instant Curbside Airport Handover",
-    "usp3": "Unlimited KM Packages"
+    "usp1": "Zero Security Deposit",
+    "usp2": "Instant Airport Delivery",
+    "usp3": "Unlimited KMs Fleet"
   },
   "hubs": [
     {
@@ -28,22 +28,22 @@
   "trustHighlights": [
     {
       "title": "Unlimited Kilometers",
-      "desc": "Drive freely across states with zero per-km penalties",
+      "desc": "No per-km limits or hidden penalties",
       "iconName": "Gauge"
     },
     {
-      "title": "Instant Airport Delivery",
-      "desc": "Curbside key handover at IGI Airport Terminal 1, 2 & 3",
+      "title": "Doorstep Delivery",
+      "desc": "To any home, office, or airport terminal in NCR",
       "iconName": "MapPin"
     },
     {
-      "title": "Zero Hidden Charges",
-      "desc": "100% transparent rates & minimal refundable deposit",
+      "title": "Zero Hidden Fees",
+      "desc": "100% transparent pricing & minimal security deposit",
       "iconName": "ShieldCheck"
     },
     {
-      "title": "24/7 Roadside Shield",
-      "desc": "Round-the-clock emergency assistance nationwide",
+      "title": "24/7 Roadside Assistance",
+      "desc": "Round-the-clock emergency support across India",
       "iconName": "Headphones"
     }
   ],

@@ -17,7 +17,7 @@ export default function VehicleHeader({ car }: VehicleHeaderProps) {
     <div className="space-y-4 pb-4 border-b border-slate-200/60">
       {/* 1. Sleek Minimal Breadcrumb & Hub Status Bar */}
       <div className="flex flex-wrap items-center justify-between gap-3 text-xs">
-        <nav aria-label="Breadcrumb" className="hidden sm:flex items-center gap-1.5 font-medium text-slate-500">
+        <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-1.5 font-medium text-slate-500">
           <Link href="/" className="hover:text-amber-700 transition-colors">
             Home
           </Link>

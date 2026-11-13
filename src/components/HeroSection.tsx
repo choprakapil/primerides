@@ -4,6 +4,12 @@ import React, { useState } from "react";
 import { MotionIcon } from "motion-icons-react";
 import { useModal } from "@/context/ModalContext";
 
+export interface HeroLocationItem {
+  id: number | string;
+  name: string;
+  city?: string;
+}
+
 interface HeroSectionProps {
   heroData?: {
     badgeText?: string;
@@ -15,14 +21,20 @@ interface HeroSectionProps {
     usp2?: string;
     usp3?: string;
   };
-  locations?: Array<{ id: number; name: string; city: string }>;
+  locations?: HeroLocationItem[];
 }
 
-export default function HeroSection({ heroData, locations }: HeroSectionProps) {
+export default function HeroSection({ heroData, locations }: HeroSectionProps = {}) {
   const { openBookingModal } = useModal();
   const [pickupLoc, setPickupLoc] = useState("Delhi - IGI Airport Terminal 3 (Arrivals Gate)");
   const [dropoffLoc, setDropoffLoc] = useState("Delhi - IGI Airport Terminal 3");
-  const [pickupDate, setPickupDate] = useState("2026-09-06");
+  const [pickupDate, setPickupDate] = useState(() => {
+    try {
+      return new Date().toISOString().split("T")[0];
+    } catch {
+      return "2026-09-30";
+    }
+  });
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,7 +50,7 @@ export default function HeroSection({ heroData, locations }: HeroSectionProps) {
       <div
         className="turbo-hero-bg position-absolute top-0 start-0 w-100 h-100"
         style={{
-          backgroundImage: `url('${heroData?.bgImage || '/assets/img/banner_1.png'}')`,
+          backgroundImage: "url('/assets/img/banner_1.png')",
           backgroundSize: "cover",
           backgroundPosition: "center right",
           backgroundRepeat: "no-repeat",
@@ -64,18 +76,21 @@ export default function HeroSection({ heroData, locations }: HeroSectionProps) {
               {/* Pill / Tagline */}
               <div className="turbo-hero-badge d-inline-flex align-items-center gap-2 mb-3">
                 <span className="turbo-badge-dot"></span>
-                <span className="fw-bold">{heroData?.badgeText || "LUXURY & SELF-DRIVE FLEET DELHI NCR"}</span>
+                <span className="fw-bold">
+                  {heroData?.badgeText || "LUXURY & SELF-DRIVE FLEET DELHI NCR"}
+                </span>
               </div>
 
               {/* Main Heading */}
               <h1 className="turbo-hero-title mb-3">
-                {heroData?.titleLine1 || "Make Your Ride Easy & Fast with PrimeRides"}{" "}
-                {heroData?.titleLine2 ? <span>{heroData.titleLine2}</span> : null}
+                Make Your Ride Easy &amp; <br />
+                <span>Fast with PrimeRides</span>
               </h1>
 
               {/* Subtitle */}
               <p className="turbo-hero-subtext mb-4">
-                {heroData?.subtext || "More than 50+ luxury sedans, 4x4 SUVs, and premium self-drive cars near your location across Delhi NCR for the ultimate driving experience."}
+                {heroData?.subtext ||
+                  "More than 50+ luxury sedans, 4x4 SUVs, and premium self-drive cars near your location across Delhi NCR for the ultimate driving experience."}
               </p>
 
               {/* Quick Value Highlights */}
