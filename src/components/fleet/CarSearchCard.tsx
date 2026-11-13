@@ -11,6 +11,7 @@ import {
   AlertTriangle,
   ArrowRight,
   Clock,
+  Sparkles,
 } from "lucide-react";
 
 interface CarSearchCardProps {
@@ -47,14 +48,14 @@ export default function CarSearchCard({ car, startDate, endDate }: CarSearchCard
 
   return (
     <div
-      className={`rounded-3xl border transition-all duration-300 flex flex-col justify-between overflow-hidden bg-white ${
+      className={`rounded-2xl border transition-all duration-300 flex flex-col justify-between overflow-hidden bg-white group ${
         isSoldOut
           ? "border-rose-200 opacity-80 shadow-sm"
-          : "border-slate-200/90 hover:border-[#c59b27]/70 shadow-[0_4px_24px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_36px_rgba(197,155,39,0.12)]"
+          : "border-slate-200/90 hover:border-[#c59b27]/70 shadow-[0_4px_20px_rgba(0,0,0,0.04)] hover:shadow-[0_14px_35px_rgba(15,23,42,0.09)]"
       }`}
     >
       {/* Card Header & Image */}
-      <div className="relative group overflow-hidden bg-slate-100 aspect-[16/10]">
+      <Link href={bookingUrl} className="relative block overflow-hidden bg-slate-900 aspect-[16/10]">
         <img
           src={car.primary_image || "/assets/img/car.png"}
           alt={car.name ? `${car.name} Rental Car in ${car.location?.city || "Delhi NCR"}` : "PrimeRides Luxury Rental Car"}
@@ -62,90 +63,92 @@ export default function CarSearchCard({ car, startDate, endDate }: CarSearchCard
         />
 
         {/* Gradient Overlay for Top Badges */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/30 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/25 pointer-events-none" />
 
         {/* Top Badges */}
-        <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2 z-10">
-          <span className="px-3 py-1 rounded-full text-[11px] font-bold tracking-wider uppercase bg-[#0b0f19]/80 backdrop-blur-md text-[#c59b27] border border-[#c59b27]/30 shadow-sm flex items-center gap-1.5">
-            <MapPin className="w-3 h-3 text-[#c59b27]" />
-            {car.location?.city || "Delhi NCR"}
+        <div className="absolute top-3 left-3 flex flex-wrap gap-1.5 pointer-events-none z-10">
+          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#090e1a]/85 text-[#f7d58b] backdrop-blur-md shadow-xs border border-[#c59b27]/30 flex items-center gap-1">
+            <Sparkles className="w-3 h-3 text-[#c59b27]" />
+            <span>{car.badge || "Prime Certified"}</span>
           </span>
+        </div>
 
+        <div className="absolute top-3 right-3 pointer-events-none z-10">
           {car.category?.name && (
-            <span className="px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-white/95 backdrop-blur-md text-[#0b0f19] shadow-sm">
+            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-white/95 text-slate-900 shadow-xs border border-slate-200">
               {car.category.name}
             </span>
           )}
         </div>
 
-        {/* Bottom Image Overlay: Live Inventory Availability Badge */}
-        <div className="absolute bottom-2.5 left-3 right-3 z-10">
-          {isSoldOut ? (
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold bg-rose-600/95 backdrop-blur-md text-white border border-rose-400/30 shadow-sm">
-              <AlertTriangle className="w-3.5 h-3.5" />
-              <span>Sold Out for Selected Dates</span>
-            </div>
-          ) : availableUnits === 1 ? (
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold bg-[#b88d22]/95 backdrop-blur-md text-white border border-[#e5b94f]/40 shadow-sm animate-pulse">
-              <Clock className="w-3.5 h-3.5" />
-              <span>Only 1 Car Left in {car.location?.city || "Delhi NCR"}!</span>
-            </div>
-          ) : (
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold bg-emerald-600/90 backdrop-blur-md text-white border border-emerald-400/30 shadow-sm">
-              <CheckCircle2 className="w-3.5 h-3.5" />
-              <span>
-                {availableUnits} Units Available in {car.location?.city || "Delhi NCR"}
-              </span>
-            </div>
-          )}
+        {/* Bottom Location Pill */}
+        <div className="absolute bottom-2.5 right-3 pointer-events-none z-10">
+          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-white/95 text-slate-800 backdrop-blur-md shadow-xs border border-slate-200 flex items-center gap-1">
+            <MapPin className="w-3 h-3 text-[#c59b27]" />
+            <span>{car.location?.city || "Delhi NCR"}</span>
+          </span>
         </div>
-      </div>
+
+        {/* Status indicator on bottom-left */}
+        <div className="absolute bottom-2.5 left-3 pointer-events-none z-10">
+          {isSoldOut ? (
+            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-600/95 text-white backdrop-blur-md shadow-xs flex items-center gap-1">
+              <AlertTriangle className="w-3 h-3" />
+              <span>Sold Out</span>
+            </span>
+          ) : availableUnits === 1 ? (
+            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/95 text-slate-950 backdrop-blur-md shadow-xs flex items-center gap-1 animate-pulse">
+              <Clock className="w-3 h-3" />
+              <span>1 Car Left</span>
+            </span>
+          ) : null}
+        </div>
+      </Link>
 
       {/* Card Body */}
-      <div className="p-5 sm:p-6 flex-1 flex flex-col justify-between space-y-4">
+      <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between space-y-3">
         <div>
-          {/* Brand & Title */}
-          <div className="flex items-start justify-between gap-2">
-            <div>
-              <p className="text-[11px] uppercase tracking-wider font-extrabold text-[#936e16]">
-                {car.brand}
-              </p>
-              <h3 className="text-lg sm:text-xl font-extrabold text-[#0b0f19] leading-tight font-heading mt-0.5">
-                {car.name}
-              </h3>
-            </div>
-            {car.badge && (
-              <span className="px-2.5 py-1 rounded-md text-[10px] font-extrabold uppercase bg-[#fffdf7] text-[#936e16] border border-[#e5b94f]/50 flex-shrink-0">
-                {car.badge}
-              </span>
-            )}
+          {/* Brand & Subtitle */}
+          <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">
+            <span className="text-[#c59b27]">{car.brand}</span>
+            <span>•</span>
+            <span>{car.category?.name || "Luxury Class"}</span>
           </div>
 
+          <Link
+            href={bookingUrl}
+            className="text-base sm:text-lg font-bold text-slate-950 hover:text-amber-700 transition-colors block leading-snug line-clamp-1 font-heading"
+          >
+            {car.name}
+          </Link>
+
           {/* Quick Specs Strip */}
-          <div className="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-slate-100 text-slate-600 text-xs">
-            <div className="flex items-center gap-1.5 bg-[#f8fafc] px-2.5 py-1.5 rounded-xl border border-slate-200/60">
-              <Users className="w-3.5 h-3.5 text-amber-700 flex-shrink-0" />
-              <span className="truncate font-semibold text-slate-700">{car.seats} Seats</span>
+          <div className="grid grid-cols-3 gap-2 py-2 mt-2 border-y border-slate-100 text-[11px] text-slate-600">
+            <div className="flex items-center gap-1.5">
+              <Users className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+              <span className="font-semibold truncate">{car.seats} Seats</span>
             </div>
-            <div className="flex items-center gap-1.5 bg-[#f8fafc] px-2.5 py-1.5 rounded-xl border border-slate-200/60">
-              <Gauge className="w-3.5 h-3.5 text-amber-700 flex-shrink-0" />
-              <span className="truncate font-semibold text-slate-700">{car.transmission}</span>
+            <div className="flex items-center gap-1.5 truncate">
+              <Gauge className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+              <span className="font-semibold truncate">
+                {car.transmission?.toLowerCase().includes("auto") ? "Auto" : "Manual"}
+              </span>
             </div>
-            <div className="flex items-center gap-1.5 bg-[#f8fafc] px-2.5 py-1.5 rounded-xl border border-slate-200/60">
-              <Fuel className="w-3.5 h-3.5 text-amber-700 flex-shrink-0" />
-              <span className="truncate font-semibold text-slate-700">{car.fuel_type}</span>
+            <div className="flex items-center gap-1.5 truncate">
+              <Fuel className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+              <span className="font-semibold truncate">{car.fuel_type}</span>
             </div>
           </div>
 
           {/* KM Rental Plans Selector */}
           {car.rental_plans && car.rental_plans.length > 0 && (
-            <div className="mt-4">
-              <p className="text-[11px] font-semibold text-slate-500 mb-1.5 flex items-center justify-between">
-                <span>Select Kilometer Package:</span>
-                <span className="text-[10px] text-[#936e16] font-bold">
+            <div className="pt-2">
+              <div className="flex items-center justify-between text-[11px] font-medium text-slate-500 mb-1.5">
+                <span>Select Package:</span>
+                <span className="text-[10px] font-bold text-[#936e16]">
                   ₹{Number(selectedPlan?.extra_km_rate || 7)}/extra km
                 </span>
-              </p>
+              </div>
               <div className="grid grid-cols-3 gap-1.5">
                 {car.rental_plans.slice(0, 3).map((plan: any) => {
                   const isSelected = plan.id === selectedPlanId;
@@ -154,16 +157,16 @@ export default function CarSearchCard({ car, startDate, endDate }: CarSearchCard
                       key={plan.id}
                       type="button"
                       onClick={() => setSelectedPlanId(plan.id)}
-                      className={`py-2 px-1.5 rounded-xl text-center text-xs transition-all ${
+                      className={`py-1.5 px-1 rounded-xl text-center transition-all ${
                         isSelected
-                          ? "bg-[#0b0f19] text-[#c59b27] shadow-sm ring-2 ring-[#c59b27]/30 font-extrabold"
-                          : "bg-[#f8fafc] text-slate-700 hover:bg-[#fffdf7] hover:border-[#c59b27]/50 border border-slate-200/80 font-bold"
+                          ? "bg-[#0b0f19] text-[#c59b27] shadow-xs border border-[#0b0f19] font-bold"
+                          : "bg-[#f8fafc] text-slate-700 hover:bg-[#fffdf7] hover:border-[#c59b27]/40 border border-slate-200/80 font-medium"
                       }`}
                     >
-                      <span className="block text-[11px] leading-tight">
+                      <span className="block text-[11px] font-extrabold leading-tight">
                         {plan.free_km} KM
                       </span>
-                      <span className="block text-[10px] opacity-90 leading-tight mt-0.5">
+                      <span className="block text-[10px] leading-tight opacity-85 mt-0.5">
                         ₹{Number(plan.price).toLocaleString("en-IN")}
                       </span>
                     </button>
@@ -184,17 +187,19 @@ export default function CarSearchCard({ car, startDate, endDate }: CarSearchCard
               <span className="text-xl sm:text-2xl font-black text-[#0b0f19]">
                 ₹{priceToDisplay.toLocaleString("en-IN")}
               </span>
-              <span className="text-xs text-slate-500 font-medium">/ 300 km</span>
+              <span className="text-xs text-slate-500 font-medium">
+                / {selectedPlan?.free_km || 300} km
+              </span>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
             <Link
               href={bookingUrl}
-              className={`px-4 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider flex items-center gap-1.5 transition-all ${
+              className={`px-4 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 transition-all ${
                 isSoldOut
                   ? "bg-slate-200 text-slate-500 pointer-events-none cursor-not-allowed"
-                  : "bg-gradient-to-r from-[#c59b27] via-[#d4a838] to-[#b88d22] text-[#0b0f19] shadow-[0_4px_16px_rgba(197,155,39,0.35)] hover:brightness-105 active:scale-98"
+                  : "bg-gradient-to-r from-[#c59b27] via-[#d4a838] to-[#b88d22] text-[#0b0f19] shadow-[0_4px_16px_rgba(197,155,39,0.3)] hover:brightness-105 active:scale-98"
               }`}
             >
               <span>{isSoldOut ? "Sold Out" : "Book Now"}</span>

@@ -211,6 +211,7 @@ export default function FleetSearchResults({
     });
   }, [cars, sortBy]);
 
+  const isAllCities = filters.location === "all" || !filters.location;
   const activeCityName =
     filters.location === "delhi-ncr"
       ? "Delhi NCR"
@@ -222,33 +223,41 @@ export default function FleetSearchResults({
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
       {/* Top Header Bar */}
       <div className="mb-8">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-[#fffdf7] text-[#936e16] border border-[#e5b94f]/50 mb-3 shadow-xs">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-4 border-b border-slate-200/80">
+          <div className="space-y-2">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-[#fffdf7] text-[#936e16] border border-[#e5b94f]/50 shadow-2xs">
               <Sparkles className="w-3.5 h-3.5 text-[#c59b27]" />
-              <span>Prime Verified Fleet • Sanitized &amp; GPS Telemetry</span>
+              <span>Prime Verified Fleet • Telemetry &amp; GPS Monitored</span>
             </div>
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#0b0f19] tracking-tight font-heading">
-              Self-Drive Fleet in <span className="text-[#c59b27]">{activeCityName}</span>
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#0b0f19] tracking-tight font-heading leading-tight">
+              {isAllCities ? (
+                <>
+                  Self-Drive Fleet <span className="text-[#c59b27]">Collection</span>
+                </>
+              ) : (
+                <>
+                  Self-Drive Fleet in <span className="text-[#c59b27]">{activeCityName}</span>
+                </>
+              )}
             </h1>
-            <p className="text-sm text-slate-500 mt-1 max-w-2xl font-sans">
-              Rent verified 4x4 SUVs, luxury sedans, and family cruisers with unlimited KMs, zero deposit, and 24/7 doorstep handover.
+            <p className="text-sm text-slate-500 max-w-2xl font-sans leading-relaxed">
+              Curated luxury SUVs, 4x4 off-roaders, and executive sedans with live inventory availability, doorstep delivery, and flexible KM packages.
             </p>
           </div>
 
           {/* Luxury Feature Badges */}
-          <div className="flex flex-wrap items-center gap-2.5">
-            <div className="px-3.5 py-1.5 bg-[#fcfbf9] rounded-xl border border-[#e8edf2] text-xs text-slate-700 font-medium flex items-center gap-1.5 shadow-xs">
-              <span className="w-2 h-2 rounded-full bg-emerald-500" />
-              <span className="font-bold text-[#0b0f19]">Zero</span> Security Deposit
+          <div className="flex flex-wrap items-center gap-2 pt-1 md:pt-0">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-white border border-slate-200 text-slate-700 shadow-2xs">
+              <ShieldCheck className="w-3.5 h-3.5 text-[#c59b27]" />
+              <span>100% Commercial Insurance</span>
             </div>
-            <div className="px-3.5 py-1.5 bg-[#fcfbf9] rounded-xl border border-[#e8edf2] text-xs text-slate-700 font-medium flex items-center gap-1.5 shadow-xs">
-              <span className="w-2 h-2 rounded-full bg-[#c59b27]" />
-              <span className="font-bold text-[#0b0f19]">Doorstep</span> Curbside Handover
+            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-white border border-slate-200 text-slate-700 shadow-2xs">
+              <MapPin className="w-3.5 h-3.5 text-[#c59b27]" />
+              <span>Doorstep Handover</span>
             </div>
-            <div className="px-3.5 py-1.5 bg-[#fcfbf9] rounded-xl border border-[#e8edf2] text-xs text-slate-700 font-medium flex items-center gap-1.5 shadow-xs">
-              <span className="w-2 h-2 rounded-full bg-emerald-500" />
-              <span className="font-bold text-[#0b0f19]">Unlimited</span> KMs Included
+            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-white border border-slate-200 text-slate-700 shadow-2xs">
+              <CheckCircle2 className="w-3.5 h-3.5 text-[#c59b27]" />
+              <span>Zero Advance Deposit</span>
             </div>
           </div>
         </div>
