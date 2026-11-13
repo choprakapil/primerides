@@ -103,7 +103,7 @@ export default function FleetSearchFilter({
 
   const containerClasses = isMobileModal
     ? "bg-white p-1 space-y-6"
-    : "bg-white rounded-3xl border border-slate-200/90 shadow-[0_4px_24px_rgba(0,0,0,0.04)] p-5 lg:p-6 sticky top-28 space-y-6";
+    : "bg-white rounded-3xl border border-slate-200/90 shadow-[0_4px_24px_rgba(0,0,0,0.04)] p-3 sticky top-28 space-y-6";
 
   const Component = isMobileModal ? "div" : "aside";
 
