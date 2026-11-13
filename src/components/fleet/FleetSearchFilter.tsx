@@ -111,16 +111,16 @@ export default function FleetSearchFilter({
     <Component className={containerClasses}>
       {/* Header (Desktop only; mobile drawer has its own header) */}
       {!isMobileModal && (
-        <div className="flex items-center justify-between pb-4 border-b border-slate-100">
-          <div className="flex items-center gap-2.5 min-w-0">
+        <div className="flex items-start justify-between gap-2 pb-4 border-b border-slate-100">
+          <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-xl bg-[#fffdf7] text-[#c59b27] border border-[#e5b94f]/50 flex items-center justify-center flex-shrink-0 shadow-xs">
               <SlidersHorizontal className="w-4 h-4 text-[#c59b27]" />
             </div>
-            <div className="min-w-0">
-              <h3 className="font-extrabold text-[#0b0f19] text-base leading-tight font-heading truncate">
+            <div>
+              <h3 className="font-extrabold text-[#0b0f19] text-base leading-tight font-heading whitespace-nowrap">
                 Filter Fleet
               </h3>
-              <p className="text-xs text-slate-500 font-sans truncate">{totalResults} vehicles available</p>
+              <p className="text-xs text-slate-500 font-sans whitespace-nowrap">{totalResults} vehicles available</p>
             </div>
           </div>
 
