@@ -174,6 +174,8 @@ export default function BookingsListClient({
         return <span className="badge bg-light text-secondary border">Completed</span>;
       case "cancelled":
         return <span className="badge bg-danger-subtle text-danger">Cancelled</span>;
+      case "expired":
+        return <span className="badge bg-secondary-subtle text-secondary border">Reservation Expired</span>;
       default:
         return <span className="badge bg-warning-subtle text-warning">Pending Payment</span>;
     }
@@ -329,6 +331,26 @@ export default function BookingsListClient({
                     </div>
 
                     <div className="col-12 col-md-3 text-md-end d-flex flex-wrap align-items-center justify-content-md-end gap-2">
+                      {b.status === "pending" && (
+                        <Link
+                          href="/account/payments"
+                          className="btn btn-primary btn-sm px-3 d-inline-flex align-items-center gap-1.5 fw-semibold shadow-sm"
+                        >
+                          <i className="fi fi-rr-credit-card"></i>
+                          <span>Pay Now</span>
+                        </Link>
+                      )}
+
+                      {b.status === "expired" && (
+                        <Link
+                          href="/cars"
+                          className="btn btn-outline-warning btn-sm px-3 d-inline-flex align-items-center gap-1.5 text-dark"
+                        >
+                          <i className="fi fi-rr-refresh"></i>
+                          <span>Rebook Car</span>
+                        </Link>
+                      )}
+
                       <Link
                         href={`/account/bookings/${b.id}/invoice`}
                         className="btn btn-outline-dark btn-sm px-2.5 d-inline-flex align-items-center gap-1"
