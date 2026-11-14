@@ -143,10 +143,10 @@ export default function FleetSearchFilter({
         <div className="space-y-3.5">
           {/* 1. Location Selection - Smooth Segmented Capsule */}
           <div className="space-y-1.5">
-            <label id="fleet-filter-city-label" className="text-[10px] font-medium uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-              <MapPin className="w-3 h-3 text-amber-600/70 flex-shrink-0" />
+            <div id="fleet-filter-city-label" className="text-[10px] font-medium uppercase tracking-wider text-slate-400 !flex items-center">
+              <MapPin className="w-3.5 h-3.5 text-amber-600/70 flex-shrink-0 mr-2" />
               <span>Pickup City Hub</span>
-            </label>
+            </div>
             <div role="group" aria-labelledby="fleet-filter-city-label" className="flex items-center gap-1 p-0.5 bg-slate-100/70 rounded-full border border-slate-200/50">
               {[
                 { label: "All Cities", value: "all" },
@@ -175,8 +175,8 @@ export default function FleetSearchFilter({
 
           {/* 2. Rental Trip Dates */}
           <div className="space-y-1.5 pt-2.5 border-t border-slate-100">
-            <div className="text-[10px] font-medium uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-              <Calendar className="w-3 h-3 text-amber-600/70 flex-shrink-0" />
+            <div className="text-[10px] font-medium uppercase tracking-wider text-slate-400 !flex items-center">
+              <Calendar className="w-3.5 h-3.5 text-amber-600/70 flex-shrink-0 mr-2" />
               <span>Trip Dates &amp; Availability</span>
             </div>
             <div className="grid grid-cols-2 gap-2">
@@ -253,10 +253,10 @@ export default function FleetSearchFilter({
 
           {/* 4. Car Category / Body Type - Smooth Wrapped Pills */}
           <div className="space-y-1.5 pt-2.5 border-t border-slate-100">
-            <label id="fleet-filter-category-label" className="text-[10px] font-medium uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-              <Car className="w-3 h-3 text-amber-600/70 flex-shrink-0" />
+            <div id="fleet-filter-category-label" className="text-[10px] font-medium uppercase tracking-wider text-slate-400 !flex items-center">
+              <Car className="w-3.5 h-3.5 text-amber-600/70 flex-shrink-0 mr-2" />
               <span>Vehicle Category</span>
-            </label>
+            </div>
             <div role="group" aria-labelledby="fleet-filter-category-label" className="flex flex-wrap gap-1">
               {categories.map((cat) => {
                 const isSelected = filters.category === cat.value;
@@ -285,10 +285,10 @@ export default function FleetSearchFilter({
         <div className="space-y-3.5">
           {/* 5. Transmission - Smooth Segmented Capsule */}
           <div className="space-y-1.5 pt-2.5 md:pt-0 border-t border-slate-100 md:border-t-0">
-            <label id="fleet-filter-transmission-label" className="text-[10px] font-medium uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-              <Gauge className="w-3 h-3 text-amber-600/70 flex-shrink-0" />
+            <div id="fleet-filter-transmission-label" className="text-[10px] font-medium uppercase tracking-wider text-slate-400 !flex items-center">
+              <Gauge className="w-3.5 h-3.5 text-amber-600/70 flex-shrink-0 mr-2" />
               <span>Transmission</span>
-            </label>
+            </div>
             <div role="group" aria-labelledby="fleet-filter-transmission-label" className="flex items-center gap-1 p-0.5 bg-slate-100/70 rounded-full border border-slate-200/50">
               {transmissions.map((tr) => {
                 const isSelected = filters.transmission === tr.value;
@@ -313,10 +313,10 @@ export default function FleetSearchFilter({
 
           {/* 6. Fuel Type - Smooth Wrapped Pills */}
           <div className="space-y-1.5 pt-2.5 border-t border-slate-100">
-            <label id="fleet-filter-fuel-label" className="text-[10px] font-medium uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-              <Fuel className="w-3 h-3 text-amber-600/70 flex-shrink-0" />
+            <div id="fleet-filter-fuel-label" className="text-[10px] font-medium uppercase tracking-wider text-slate-400 !flex items-center">
+              <Fuel className="w-3.5 h-3.5 text-amber-600/70 flex-shrink-0 mr-2" />
               <span>Fuel Type</span>
-            </label>
+            </div>
             <div role="group" aria-labelledby="fleet-filter-fuel-label" className="flex flex-wrap gap-1">
               {fuelTypes.map((fuel) => {
                 const isSelected = filters.fuelType === fuel.value;
@@ -341,10 +341,10 @@ export default function FleetSearchFilter({
 
           {/* 7. Seating Capacity - Smooth Wrapped Pills */}
           <div className="space-y-1.5 pt-2.5 border-t border-slate-100">
-            <label id="fleet-filter-seats-label" className="text-[10px] font-medium uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-              <Users className="w-3 h-3 text-amber-600/70 flex-shrink-0" />
+            <div id="fleet-filter-seats-label" className="text-[10px] font-medium uppercase tracking-wider text-slate-400 !flex items-center">
+              <Users className="w-3.5 h-3.5 text-amber-600/70 flex-shrink-0 mr-2" />
               <span>Seating Capacity</span>
-            </label>
+            </div>
             <div role="group" aria-labelledby="fleet-filter-seats-label" className="flex flex-wrap gap-1">
               {seatingOptions.map((seat) => {
                 const isSelected = filters.seats === seat.value;
@@ -369,13 +369,15 @@ export default function FleetSearchFilter({
 
           {/* 8. Brand */}
           <div className="space-y-1.5 pt-2.5 border-t border-slate-100">
-            <label htmlFor="fleet-filter-brand" className="text-[10px] font-medium uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+            <label htmlFor="fleet-filter-brand" id="fleet-filter-brand-label" className="text-[10px] font-medium uppercase tracking-wider text-slate-400 !flex items-center">
+              <Filter className="w-3.5 h-3.5 text-amber-600/70 flex-shrink-0 mr-2" />
               <span>Make / Manufacturer</span>
             </label>
             <select
               id="fleet-filter-brand"
               name="brand"
               aria-label="Filter by vehicle make or brand"
+              aria-labelledby="fleet-filter-brand-label"
               value={filters.brand}
               onChange={(e) => updateFilter("brand", e.target.value)}
               className="w-full text-[10.5px] font-light text-slate-600 bg-white border border-slate-200/80 rounded-full px-3.5 py-1.5 focus:bg-white focus:border-amber-400 focus:outline-none transition-all cursor-pointer shadow-2xs"
