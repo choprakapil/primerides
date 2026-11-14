@@ -4,9 +4,41 @@ import React, { useState } from "react";
 import { MotionIcon } from "motion-icons-react";
 import { OFFERS_DATA } from "@/data";
 
-export default function OffersSection() {
+interface OffersSectionProps {
+  initialOffers?: any[];
+}
+
+export default function OffersSection({ initialOffers }: OffersSectionProps) {
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
-  const OFFERS = OFFERS_DATA;
+
+  // Dynamically resolve offers from live database coupons with rich presentation fallbacks
+  const offersList = React.useMemo(() => {
+    if (Array.isArray(initialOffers) && initialOffers.length > 0) {
+      const fallbackImages = [
+        "/assets/img/cars/1.jpg",
+        "/assets/img/cars/2.jpg",
+        "/assets/img/cars/3.jpg",
+      ];
+
+      return initialOffers.slice(0, 6).map((c, idx) => {
+        const isPct = c.discount_type === "percentage";
+        const discountLabel = isPct ? `${c.discount_value}% OFF` : `₹${Number(c.discount_value).toLocaleString("en-IN")} FLAT OFF`;
+        const minOrder = c.min_booking_amount ? `Min spend ₹${Number(c.min_booking_amount).toLocaleString("en-IN")}.` : "";
+        const maxDisc = c.max_discount_amount ? `Max discount ₹${Number(c.max_discount_amount).toLocaleString("en-IN")}.` : "";
+
+        return {
+          id: c.code.toLowerCase(),
+          tag: isPct ? "Special Percentage Savings" : "Flat Rate Privilege",
+          title: c.description || `Exclusive Savings with Code ${c.code}`,
+          discount: discountLabel,
+          code: c.code,
+          subtext: [minOrder, maxDisc, "Valid on luxury self-drive fleet in Delhi NCR & Lucknow."].filter(Boolean).join(" "),
+          carImg: fallbackImages[idx % fallbackImages.length],
+        };
+      });
+    }
+    return OFFERS_DATA;
+  }, [initialOffers]);
 
   const handleCopyCode = (code: string) => {
     navigator.clipboard.writeText(code);
@@ -30,16 +62,14 @@ export default function OffersSection() {
               Exclusive <span>Offers</span>
             </h2>
             <p className="offers-section-subtext mb-0">
-              Grab the best deals and make your journey more exciting.
+              Grab the best deals and unlock luxury mobility discounts.
             </p>
           </div>
-
-          
         </div>
 
-        {/* 3 Offers Banner Cards */}
+        {/* Offers Banner Cards */}
         <div className="row g-3">
-          {OFFERS.map((offer) => (
+          {offersList.map((offer) => (
             <div key={offer.id} className="col-lg-4 col-md-6 col-12">
               <div
                 className={`offer-banner-card offer-banner-card--${offer.id} position-relative overflow-hidden h-100 d-flex flex-column`}

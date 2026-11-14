@@ -20,6 +20,7 @@ import {
   CreditCard,
   Lock,
 } from "lucide-react";
+import { calculateBookingTariff, formatInr } from "@/lib/pricing";
 
 export interface RentalPlanData {
   id: number;
@@ -108,16 +109,27 @@ export default function CarBookingCard({ car, customer, slug }: CarBookingCardPr
     finalTotal: number;
   } | null>(null);
 
-  // Price calculations
-  const planPrice = Number(selectedPlan?.price || car.pricePerDay || 3999);
-  const depositAmount = Number(selectedPlan?.security_deposit ?? (car.securityDeposit || 5000));
+  // Standardized Canonical Price calculations (via calculateBookingTariff)
+  const tariff = useMemo(() => {
+    return calculateBookingTariff({
+      startDate,
+      endDate,
+      planPrice: Number(selectedPlan?.price || car.pricePerDay || 3999),
+      securityDeposit: Number(selectedPlan?.security_deposit ?? (car.securityDeposit || 5000)),
+      withChauffeur,
+      discountAmount: appliedCoupon ? appliedCoupon.discountAmount : 0,
+    });
+  }, [startDate, endDate, selectedPlan, car, withChauffeur, appliedCoupon]);
+
+  const planPrice = tariff.planPrice;
+  const depositAmount = tariff.securityDeposit;
   const extraKmRate = Number(selectedPlan?.extra_km_rate || 7);
   const freeKm = Number(selectedPlan?.free_km || 300);
 
-  const chauffeurFee = withChauffeur ? 1500 : 0;
-  const grossAmount = planPrice + chauffeurFee;
-  const discountAmount = appliedCoupon ? appliedCoupon.discountAmount : 0;
-  const netTotalAmount = Math.max(0, grossAmount - discountAmount);
+  const chauffeurFee = tariff.chauffeurFee;
+  const grossAmount = tariff.grossAmount;
+  const discountAmount = tariff.discountAmount;
+  const netTotalAmount = tariff.taxableAmount;
 
   // Validate coupon handler
   const handleApplyCoupon = async () => {

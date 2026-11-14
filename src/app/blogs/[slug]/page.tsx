@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getBlogs, getBlogBySlug } from "@/server/cms";
 import { getFleetCars } from "@/server/fleet";
+import PageHeader from "@/components/PageHeader";
 import {
   Calendar,
   Clock,
@@ -84,21 +85,13 @@ export default async function BlogPostPage({
     <div className="min-h-screen bg-[#fafbfc] text-slate-900 pt-28 sm:pt-32 pb-20 font-sans">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         {/* Breadcrumb Bar */}
-        <div className="flex items-center justify-between gap-3 pb-2 border-b border-slate-200/80">
-          <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs font-medium text-slate-500">
-            <Link href="/" className="hover:text-amber-700 transition-colors">
-              Home
-            </Link>
-            <span className="text-slate-400">/</span>
-            <Link href="/blogs" className="hover:text-amber-700 transition-colors">
-              Travel Guides
-            </Link>
-            <span className="text-slate-400">/</span>
-            <span className="text-slate-800 font-semibold truncate max-w-xs sm:max-w-md">
-              {post.title}
-            </span>
-          </nav>
-        </div>
+        <PageHeader
+          title={post.title}
+          breadcrumb={post.title}
+          parentHref="/blogs"
+          parentLabel="Travel Guides"
+          containerClassName="p-0 bg-transparent"
+        />
 
         {/* Article Header */}
         <header className="space-y-4">

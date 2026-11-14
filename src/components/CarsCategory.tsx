@@ -1,19 +1,40 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import Link from "next/link";
 import { FLEET_CARS } from "@/data/fleet";
-import { useModal } from "@/context/ModalContext";
 import CarouselControls from "@/components/CarouselControls";
+import CarCard from "@/components/fleet/CarCard";
 
-export default function CarsCategory() {
+interface CarsCategoryProps {
+  initialCars?: any[];
+}
+
+export default function CarsCategory({ initialCars }: CarsCategoryProps) {
+  const [cars, setCars] = useState<any[]>(
+    Array.isArray(initialCars) && initialCars.length > 0 ? initialCars : FLEET_CARS
+  );
   const [currentIndex, setCurrentIndex] = useState(0);
   const [visibleCount, setVisibleCount] = useState(4);
   const [isPaused, setIsPaused] = useState(false);
-  const [selectedKmMap, setSelectedKmMap] = useState<Record<string, string>>({});
   const touchStartX = useRef<number | null>(null);
   const touchEndX = useRef<number | null>(null);
-  const { openBookingModal } = useModal();
+
+  // Sync with initialCars if passed or fetch from live database API
+  useEffect(() => {
+    if (Array.isArray(initialCars) && initialCars.length > 0) {
+      setCars(initialCars);
+      return;
+    }
+
+    fetch("/api/v1/cars")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((json) => {
+        if (json?.success && Array.isArray(json.data) && json.data.length > 0) {
+          setCars(json.data);
+        }
+      })
+      .catch((err) => console.error("Error loading live fleet for carousel:", err));
+  }, [initialCars]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -32,7 +53,7 @@ export default function CarsCategory() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const maxIndex = Math.max(0, FLEET_CARS.length - visibleCount);
+  const maxIndex = Math.max(0, cars.length - visibleCount);
 
   useEffect(() => {
     setCurrentIndex((index) => Math.min(index, maxIndex));
@@ -71,12 +92,6 @@ export default function CarsCategory() {
     touchEndX.current = null;
   };
 
-  const kmOptions = ["250 KM", "375 KM", "525 KM"];
-
-  const handleKmSelect = (carId: string, km: string) => {
-    setSelectedKmMap((prev) => ({ ...prev, [carId]: km }));
-  };
-
   const gap = 24;
 
   return (
@@ -97,12 +112,21 @@ export default function CarsCategory() {
               Most Booked <span>Cars</span>
             </h2>
             <p className="mb-0" style={{ maxWidth: "680px" }}>
-              Our highest-rated self-drive SUVs, 4x4s, and premium vehicles across Delhi NCR with unlimited kilometers and zero hidden fees.
+              Our highest-rated self-drive SUVs, 4x4s, and premium vehicles across Delhi NCR &amp; Lucknow with flexible KM packages and zero hidden fees.
             </p>
           </div>
 
           {/* Top-Right Slider Controls */}
-          <CarouselControls currentIndex={currentIndex} maxIndex={maxIndex} onPrevious={handlePrev} onNext={handleNext} label="Fleet carousel controls" previousLabel="Previous cars" nextLabel="Next cars" className="carousel-controls-desktop mt-3 mt-md-0 align-self-start align-self-md-end flex-shrink-0" />
+          <CarouselControls
+            currentIndex={currentIndex}
+            maxIndex={maxIndex}
+            onPrevious={handlePrev}
+            onNext={handleNext}
+            label="Fleet carousel controls"
+            previousLabel="Previous cars"
+            nextLabel="Next cars"
+            className="carousel-controls-desktop mt-3 mt-md-0 align-self-start align-self-md-end flex-shrink-0"
+          />
         </div>
 
         {/* Single Smooth Carousel Viewport */}
@@ -121,98 +145,29 @@ export default function CarsCategory() {
               willChange: "transform",
             }}
           >
-            {FLEET_CARS.map((car) => {
-              const selectedKm = selectedKmMap[car.id] || "250 KM";
-              return (
-                <div
-                  key={car.id}
-                  className="flex-shrink-0 align-self-start"
-                  style={{
-                    width: `calc((100% - ${(visibleCount - 1) * gap}px) / ${visibleCount})`,
-                  }}
-                >
-                  <div className="modern-car-card d-flex flex-column">
-                    {/* Car Image Preview */}
-                    <div className="modern-car-img-box position-relative">
-                      <img
-                        src={car.img}
-                        alt={`${car.name} Rental Car`}
-                        className="modern-car-img"
-                      />
-                      {car.badge && (
-                        <span className="modern-car-badge position-absolute top-0 start-0 m-2">
-                          {car.badge}
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Card Body */}
-                    <div className="modern-car-body d-flex flex-column">
-                      {/* Car Name */}
-                      <h3 className="modern-car-name mb-2">
-                        {car.name}
-                      </h3>
-
-                      {/* Specs Row: Transmission, Fuel, Seats */}
-                      <div className="modern-car-specs d-flex align-items-center gap-3 mb-1">
-                        <span className="spec-item d-flex align-items-center gap-1">
-                          <i className="fa-solid fa-gear text-muted"></i>
-                          <span>{car.transmission.split(" ")[0]}</span>
-                        </span>
-                        <span className="spec-item d-flex align-items-center gap-1">
-                          <i className="fa-solid fa-gas-pump text-muted"></i>
-                          <span>{car.fuel.split(" ")[0]}</span>
-                        </span>
-                        <span className="spec-item d-flex align-items-center gap-1">
-                          <i className="fa-solid fa-user-group text-muted"></i>
-                          <span>{car.seats.split(" ")[0]} Seats</span>
-                        </span>
-                      </div>
-
-                      {/* Price Line */}
-                      <div className="modern-car-price mb-2">
-                        <span className="price-val">{car.price}</span>
-                        <span className="price-unit"> / day</span>
-                      </div>
-
-                      {/* KM Package Selector */}
-                      <div className="modern-km-packages d-flex align-items-center gap-2 mb-3">
-                        {kmOptions.map((km) => (
-                          <button
-                            key={km}
-                            type="button"
-                            className={`km-pill-btn ${selectedKm === km ? "active" : ""}`}
-                            aria-pressed={selectedKm === km}
-                            aria-label={`Select ${km} package for ${car.name}`}
-                            onClick={() => handleKmSelect(car.id, km)}
-                          >
-                            <span className={`km-checkbox ${selectedKm === km ? "checked" : ""}`} aria-hidden="true">
-                              {selectedKm === km && <i className="fa-solid fa-check" />}
-                            </span>
-                            {km}
-                          </button>
-                        ))}
-                      </div>
-
-                      {/* View Car Details / Book Button - Leads directly to live reservation engine */}
-                      <div className="pt-1">
-                        <Link
-                          href={`/cars/${car.id}`}
-                          className="modern-card-btn w-100 d-flex align-items-center justify-content-center gap-2 text-decoration-none"
-                        >
-                          <span>View Details &amp; Book</span>
-                          <i className="fa-solid fa-arrow-right arrow-icon"></i>
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+            {cars.map((car) => (
+              <div
+                key={car.slug || car.id}
+                className="flex-shrink-0 align-self-start"
+                style={{
+                  width: `calc((100% - ${(visibleCount - 1) * gap}px) / ${visibleCount})`,
+                }}
+              >
+                <CarCard car={car} variant="carousel" />
+              </div>
+            ))}
           </div>
         </div>
-        <CarouselControls currentIndex={currentIndex} maxIndex={maxIndex} onPrevious={handlePrev} onNext={handleNext} label="Fleet carousel controls" previousLabel="Previous cars" nextLabel="Next cars" className="carousel-controls-mobile" />
-
+        <CarouselControls
+          currentIndex={currentIndex}
+          maxIndex={maxIndex}
+          onPrevious={handlePrev}
+          onNext={handleNext}
+          label="Fleet carousel controls"
+          previousLabel="Previous cars"
+          nextLabel="Next cars"
+          className="carousel-controls-mobile"
+        />
       </div>
     </section>
   );

@@ -83,17 +83,18 @@ describe("Risk #20 Audit: Missing Alt Attributes on Public and Admin Images", ()
     const locContent = fs.readFileSync(path.join(process.cwd(), "src/components/ChooseLocation.tsx"), "utf-8");
     expect(locContent).toContain('alt={`${loc.city} PrimeRides Luxury Car Rental Hub`}');
 
-    // 2. CarSearchCard.tsx
+    // 2. CarSearchCard.tsx & CarCard.tsx
     const carCardContent = fs.readFileSync(path.join(process.cwd(), "src/components/fleet/CarSearchCard.tsx"), "utf-8");
-    expect(carCardContent).toContain("alt={car.name ? `${car.name} Rental Car in ${car.location?.city || \"Delhi NCR\"}` : \"PrimeRides Luxury Rental Car\"}");
+    const canonicalCard = fs.readFileSync(path.join(process.cwd(), "src/components/fleet/CarCard.tsx"), "utf-8");
+    expect(carCardContent + canonicalCard).toContain("alt={car.name ? `${car.name} Rental Car in ${car.location?.city || \"Delhi NCR\"}` : \"PrimeRides Luxury Rental Car\"}");
 
     // 3. HeroSection.tsx
     const heroContent = fs.readFileSync(path.join(process.cwd(), "src/components/HeroSection.tsx"), "utf-8");
     expect(heroContent).toContain('alt="PrimeRides Luxury Car"');
 
-    // 4. CarsCategory.tsx
+    // 4. CarsCategory.tsx delegates to unified CarCard
     const catContent = fs.readFileSync(path.join(process.cwd(), "src/components/CarsCategory.tsx"), "utf-8");
-    expect(catContent).toContain('alt={`${car.name} Rental Car`}');
+    expect(catContent.includes('alt={`${car.name} Rental Car`}') || catContent.includes('CarCard')).toBe(true);
 
     // 5. Navbar.tsx & Footer.tsx
     const navContent = fs.readFileSync(path.join(process.cwd(), "src/components/Navbar.tsx"), "utf-8");

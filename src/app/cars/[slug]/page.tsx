@@ -5,6 +5,8 @@ import { getCarBySlug, getFleetCars } from "@/server/fleet";
 import { getCurrentCustomer } from "@/server/auth/customer";
 import CarBookingCard from "@/components/CarBookingCard";
 import CarGallery from "@/components/fleet/CarGallery";
+import CarCard from "@/components/fleet/CarCard";
+import PageHeader from "@/components/PageHeader";
 import { formatCarDisplayName } from "@/components/fleet/types";
 import {
   ChevronLeft,
@@ -97,35 +99,15 @@ export default async function CarDetailPage({
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-8">
         {/* BREADCRUMB & LOCATION STATUS BAR */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-slate-200/80">
-          <div className="flex items-center gap-2 text-xs font-medium text-slate-500">
-            <Link
-              href="/"
-              className="hover:text-amber-700 transition-colors flex items-center gap-1"
-            >
-              <span>Home</span>
-            </Link>
-            <span>/</span>
-            <Link href="/cars" className="hover:text-amber-700 transition-colors">
-              <span>Fleet Inventory</span>
-            </Link>
-            <span>/</span>
-            <span className="text-slate-800 font-semibold">{car.name}</span>
-          </div>
-
-          <div className="flex items-center gap-2">
-            {car.location && (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-900 border border-amber-200 shadow-2xs">
-                <MapPin className="w-3.5 h-3.5 text-amber-600" />
-                <span>Stationed: {car.location.city}</span>
-              </span>
-            )}
-            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 shadow-2xs">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-              <span>Available for Booking</span>
-            </span>
-          </div>
-        </div>
+        <PageHeader
+          title={car.name}
+          breadcrumb={car.name}
+          parentHref="/cars"
+          parentLabel="Fleet Inventory"
+          stationedCity={car.location?.city}
+          isAvailable={true}
+          containerClassName="p-0 bg-transparent"
+        />
 
         {/* MAIN TITLE & STAR RATING HEADER */}
         <div className="space-y-2 pb-1">
@@ -344,88 +326,9 @@ export default async function CarDetailPage({
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {otherCars.map((other) => {
-                const displayName = formatCarDisplayName(other.brand, other.name);
-                const startingPlan = other.rental_plans?.[0];
-                const otherCity = other.location?.city || car.location?.city || "Delhi NCR";
-
-                return (
-                  <div key={other.id} className="modern-car-card d-flex flex-column h-100">
-                    {/* Car Image Preview */}
-                    <Link
-                      href={`/cars/${other.slug}`}
-                      className="modern-car-img-box position-relative d-block text-decoration-none"
-                    >
-                      <img
-                        src={other.primary_image || "/assets/img/cars/1.jpg"}
-                        alt={`${displayName} Rental Car`}
-                        className="modern-car-img"
-                      />
-                      {/* Modern Car Badge */}
-                      <span className="modern-car-badge position-absolute top-0 start-0 m-2">
-                        {other.badge || "Prime Certified"}
-                      </span>
-                      {/* Location Pill */}
-                      <span className="position-absolute bottom-0 end-0 m-2 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-white/95 text-slate-800 shadow-xs border border-slate-200 d-inline-flex align-items-center gap-1">
-                        <MapPin className="w-3 h-3 text-[#c59b27]" />
-                        <span>{otherCity}</span>
-                      </span>
-                    </Link>
-
-                    {/* Card Body */}
-                    <div className="modern-car-body d-flex flex-column flex-grow-1 justify-content-between">
-                      <div>
-                        {/* Brand & Category Subtitle */}
-                        <div className="d-flex align-items-center gap-1 text-[11px] font-bold text-uppercase text-muted mb-1">
-                          <span className="text-[#c59b27]">{other.brand}</span>
-                          <span>•</span>
-                          <span>{other.category?.name || "Luxury Class"}</span>
-                        </div>
-
-                        {/* Car Name */}
-                        <Link href={`/cars/${other.slug}`} className="text-decoration-none text-dark d-block">
-                          <h3 className="modern-car-name mb-2">
-                            {displayName}
-                          </h3>
-                        </Link>
-
-                        {/* Specs Row */}
-                        <div className="modern-car-specs d-flex align-items-center gap-3 mb-2">
-                          <span className="spec-item d-flex align-items-center gap-1">
-                            <i className="fa-solid fa-gear text-muted"></i>
-                            <span>{other.transmission.toLowerCase().includes("auto") ? "Auto" : "Manual"}</span>
-                          </span>
-                          <span className="spec-item d-flex align-items-center gap-1">
-                            <i className="fa-solid fa-gas-pump text-muted"></i>
-                            <span>{other.fuel_type}</span>
-                          </span>
-                          <span className="spec-item d-flex align-items-center gap-1">
-                            <i className="fa-solid fa-user-group text-muted"></i>
-                            <span>{other.seats} Seats</span>
-                          </span>
-                        </div>
-
-                        {/* Price Line */}
-                        <div className="modern-car-price mb-2">
-                          <span className="price-val">₹{Number(other.price_per_day).toLocaleString("en-IN")}</span>
-                          <span className="price-unit"> / {startingPlan?.name || "300 km"}</span>
-                        </div>
-                      </div>
-
-                      {/* Action Button */}
-                      <div className="pt-2">
-                        <Link
-                          href={`/cars/${other.slug}`}
-                          className="modern-card-btn w-100 d-flex align-items-center justify-content-center gap-2 text-decoration-none"
-                        >
-                          <span>Explore &amp; Book</span>
-                          <i className="fa-solid fa-arrow-right arrow-icon"></i>
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
+              {otherCars.map((other) => (
+                <CarCard key={other.id} car={other} variant="similar" />
+              ))}
             </div>
           </div>
         )}

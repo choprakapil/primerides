@@ -25,6 +25,45 @@ export default function LocationsPageClient({ dbLocations }: LocationsPageClient
     addresses: SITE_CONFIG.addresses,
   });
 
+  // Dynamically resolve locations from MySQL database with rich presentation fallbacks
+  const locationsList = React.useMemo(() => {
+    if (Array.isArray(dbLocations) && dbLocations.length > 0) {
+      return dbLocations.map((dbLoc) => {
+        const staticMatch = LOCATIONS_DATA.find(
+          (loc) =>
+            loc.id.toLowerCase() === dbLoc.slug.toLowerCase() ||
+            loc.name.toLowerCase().includes(dbLoc.city.toLowerCase()) ||
+            dbLoc.name.toLowerCase().includes(loc.name.toLowerCase())
+        );
+
+        if (staticMatch) {
+          return {
+            ...staticMatch,
+            id: dbLoc.slug || staticMatch.id,
+            name: dbLoc.city || dbLoc.name || staticMatch.name,
+            landmark: dbLoc.address || staticMatch.landmark,
+          };
+        }
+
+        return {
+          id: dbLoc.slug || `hub-${dbLoc.id}`,
+          name: dbLoc.city || dbLoc.name,
+          tag: `${dbLoc.city} Mobility Hub`,
+          badge: "Active Station",
+          popular: true,
+          image: "/assets/img/locations/delhi.jpg",
+          landmark: dbLoc.address || `${dbLoc.name}, ${dbLoc.city}`,
+          heading: `Self Drive Car Rental in ${dbLoc.city}`,
+          subtext: `Express doorstep delivery and airport curbside pickup across ${dbLoc.city} and surrounding hubs.`,
+          deliveryTime: "15-30 Mins Express Delivery",
+          hubs: [dbLoc.name, `${dbLoc.city} Airport Desk`, "Express Hub"],
+          popularCars: ["Toyota Fortuner 4x4", "Toyota Innova Crysta", "Mahindra Thar"],
+        };
+      });
+    }
+    return LOCATIONS_DATA;
+  }, [dbLocations]);
+
   useEffect(() => {
     fetch("/api/v1/cms/settings")
       .then((res) => (res.ok ? res.json() : null))
@@ -76,7 +115,7 @@ export default function LocationsPageClient({ dbLocations }: LocationsPageClient
       <section style={{ padding: "80px 0", background: "#f8fafc" }}>
         <div className="container">
           <div className="row g-4">
-            {LOCATIONS_DATA.map((loc) => (
+            {locationsList.map((loc) => (
               <div key={loc.id} className="col-lg-6">
                 <div
                   style={{

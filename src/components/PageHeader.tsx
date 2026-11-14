@@ -2,10 +2,10 @@
 
 import React from "react";
 import Link from "next/link";
-import { MapPin, ShieldCheck, Sparkles } from "lucide-react";
+import { MapPin, ShieldCheck } from "lucide-react";
 import { MotionIcon } from "motion-icons-react";
 
-interface PageHeaderProps {
+export interface PageHeaderProps {
   title: string;
   subtitle?: string;
   breadcrumb: string;
@@ -14,6 +14,10 @@ interface PageHeaderProps {
   bgImage?: string;
   badge1?: string;
   badge2?: string;
+  stationedCity?: string;
+  isAvailable?: boolean;
+  rightSlot?: React.ReactNode;
+  containerClassName?: string;
 }
 
 export default function PageHeader({
@@ -23,8 +27,10 @@ export default function PageHeader({
   parentHref,
   parentLabel,
   bgImage,
-  badge1,
-  badge2,
+  stationedCity,
+  isAvailable,
+  rightSlot,
+  containerClassName,
 }: PageHeaderProps) {
   const hasBgImage = Boolean(bgImage && bgImage.trim() !== "");
 
@@ -76,18 +82,27 @@ export default function PageHeader({
             <Link href="/" className="text-white fw-bold text-decoration-none">
               Home
             </Link>{" "}
-            <span>/</span> <span style={{ color: "var(--primary-color)", fontWeight: 600 }}>{breadcrumb}</span>
+            <span>/</span>{" "}
+            {parentHref && parentLabel && (
+              <>
+                <Link href={parentHref} className="text-white fw-semibold text-decoration-none">
+                  {parentLabel}
+                </Link>{" "}
+                <span>/</span>{" "}
+              </>
+            )}
+            <span style={{ color: "var(--primary-color)", fontWeight: 600 }}>{breadcrumb}</span>
           </div>
         </div>
       </section>
     );
   }
 
-  // When image is removed (Default Minimal Luxury Breadcrumb)
+  // When image is removed (Default Minimal Luxury Breadcrumb matching vehicle detail standard)
   return (
-    <div className="w-full bg-[#f8fafc] text-slate-900 font-sans pt-28 sm:pt-32 pb-3">
+    <div className={`w-full bg-[#f8fafc] text-slate-900 font-sans ${containerClassName || "pt-28 sm:pt-32 pb-3"}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between gap-3 pb-2 border-b border-slate-200/80">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-slate-200/80">
           {/* Breadcrumb Path */}
           <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs font-medium text-slate-500">
             <Link
@@ -105,8 +120,30 @@ export default function PageHeader({
                 <span className="text-slate-400">/</span>
               </>
             )}
-            <span className="text-slate-800 font-semibold">{breadcrumb || title}</span>
+            <span className="text-slate-800 font-semibold truncate max-w-xs sm:max-w-md">
+              {breadcrumb || title}
+            </span>
           </nav>
+
+          {/* Right Status Slot or Badges */}
+          {rightSlot ? (
+            rightSlot
+          ) : stationedCity || isAvailable ? (
+            <div className="flex items-center gap-2">
+              {stationedCity && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-900 border border-amber-200 shadow-2xs">
+                  <MapPin className="w-3.5 h-3.5 text-amber-600" />
+                  <span>Stationed: {stationedCity}</span>
+                </span>
+              )}
+              {isAvailable && (
+                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 shadow-2xs">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>Available for Booking</span>
+                </span>
+              )}
+            </div>
+          ) : null}
         </div>
       </div>
     </div>

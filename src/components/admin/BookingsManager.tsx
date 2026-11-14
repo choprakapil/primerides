@@ -2,6 +2,7 @@
 
 import TrendArrowBadge from "./ui/TrendArrowBadge";
 import React, { useState, useMemo, useEffect, useRef } from "react";
+import { calculateBookingTariff } from "@/lib/pricing";
 import {
   CalendarCheck,
   Phone,
@@ -459,30 +460,26 @@ export default function BookingsManager({
 
   const calculatedEstimate = useMemo(() => {
     if (!selectedCar || !walkinStartDate || !walkinEndDate) return null;
-    const s = new Date(walkinStartDate).getTime();
-    const e = new Date(walkinEndDate).getTime();
-    if (isNaN(s) || isNaN(e) || e <= s) return null;
-
-    const diffHours = (e - s) / (1000 * 60 * 60);
-    const diffDays = Math.max(1, Math.ceil(diffHours / 24));
-
     const planPrice = selectedPlan ? Number(selectedPlan.price) : Number(selectedCar.price_per_day);
-    const baseRental = planPrice * diffDays;
-    const chauffeurCost = walkinWithChauffeur ? 1000 * diffDays : 0;
-    const subtotal = baseRental + chauffeurCost;
-    const gst = Math.round(subtotal * 0.18);
     const deposit = Number(selectedPlan?.security_deposit || 5000);
-    const grandTotal = subtotal + gst + deposit;
+
+    const tariff = calculateBookingTariff({
+      startDate: walkinStartDate,
+      endDate: walkinEndDate,
+      planPrice,
+      securityDeposit: deposit,
+      withChauffeur: walkinWithChauffeur,
+    });
 
     return {
-      diffDays,
-      diffHours: Math.round(diffHours),
-      baseRental,
-      chauffeurCost,
-      subtotal,
-      gst,
-      deposit,
-      grandTotal,
+      diffDays: tariff.diffDays,
+      diffHours: tariff.diffHours,
+      baseRental: tariff.planPrice,
+      chauffeurCost: tariff.chauffeurFee,
+      subtotal: tariff.taxableAmount,
+      gst: tariff.gstAmount,
+      deposit: tariff.securityDeposit,
+      grandTotal: tariff.grandTotal,
     };
   }, [selectedCar, selectedPlan, walkinStartDate, walkinEndDate, walkinWithChauffeur]);
 
