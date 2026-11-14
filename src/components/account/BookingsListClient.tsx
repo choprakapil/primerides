@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { formatIstDate } from "@/lib/dates";
 
 interface BookingItem {
@@ -15,6 +15,8 @@ interface BookingItem {
   pickup_location?: string | null;
   drop_location?: string | null;
   total_amount?: any;
+  coupon_code?: string | null;
+  discount_amount?: any;
   car_name?: string | null;
   with_chauffeur?: boolean;
   car?: {
@@ -56,10 +58,16 @@ export default function BookingsListClient({
   hasVerifiedDL,
 }: BookingsListClientProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const isJustConfirmed = searchParams?.get("confirmed") === "true";
+  const confirmedCode = searchParams?.get("bookingCode");
+  const targetBookingId = searchParams?.get("bookingId") ? Number(searchParams.get("bookingId")) : null;
+
   const [activeFilter, setActiveFilter] = useState<"all" | "active" | "completed" | "cancelled">(
     "all"
   );
-  const [expandedId, setExpandedId] = useState<number | null>(null);
+  const [expandedId, setExpandedId] = useState<number | null>(targetBookingId);
 
   // Cancellation state
   const [bookingsState, setBookingsState] = useState<BookingItem[]>(bookings);
@@ -67,6 +75,58 @@ export default function BookingsListClient({
   const [cancelLoadingId, setCancelLoadingId] = useState<number | null>(null);
   const [cancelError, setCancelError] = useState<string | null>(null);
   const [cancelReason, setCancelReason] = useState("");
+
+  // Coupon state
+  const [couponInputs, setCouponInputs] = useState<Record<number, string>>({});
+  const [couponLoadingId, setCouponLoadingId] = useState<number | null>(null);
+  const [couponErrors, setCouponErrors] = useState<Record<number, string>>({});
+  const [couponSuccesses, setCouponSuccesses] = useState<Record<number, string>>({});
+
+  useEffect(() => {
+    if (targetBookingId) {
+      setExpandedId(targetBookingId);
+    }
+  }, [targetBookingId]);
+
+  async function handleApplyCoupon(bookingId: number) {
+    const code = (couponInputs[bookingId] || "").trim();
+    if (!code) return;
+    setCouponLoadingId(bookingId);
+    setCouponErrors((prev) => ({ ...prev, [bookingId]: "" }));
+    setCouponSuccesses((prev) => ({ ...prev, [bookingId]: "" }));
+
+    try {
+      const res = await fetch(`/api/v1/bookings/${bookingId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ couponCode: code }),
+        credentials: "include",
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        setCouponErrors((prev) => ({ ...prev, [bookingId]: data.error || "Failed to apply coupon." }));
+      } else {
+        setCouponSuccesses((prev) => ({ ...prev, [bookingId]: data.message || "Coupon applied successfully!" }));
+        setBookingsState((prev) =>
+          prev.map((b) =>
+            b.id === bookingId
+              ? {
+                  ...b,
+                  total_amount: data.data.total_amount,
+                  coupon_code: data.data.coupon_code,
+                  discount_amount: data.data.discount_amount,
+                }
+              : b
+          )
+        );
+        router.refresh();
+      }
+    } catch {
+      setCouponErrors((prev) => ({ ...prev, [bookingId]: "Network error. Please try again." }));
+    } finally {
+      setCouponLoadingId(null);
+    }
+  }
 
   async function handleCancelBooking(bookingId: number) {
     setCancelLoadingId(bookingId);
@@ -121,6 +181,26 @@ export default function BookingsListClient({
 
   return (
     <div className="py-2">
+      {/* Celebration Banner after successful booking reservation */}
+      {isJustConfirmed && (
+        <div className="alert alert-success d-flex align-items-center gap-3 p-3.5 rounded-3 border-success mb-4 shadow-sm animate-in fade-in duration-300">
+          <div className="avatar avatar-md rounded-circle bg-success text-white d-flex align-items-center justify-content-center shrink-0" style={{ width: "40px", height: "40px" }}>
+            <i className="fi fi-rr-check text-lg"></i>
+          </div>
+          <div className="flex-grow-1">
+            <div className="d-flex align-items-center gap-2">
+              <strong className="text-dark fs-6">
+                Booking #{confirmedCode || ""} Reserved Successfully!
+              </strong>
+              <span className="badge bg-success text-white">Confirmed</span>
+            </div>
+            <p className="text-muted text-xs mb-0 mt-0.5">
+              Your ride is secured in our fleet hub. Please review your trip schedule below, apply any promotional discount coupons, upload your Driving License for instant verification, and complete payment.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Filter Tabs using authentic Nexlink nav-pills */}
       <div className="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
         <ul className="nav nav-pills gap-2 bg-light p-1.5 rounded-3 border">
@@ -300,14 +380,78 @@ export default function BookingsListClient({
                               <span className="text-dark fw-medium">{b.rental_plan?.free_km || 300} KM</span>
                             </div>
                             <div className="d-flex justify-content-between pt-2 border-top">
-                              <span className="fw-bold text-dark">Total Paid</span>
+                              <span className="fw-bold text-dark">Total Amount</span>
                               <span className="fw-bold text-primary fs-6">₹{Number(b.total_amount || 0).toLocaleString("en-IN")}</span>
                             </div>
-                            <div className="mt-3 pt-2 border-top">
+
+                            {/* Promo Coupon Application for Pending Bookings */}
+                            {b.status === "pending" && (
+                              <div className="mt-3 pt-2.5 border-top">
+                                <label className="text-muted d-block fw-bold mb-1" style={{ fontSize: "11px" }}>PROMO / COUPON CODE</label>
+                                {b.coupon_code ? (
+                                  <div className="d-flex align-items-center justify-content-between p-2 rounded bg-success-subtle text-success text-xs">
+                                    <span>🏷️ Applied: <strong>{b.coupon_code}</strong></span>
+                                    <span className="badge bg-success text-white">Active</span>
+                                  </div>
+                                ) : (
+                                  <div>
+                                    <div className="input-group input-group-sm">
+                                      <input
+                                        type="text"
+                                        placeholder="Enter code (e.g. PRIME10)"
+                                        value={couponInputs[b.id] || ""}
+                                        onChange={(e) =>
+                                          setCouponInputs((prev) => ({
+                                            ...prev,
+                                            [b.id]: e.target.value.toUpperCase().replace(/\s+/g, ""),
+                                          }))
+                                        }
+                                        className="form-control text-uppercase font-monospace fw-bold"
+                                      />
+                                      <button
+                                        type="button"
+                                        onClick={() => handleApplyCoupon(b.id)}
+                                        disabled={couponLoadingId === b.id || !couponInputs[b.id]?.trim()}
+                                        className="btn btn-primary"
+                                      >
+                                        {couponLoadingId === b.id ? "Applying..." : "Apply"}
+                                      </button>
+                                    </div>
+                                    {couponErrors[b.id] && (
+                                      <small className="text-danger d-block mt-1" style={{ fontSize: "11px" }}>{couponErrors[b.id]}</small>
+                                    )}
+                                    {couponSuccesses[b.id] && (
+                                      <small className="text-success d-block mt-1" style={{ fontSize: "11px" }}>{couponSuccesses[b.id]}</small>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            )}
+
+                            {/* Next Steps for Customer */}
+                            <div className="mt-3 pt-2 border-top d-flex flex-column gap-2">
+                              {b.status === "pending" && (
+                                <Link
+                                  href="/account/payments"
+                                  className="btn btn-sm btn-primary d-inline-flex align-items-center gap-1.5 text-xs w-100 justify-content-center"
+                                >
+                                  <i className="fi fi-rr-credit-card"></i>
+                                  <span>Proceed to Online Payment</span>
+                                </Link>
+                              )}
+                              {!hasVerifiedDL && (
+                                <Link
+                                  href="/account/documents"
+                                  className="btn btn-sm btn-outline-warning d-inline-flex align-items-center gap-1.5 text-xs w-100 justify-content-center text-dark"
+                                >
+                                  <i className="fi fi-rr-id-badge"></i>
+                                  <span>Upload Driving License for Handover</span>
+                                </Link>
+                              )}
                               <a
                                 href={`/api/v1/bookings/${b.id}/invoice`}
                                 download={`Invoice-${(b.booking_code || b.booking_number || 'PR').replace(/[^a-zA-Z0-9_-]/g, '_')}.pdf`}
-                                className="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1.5 text-xs w-100 justify-content-center"
+                                className="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1.5 text-xs w-100 justify-content-center"
                               >
                                 <i className="fi fi-rr-download"></i>
                                 <span>Download Official PDF Invoice</span>
