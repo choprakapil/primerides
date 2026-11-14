@@ -12,12 +12,13 @@ import SeoContentSection from "@/components/SeoContentSection";
 import { getHomepageConfig } from "@/server/settings";
 import { getFleetCars } from "@/server/fleet";
 import { prisma } from "@/server/db/client";
+import { getBlogs, getFaqs, getTestimonials } from "@/server/cms";
 
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
   const config = getHomepageConfig();
-  const [liveFleet, activeCoupons] = await Promise.all([
+  const [liveFleet, activeCoupons, liveLocations, liveBlogs, liveFaqs, liveTestimonials] = await Promise.all([
     getFleetCars().catch(() => []),
     prisma.coupon
       .findMany({
@@ -33,19 +34,28 @@ export default async function HomePage() {
         orderBy: { created_at: "desc" },
       })
       .catch(() => []),
+    prisma.location
+      .findMany({
+        where: { deleted_at: null, is_active: true },
+        orderBy: { name: "asc" },
+      })
+      .catch(() => []),
+    getBlogs(6).catch(() => []),
+    getFaqs(5).catch(() => []),
+    getTestimonials(10).catch(() => []),
   ]);
 
   return (
     <>
       <HeroSection heroData={config.heroData} />
       <TrustBar items={config.trustHighlights} />
-      <ChooseLocation />
+      <ChooseLocation initialLocations={liveLocations} />
       <CarsCategory initialCars={liveFleet} />
       <OffersSection initialOffers={activeCoupons} />
       <AboutSection />
-      <Testimonials />
-      <BlogSection />
-      <FaqSection />
+      <Testimonials initialTestimonials={liveTestimonials} />
+      <BlogSection initialBlogs={liveBlogs} />
+      <FaqSection items={liveFaqs} />
       <SeoContentSection />
     </>
   );

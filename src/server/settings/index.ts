@@ -50,30 +50,43 @@ async function persistToDb(key: string, value: any): Promise<void> {
   }
 }
 
-export async function getSiteSettingsAsync(): Promise<ExtendedSiteSettings> {
+function readConfigFile<T>(filePath: string, defaultVal: T): T {
   try {
-    const record = await (prisma as any).siteSetting.findUnique({
-      where: { key: "site_settings" },
-    });
-    if (record && record.value) {
-      return { ...DEFAULT_SITE_SETTINGS, ...(record.value as object) };
+    if (fs.existsSync(filePath)) {
+      const content = fs.readFileSync(filePath, "utf8");
+      return { ...defaultVal, ...JSON.parse(content) };
     }
   } catch (err) {
-    // fallback to file
+    console.error(`Error reading config file ${filePath}:`, err);
   }
-  return getSiteSettings();
+  return defaultVal;
+}
+
+async function readConfigDbOrFile<T>(key: string, filePath: string, defaultVal: T): Promise<T> {
+  try {
+    const record = await (prisma as any).siteSetting.findUnique({ where: { key } });
+    if (record && record.value) return { ...defaultVal, ...(record.value as object) };
+  } catch {}
+  return readConfigFile(filePath, defaultVal);
+}
+
+function writeConfigFileAndDb<T extends object>(key: string, filePath: string, data: Partial<T>, current: T): T {
+  const updated = { ...current, ...data };
+  try {
+    fs.writeFileSync(filePath, JSON.stringify(updated, null, 2), "utf8");
+  } catch (err) {
+    console.error(`Error saving config ${key}:`, err);
+  }
+  persistToDb(key, updated).catch(() => {});
+  return updated;
+}
+
+export async function getSiteSettingsAsync(): Promise<ExtendedSiteSettings> {
+  return readConfigDbOrFile<ExtendedSiteSettings>("site_settings", SETTINGS_FILE, DEFAULT_SITE_SETTINGS);
 }
 
 export function getSiteSettings(): ExtendedSiteSettings {
-  try {
-    if (fs.existsSync(SETTINGS_FILE)) {
-      const content = fs.readFileSync(SETTINGS_FILE, "utf8");
-      return { ...DEFAULT_SITE_SETTINGS, ...JSON.parse(content) };
-    }
-  } catch (err) {
-    console.error("Error reading site settings, using defaults:", err);
-  }
-  return DEFAULT_SITE_SETTINGS;
+  return readConfigFile<ExtendedSiteSettings>(SETTINGS_FILE, DEFAULT_SITE_SETTINGS);
 }
 
 export function saveSiteSettings(data: Partial<ExtendedSiteSettings> & { siteName?: string }): ExtendedSiteSettings {
@@ -153,261 +166,66 @@ export function saveSiteSettings(data: Partial<ExtendedSiteSettings> & { siteNam
   return updated;
 }
 
-export async function getHeaderConfigAsync(): Promise<HeaderConfig> {
-  try {
-    const record = await (prisma as any).siteSetting.findUnique({ where: { key: "header" } });
-    if (record && record.value) return { ...DEFAULT_HEADER_CONFIG, ...(record.value as object) };
-  } catch {}
-  return getHeaderConfig();
-}
+// Header
+export const getHeaderConfigAsync = (): Promise<HeaderConfig> =>
+  readConfigDbOrFile<HeaderConfig>("header", HEADER_FILE, DEFAULT_HEADER_CONFIG);
+export const getHeaderConfig = (): HeaderConfig =>
+  readConfigFile<HeaderConfig>(HEADER_FILE, DEFAULT_HEADER_CONFIG);
+export const saveHeaderConfig = (data: Partial<HeaderConfig>): HeaderConfig =>
+  writeConfigFileAndDb<HeaderConfig>("header", HEADER_FILE, data, getHeaderConfig());
 
-export function getHeaderConfig(): HeaderConfig {
-  try {
-    if (fs.existsSync(HEADER_FILE)) {
-      const content = fs.readFileSync(HEADER_FILE, "utf8");
-      return { ...DEFAULT_HEADER_CONFIG, ...JSON.parse(content) };
-    }
-  } catch (err) {
-    console.error("Error reading header config, using defaults:", err);
-  }
-  return DEFAULT_HEADER_CONFIG;
-}
+// Footer
+export const getFooterConfigAsync = (): Promise<FooterConfig> =>
+  readConfigDbOrFile<FooterConfig>("footer", FOOTER_FILE, DEFAULT_FOOTER_CONFIG);
+export const getFooterConfig = (): FooterConfig =>
+  readConfigFile<FooterConfig>(FOOTER_FILE, DEFAULT_FOOTER_CONFIG);
+export const saveFooterConfig = (data: Partial<FooterConfig>): FooterConfig =>
+  writeConfigFileAndDb<FooterConfig>("footer", FOOTER_FILE, data, getFooterConfig());
 
-export function saveHeaderConfig(data: Partial<HeaderConfig>): HeaderConfig {
-  const current = getHeaderConfig();
-  const updated = { ...current, ...data };
-  try {
-    fs.writeFileSync(HEADER_FILE, JSON.stringify(updated, null, 2), "utf8");
-  } catch (err) {
-    console.error("Error saving header config:", err);
-  }
-  persistToDb("header", updated).catch(() => {});
-  return updated;
-}
+// Notifications
+export const getNotificationSettingsAsync = (): Promise<NotificationSettings> =>
+  readConfigDbOrFile<NotificationSettings>("notifications", NOTIFICATIONS_FILE, DEFAULT_NOTIFICATION_SETTINGS);
+export const getNotificationSettings = (): NotificationSettings =>
+  readConfigFile<NotificationSettings>(NOTIFICATIONS_FILE, DEFAULT_NOTIFICATION_SETTINGS);
+export const saveNotificationSettings = (data: Partial<NotificationSettings>): NotificationSettings =>
+  writeConfigFileAndDb<NotificationSettings>("notifications", NOTIFICATIONS_FILE, data, getNotificationSettings());
 
-export async function getFooterConfigAsync(): Promise<FooterConfig> {
-  try {
-    const record = await (prisma as any).siteSetting.findUnique({ where: { key: "footer" } });
-    if (record && record.value) return { ...DEFAULT_FOOTER_CONFIG, ...(record.value as object) };
-  } catch {}
-  return getFooterConfig();
-}
+// Homepage
+export const getHomepageConfigAsync = (): Promise<HomepageConfig> =>
+  readConfigDbOrFile<HomepageConfig>("homepage", HOMEPAGE_FILE, DEFAULT_HOMEPAGE_CONFIG);
+export const getHomepageConfig = (): HomepageConfig =>
+  readConfigFile<HomepageConfig>(HOMEPAGE_FILE, DEFAULT_HOMEPAGE_CONFIG);
+export const saveHomepageConfig = (data: Partial<HomepageConfig>): HomepageConfig =>
+  writeConfigFileAndDb<HomepageConfig>("homepage", HOMEPAGE_FILE, data, getHomepageConfig());
 
-export function getFooterConfig(): FooterConfig {
-  try {
-    if (fs.existsSync(FOOTER_FILE)) {
-      const content = fs.readFileSync(FOOTER_FILE, "utf8");
-      return { ...DEFAULT_FOOTER_CONFIG, ...JSON.parse(content) };
-    }
-  } catch (err) {
-    console.error("Error reading footer config, using defaults:", err);
-  }
-  return DEFAULT_FOOTER_CONFIG;
-}
+// About
+export const getAboutConfigAsync = (): Promise<AboutConfig> =>
+  readConfigDbOrFile<AboutConfig>("about", ABOUT_FILE, DEFAULT_ABOUT_CONFIG);
+export const getAboutConfig = (): AboutConfig =>
+  readConfigFile<AboutConfig>(ABOUT_FILE, DEFAULT_ABOUT_CONFIG);
+export const saveAboutConfig = (data: Partial<AboutConfig>): AboutConfig =>
+  writeConfigFileAndDb<AboutConfig>("about", ABOUT_FILE, data, getAboutConfig());
 
-export function saveFooterConfig(data: Partial<FooterConfig>): FooterConfig {
-  const current = getFooterConfig();
-  const updated = { ...current, ...data };
-  try {
-    fs.writeFileSync(FOOTER_FILE, JSON.stringify(updated, null, 2), "utf8");
-  } catch (err) {
-    console.error("Error saving footer config:", err);
-  }
-  persistToDb("footer", updated).catch(() => {});
-  return updated;
-}
+// Policies
+export const getPoliciesConfigAsync = (): Promise<PoliciesConfig> =>
+  readConfigDbOrFile<PoliciesConfig>("policies", POLICIES_FILE, DEFAULT_POLICIES_CONFIG);
+export const getPoliciesConfig = (): PoliciesConfig =>
+  readConfigFile<PoliciesConfig>(POLICIES_FILE, DEFAULT_POLICIES_CONFIG);
+export const savePoliciesConfig = (data: Partial<PoliciesConfig>): PoliciesConfig =>
+  writeConfigFileAndDb<PoliciesConfig>("policies", POLICIES_FILE, data, getPoliciesConfig());
 
-export async function getNotificationSettingsAsync(): Promise<NotificationSettings> {
-  try {
-    const record = await (prisma as any).siteSetting.findUnique({ where: { key: "notifications" } });
-    if (record && record.value) return { ...DEFAULT_NOTIFICATION_SETTINGS, ...(record.value as object) };
-  } catch {}
-  return getNotificationSettings();
-}
+// Contact
+export const getContactConfigAsync = (): Promise<ContactConfig> =>
+  readConfigDbOrFile<ContactConfig>("contact", CONTACT_FILE, DEFAULT_CONTACT_CONFIG);
+export const getContactConfig = (): ContactConfig =>
+  readConfigFile<ContactConfig>(CONTACT_FILE, DEFAULT_CONTACT_CONFIG);
+export const saveContactConfig = (data: Partial<ContactConfig>): ContactConfig =>
+  writeConfigFileAndDb<ContactConfig>("contact", CONTACT_FILE, data, getContactConfig());
 
-export function getNotificationSettings(): NotificationSettings {
-  try {
-    if (fs.existsSync(NOTIFICATIONS_FILE)) {
-      const content = fs.readFileSync(NOTIFICATIONS_FILE, "utf8");
-      return { ...DEFAULT_NOTIFICATION_SETTINGS, ...JSON.parse(content) };
-    }
-  } catch (err) {
-    console.error("Error reading notification settings, using defaults:", err);
-  }
-  return DEFAULT_NOTIFICATION_SETTINGS;
-}
-
-export function saveNotificationSettings(data: Partial<NotificationSettings>): NotificationSettings {
-  const current = getNotificationSettings();
-  const updated = { ...current, ...data };
-  try {
-    fs.writeFileSync(NOTIFICATIONS_FILE, JSON.stringify(updated, null, 2), "utf8");
-  } catch (err) {
-    console.error("Error saving notification settings:", err);
-  }
-  persistToDb("notifications", updated).catch(() => {});
-  return updated;
-}
-
-export async function getHomepageConfigAsync(): Promise<HomepageConfig> {
-  try {
-    const record = await (prisma as any).siteSetting.findUnique({ where: { key: "homepage" } });
-    if (record && record.value) return { ...DEFAULT_HOMEPAGE_CONFIG, ...(record.value as object) };
-  } catch {}
-  return getHomepageConfig();
-}
-
-export function getHomepageConfig(): HomepageConfig {
-  try {
-    if (fs.existsSync(HOMEPAGE_FILE)) {
-      const content = fs.readFileSync(HOMEPAGE_FILE, "utf8");
-      return { ...DEFAULT_HOMEPAGE_CONFIG, ...JSON.parse(content) };
-    }
-  } catch (err) {
-    console.error("Error reading homepage config, using defaults:", err);
-  }
-  return DEFAULT_HOMEPAGE_CONFIG;
-}
-
-export function saveHomepageConfig(data: Partial<HomepageConfig>): HomepageConfig {
-  const current = getHomepageConfig();
-  const updated = { ...current, ...data };
-  try {
-    fs.writeFileSync(HOMEPAGE_FILE, JSON.stringify(updated, null, 2), "utf8");
-  } catch (err) {
-    console.error("Error saving homepage config:", err);
-  }
-  persistToDb("homepage", updated).catch(() => {});
-  return updated;
-}
-
-export async function getAboutConfigAsync(): Promise<AboutConfig> {
-  try {
-    const record = await (prisma as any).siteSetting.findUnique({ where: { key: "about" } });
-    if (record && record.value) return { ...DEFAULT_ABOUT_CONFIG, ...(record.value as object) };
-  } catch {}
-  return getAboutConfig();
-}
-
-export function getAboutConfig(): AboutConfig {
-  try {
-    if (fs.existsSync(ABOUT_FILE)) {
-      const content = fs.readFileSync(ABOUT_FILE, "utf8");
-      return { ...DEFAULT_ABOUT_CONFIG, ...JSON.parse(content) };
-    }
-  } catch (err) {
-    console.error("Error reading about config, using defaults:", err);
-  }
-  return DEFAULT_ABOUT_CONFIG;
-}
-
-export function saveAboutConfig(data: Partial<AboutConfig>): AboutConfig {
-  const current = getAboutConfig();
-  const updated = { ...current, ...data };
-  try {
-    fs.writeFileSync(ABOUT_FILE, JSON.stringify(updated, null, 2), "utf8");
-  } catch (err) {
-    console.error("Error saving about config:", err);
-  }
-  persistToDb("about", updated).catch(() => {});
-  return updated;
-}
-
-export async function getPoliciesConfigAsync(): Promise<PoliciesConfig> {
-  try {
-    const record = await (prisma as any).siteSetting.findUnique({ where: { key: "policies" } });
-    if (record && record.value) return { ...DEFAULT_POLICIES_CONFIG, ...(record.value as object) };
-  } catch {}
-  return getPoliciesConfig();
-}
-
-export function getPoliciesConfig(): PoliciesConfig {
-  try {
-    if (fs.existsSync(POLICIES_FILE)) {
-      const content = fs.readFileSync(POLICIES_FILE, "utf8");
-      return { ...DEFAULT_POLICIES_CONFIG, ...JSON.parse(content) };
-    }
-  } catch (err) {
-    console.error("Error reading policies config, using defaults:", err);
-  }
-  return DEFAULT_POLICIES_CONFIG;
-}
-
-export function savePoliciesConfig(data: Partial<PoliciesConfig>): PoliciesConfig {
-  const current = getPoliciesConfig();
-  const updated = { ...current, ...data };
-  try {
-    fs.writeFileSync(POLICIES_FILE, JSON.stringify(updated, null, 2), "utf8");
-  } catch (err) {
-    console.error("Error saving policies config:", err);
-  }
-  persistToDb("policies", updated).catch(() => {});
-  return updated;
-}
-
-export async function getContactConfigAsync(): Promise<ContactConfig> {
-  try {
-    const record = await (prisma as any).siteSetting.findUnique({ where: { key: "contact" } });
-    if (record && record.value) return { ...DEFAULT_CONTACT_CONFIG, ...(record.value as object) };
-  } catch {}
-  return getContactConfig();
-}
-
-export function getContactConfig(): ContactConfig {
-  try {
-    if (fs.existsSync(CONTACT_FILE)) {
-      const content = fs.readFileSync(CONTACT_FILE, "utf8");
-      return { ...DEFAULT_CONTACT_CONFIG, ...JSON.parse(content) };
-    }
-  } catch (err) {
-    console.error("Error reading contact config, using defaults:", err);
-  }
-  return DEFAULT_CONTACT_CONFIG;
-}
-
-export function saveContactConfig(data: Partial<ContactConfig>): ContactConfig {
-  const current = getContactConfig();
-  const updated = { ...current, ...data };
-  try {
-    fs.writeFileSync(CONTACT_FILE, JSON.stringify(updated, null, 2), "utf8");
-  } catch (err) {
-    console.error("Error saving contact config:", err);
-  }
-  persistToDb("contact", updated).catch(() => {});
-  return updated;
-}
-
-export async function getFleetConfigAsync(): Promise<FleetCmsConfig> {
-  try {
-    const record = await (prisma as any).siteSetting.findUnique({ where: { key: "fleet" } });
-    if (record && record.value) return { ...DEFAULT_FLEET_CMS_CONFIG, ...(record.value as object) };
-  } catch {}
-  return getFleetConfig();
-}
-
-export function getFleetConfig(): FleetCmsConfig {
-  try {
-    if (fs.existsSync(FLEET_FILE)) {
-      const content = fs.readFileSync(FLEET_FILE, "utf8");
-      return { ...DEFAULT_FLEET_CMS_CONFIG, ...JSON.parse(content) };
-    }
-  } catch (err) {
-    console.error("Error reading fleet config, using defaults:", err);
-  }
-  return DEFAULT_FLEET_CMS_CONFIG;
-}
-
-export function saveFleetConfig(data: Partial<FleetCmsConfig>): FleetCmsConfig {
-  const current = getFleetConfig();
-  const updated = { ...current, ...data };
-  try {
-    fs.writeFileSync(FLEET_FILE, JSON.stringify(updated, null, 2), "utf8");
-  } catch (err) {
-    console.error("Error saving fleet config:", err);
-  }
-  persistToDb("fleet", updated).catch(() => {});
-  return updated;
-}
-
-
-
+// Fleet
+export const getFleetConfigAsync = (): Promise<FleetCmsConfig> =>
+  readConfigDbOrFile<FleetCmsConfig>("fleet", FLEET_FILE, DEFAULT_FLEET_CMS_CONFIG);
+export const getFleetConfig = (): FleetCmsConfig =>
+  readConfigFile<FleetCmsConfig>(FLEET_FILE, DEFAULT_FLEET_CMS_CONFIG);
+export const saveFleetConfig = (data: Partial<FleetCmsConfig>): FleetCmsConfig =>
+  writeConfigFileAndDb<FleetCmsConfig>("fleet", FLEET_FILE, data, getFleetConfig());

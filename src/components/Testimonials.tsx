@@ -4,8 +4,17 @@ import React, { useState, useEffect, useRef } from "react";
 import { REVIEWS_DATA as TESTIMONIALS_DATA } from "@/data";
 import CarouselControls from "@/components/CarouselControls";
 
-export default function Testimonials() {
-  const [items, setItems] = useState(TESTIMONIALS_DATA);
+interface TestimonialsProps {
+  initialTestimonials?: any[];
+}
+
+export default function Testimonials({ initialTestimonials }: TestimonialsProps = {}) {
+  const [items, setItems] = useState(() => {
+    if (Array.isArray(initialTestimonials) && initialTestimonials.length > 0) {
+      return initialTestimonials;
+    }
+    return TESTIMONIALS_DATA;
+  });
   const [currentIndex, setCurrentIndex] = useState(0);
   const [visibleCount, setVisibleCount] = useState(3);
   const [isPaused, setIsPaused] = useState(false);
@@ -13,17 +22,29 @@ export default function Testimonials() {
   const touchEndX = useRef<number | null>(null);
 
   useEffect(() => {
+    if (Array.isArray(initialTestimonials) && initialTestimonials.length > 0) {
+      setItems(initialTestimonials);
+    }
+  }, [initialTestimonials]);
+
+  useEffect(() => {
     fetch("/api/v1/cms/testimonials")
       .then((res) => (res.ok ? res.json() : null))
       .then((json) => {
-        if (json?.success && Array.isArray(json.data) && json.data.length > 0) {
-          const mapped = json.data.map((t: any) => ({
+        const rawList = Array.isArray(json?.data)
+          ? json.data
+          : Array.isArray(json?.data?.testimonials)
+          ? json.data.testimonials
+          : null;
+
+        if (json?.success && Array.isArray(rawList) && rawList.length > 0) {
+          const mapped = rawList.map((t: any) => ({
             id: `test-${t.id}`,
-            name: t.client_name,
-            trip: t.role_title || "Verified Customer",
-            car: "",
-            img: t.avatar_url || "/assets/img/team/1.jpg",
-            text: t.comment,
+            name: t.client_name || t.name,
+            trip: t.role_title || t.trip || "Verified Customer",
+            car: t.car || "",
+            img: t.avatar_url || t.img || "/assets/img/team/1.jpg",
+            text: t.comment || t.text,
             rating: t.rating || 5,
             isVerified: true,
           }));

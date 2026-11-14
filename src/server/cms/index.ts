@@ -1,6 +1,19 @@
 import { prisma } from "../db/client";
 import { FAQS_DATA } from "@/data/faqs";
 import { BLOG_POSTS } from "@/data/blogs";
+import { REVIEWS_DATA } from "@/data/reviews";
+
+export interface TestimonialItemDTO {
+  id: number | string;
+  name: string;
+  trip: string;
+  car: string;
+  img: string;
+  text: string;
+  rating: number;
+  isVerified: boolean;
+  date?: string;
+}
 
 export interface FaqItemDTO {
   id: number | string;
@@ -169,3 +182,43 @@ export async function getBlogBySlug(slug: string): Promise<BlogItemDTO | null> {
 
   return null;
 }
+
+/**
+ * Fetch testimonials from database with graceful fallback
+ */
+export async function getTestimonials(limit = 20): Promise<TestimonialItemDTO[]> {
+  try {
+    const dbTestimonials = await prisma.testimonial.findMany({
+      where: {
+        is_featured: true,
+        deleted_at: null,
+      },
+      orderBy: {
+        created_at: "desc",
+      },
+      take: limit,
+    });
+
+    if (dbTestimonials.length > 0) {
+      return dbTestimonials.map((t) => ({
+        id: `test-${t.id}`,
+        name: t.client_name,
+        trip: t.role_title || "Verified Customer",
+        car: "",
+        img: t.avatar_url || "/assets/img/team/1.jpg",
+        text: t.comment,
+        rating: t.rating || 5,
+        isVerified: true,
+      }));
+    }
+  } catch (error) {
+    console.error("Failed to fetch testimonials from DB, using fallback:", error);
+  }
+
+  return REVIEWS_DATA.map((t, idx) => ({
+    ...t,
+    id: t.id || `test-seed-${idx + 1}`,
+    isVerified: true,
+  }));
+}
+

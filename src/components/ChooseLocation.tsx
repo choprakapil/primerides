@@ -1,11 +1,15 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import { MotionIcon } from "motion-icons-react";
-import { useModal } from "@/context/ModalContext";
-import { LOCATIONS_DATA } from "@/data";
-export default function ChooseLocation() {
-  const LOCATIONS = [
+
+interface ChooseLocationProps {
+  initialLocations?: any[];
+}
+
+export default function ChooseLocation({ initialLocations }: ChooseLocationProps) {
+  const fallbackLocations = [
     {
       id: "delhi",
       city: "Delhi NCR",
@@ -28,17 +32,29 @@ export default function ChooseLocation() {
     },
   ];
 
-  const handleCityClick = (cityId: string) => {
-    const categoriesSection = document.getElementById("categoriesSection");
-    if (categoriesSection) {
-      categoriesSection.scrollIntoView({ behavior: "smooth" });
+  const locationsList = React.useMemo(() => {
+    if (Array.isArray(initialLocations) && initialLocations.length > 0) {
+      return initialLocations.map((loc) => {
+        const isLucknow = (loc.city || loc.name || "").toLowerCase().includes("luck");
+        return {
+          id: loc.slug || (loc.city || loc.name || "").toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+          city: loc.city || loc.name,
+          subtitle: `${loc.city || loc.name} Mobility Hub`,
+          desc: loc.address || `Express curbside airport delivery and 24/7 doorstep vehicle handover across ${loc.city || loc.name}.`,
+          img: `/assets/img/locations/${isLucknow ? "lucknow" : "delhi"}.jpg`,
+          carsCount: "Verified Fleet",
+          highlight: isLucknow ? "Express Delivery" : "Airport Terminal 3 Hub",
+          badgeIcon: isLucknow ? "fa-map-pin" : "fa-plane-arrival",
+        };
+      });
     }
-  };
+    return fallbackLocations;
+  }, [initialLocations]);
 
   return (
     <section className="choose-location-section position-relative overflow-hidden">
       {/* Decorative Dashed Road Journey SVG with Moving Car */}
-      <div className="location-decor-path d-none  position-absolute end-0 top-50 translate-middle-y">
+      <div className="location-decor-path d-none position-absolute end-0 top-50 translate-middle-y">
         <svg width="220" height="260" viewBox="0 0 220 260" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path
             d="M20 20C120 40 200 120 180 240"
@@ -70,9 +86,9 @@ export default function ChooseLocation() {
           </p>
         </div>
 
-        {/* 2 Big Beautiful Location Cards */}
+        {/* Dynamic Location Cards */}
         <div className="row g-4 justify-content-center">
-          {LOCATIONS.map((loc) => (
+          {locationsList.map((loc) => (
             <div key={loc.id} className="col-lg-6 col-md-12">
               <div className="location-city-card d-flex flex-column flex-sm-row align-items-center">
                 {/* Landmark Image */}
@@ -104,15 +120,14 @@ export default function ChooseLocation() {
 
                   {/* Explore Cars Button */}
                   <div>
-                    <button
-                      type="button"
-                      onClick={() => handleCityClick(loc.id)}
-                      className="btn-prime d-inline-flex align-items-center gap-2"
-                      style={{ padding: "8px 24px", fontSize: "13px", borderRadius: "30px", border: "none", cursor: "pointer" }}
+                    <Link
+                      href={`/cars?location=${encodeURIComponent(loc.city)}`}
+                      className="btn-prime d-inline-flex align-items-center gap-2 text-decoration-none"
+                      style={{ padding: "8px 24px", fontSize: "13px", borderRadius: "30px", border: "none" }}
                     >
                       <span>Explore Cars</span>
                       <i className="fa-solid fa-arrow-right ms-1"></i>
-                    </button>
+                    </Link>
                   </div>
                 </div>
               </div>

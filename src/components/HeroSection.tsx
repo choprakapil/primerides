@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { MotionIcon } from "motion-icons-react";
-import { useModal } from "@/context/ModalContext";
 
 interface HeroSectionProps {
   heroData?: {
@@ -20,7 +19,6 @@ interface HeroSectionProps {
 
 export default function HeroSection({ heroData }: HeroSectionProps) {
   const router = useRouter();
-  const { openBookingModal } = useModal();
   const [pickupLoc, setPickupLoc] = useState("Delhi - IGI Airport Terminal 3 (Arrivals Gate)");
   const [dropoffLoc, setDropoffLoc] = useState("Delhi - IGI Airport Terminal 3");
   const [pickupDate, setPickupDate] = useState(() => {

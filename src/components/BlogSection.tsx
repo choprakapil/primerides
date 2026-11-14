@@ -5,7 +5,24 @@ import Link from "next/link";
 import { BLOG_POSTS } from "@/data/blogs";
 import CarouselControls from "@/components/CarouselControls";
 
-export default function BlogSection() {
+interface BlogSectionProps {
+  initialBlogs?: any[];
+}
+
+export default function BlogSection({ initialBlogs }: BlogSectionProps = {}) {
+  const posts = React.useMemo(() => {
+    const list = Array.isArray(initialBlogs) && initialBlogs.length > 0 ? initialBlogs : BLOG_POSTS;
+    return list.map((b: any) => ({
+      slug: b.slug,
+      title: b.title,
+      img: b.featuredImage || b.img || "/assets/img/blog/1.jpg",
+      tag: b.categoryName || b.tag || "Travel Journal",
+      date: b.publishedAt || b.date || "Recently",
+      readTime: b.readTime || "5 min read",
+      excerpt: b.summary || b.excerpt || "",
+    }));
+  }, [initialBlogs]);
+
   const [currentIndex, setCurrentIndex] = useState(0);
   const [visibleCount, setVisibleCount] = useState(4);
   const [isPaused, setIsPaused] = useState(false);
@@ -23,14 +40,14 @@ export default function BlogSection() {
         nextVisibleCount = 3;
       }
       setVisibleCount(nextVisibleCount);
-      setCurrentIndex((index) => Math.min(index, Math.max(0, BLOG_POSTS.length - nextVisibleCount)));
+      setCurrentIndex((index) => Math.min(index, Math.max(0, posts.length - nextVisibleCount)));
     };
     handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  }, [posts.length]);
 
-  const maxIndex = Math.max(0, BLOG_POSTS.length - visibleCount);
+  const maxIndex = Math.max(0, posts.length - visibleCount);
 
   useEffect(() => {
     if (isPaused || maxIndex === 0) return;
@@ -109,7 +126,7 @@ export default function BlogSection() {
               willChange: "transform",
             }}
           >
-            {BLOG_POSTS.map((b, idx) => (
+            {posts.map((b, idx) => (
               <div
                 key={idx}
                 className="flex-shrink-0"

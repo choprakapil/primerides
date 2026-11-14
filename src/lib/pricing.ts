@@ -93,3 +93,4 @@ export function formatInr(amount: number | string | null | undefined): string {
   if (isNaN(val)) return "₹0";
   return `₹${val.toLocaleString("en-IN")}`;
 }
+

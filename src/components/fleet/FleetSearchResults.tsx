@@ -15,6 +15,7 @@ import {
   X,
   RotateCcw,
 } from "lucide-react";
+import { useFocusTrap } from "@/lib/useFocusTrap";
 
 interface FleetSearchResultsProps {
   initialCars?: any[];
@@ -52,6 +53,7 @@ export default function FleetSearchResults({
   const [cars, setCars] = useState<any[]>(initialCars);
   const [loading, setLoading] = useState(false);
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
+  const filterModalRef = useFocusTrap({ isOpen: isMobileDrawerOpen, onClose: () => setIsMobileDrawerOpen(false) });
 
   // Close mobile filter drawer on Escape key or outside interaction
   useEffect(() => {
@@ -437,7 +439,10 @@ export default function FleetSearchResults({
           />
 
           {/* Modal Container */}
-          <div className="relative bg-white rounded-t-3xl sm:rounded-3xl max-h-[92vh] sm:max-h-[88vh] w-full max-w-full sm:max-w-2xl md:max-w-3xl lg:max-w-4xl z-10 flex flex-col shadow-[0_25px_70px_rgba(0,0,0,0.25)] border border-slate-200/80 overflow-hidden animate-in slide-in-from-bottom sm:zoom-in-95 duration-200">
+          <div
+            ref={filterModalRef}
+            className="relative bg-white rounded-t-3xl sm:rounded-3xl max-h-[92vh] sm:max-h-[88vh] w-full max-w-full sm:max-w-2xl md:max-w-3xl lg:max-w-4xl z-10 flex flex-col shadow-[0_25px_70px_rgba(0,0,0,0.25)] border border-slate-200/80 overflow-hidden animate-in slide-in-from-bottom sm:zoom-in-95 duration-200"
+          >
             {/* Header */}
             <div className="flex items-center justify-between px-5 sm:px-7 py-3.5 border-b border-slate-100 bg-[#fcfbf9]">
               <div className="flex items-center gap-3">

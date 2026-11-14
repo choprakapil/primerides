@@ -5,7 +5,7 @@ import { FOCUSABLE_ELEMENTS_SELECTOR } from "@/lib/useFocusTrap";
 
 describe("Issue #26: Modal Focus Trapping & Keyboard Accessibility", () => {
   const authModalPath = path.resolve(__dirname, "../src/components/AuthModal.tsx");
-  const bookingModalPath = path.resolve(__dirname, "../src/components/BookingModal.tsx");
+  const fleetFilterModalPath = path.resolve(__dirname, "../src/components/fleet/FleetSearchResults.tsx");
   const adminModalPath = path.resolve(__dirname, "../src/components/admin/ui/AdminModal.tsx");
   const useFocusTrapPath = path.resolve(__dirname, "../src/lib/useFocusTrap.ts");
 
@@ -95,24 +95,24 @@ describe("Issue #26: Modal Focus Trapping & Keyboard Accessibility", () => {
     expect(content).toContain('aria-label="Close authentication modal"');
   });
 
-  it("Test 5: BookingModal implements useFocusTrap and accessible dialog semantics", () => {
-    const content = fs.readFileSync(bookingModalPath, "utf-8");
+  it("Test 5: Fleet Filter Modal implements useFocusTrap and accessible dialog semantics", () => {
+    const content = fs.readFileSync(fleetFilterModalPath, "utf-8");
 
     // Must import and invoke useFocusTrap
     expect(content).toContain('import { useFocusTrap } from "@/lib/useFocusTrap"');
-    expect(content).toContain("const modalRef = useFocusTrap");
+    expect(content).toContain("const filterModalRef = useFocusTrap");
 
     // Must attach ref to the modal dialog
-    expect(content).toContain("ref={modalRef}");
+    expect(content).toContain("ref={filterModalRef}");
 
     // Must have dialog roles and attributes
     expect(content).toContain('role="dialog"');
     expect(content).toContain('aria-modal="true"');
-    expect(content).toContain('aria-labelledby="booking-modal-title"');
-    expect(content).toContain('id="booking-modal-title"');
+    expect(content).toContain('aria-labelledby="fleet-filter-modal-title"');
+    expect(content).toContain('id="fleet-filter-modal-title"');
 
     // Must have accessible close button label
-    expect(content).toContain('aria-label="Close reservation modal"');
+    expect(content).toContain('aria-label="Close filters modal"');
   });
 
   it("Test 6: AdminModal implements useFocusTrap and accessible dialog semantics", () => {
