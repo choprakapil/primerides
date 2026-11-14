@@ -164,6 +164,29 @@ export default function FleetSearchResults({
     filters.maxPrice,
   ]);
 
+  // Lock background scroll when modal is open
+  useEffect(() => {
+    if (isMobileDrawerOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isMobileDrawerOpen]);
+
+  // Handle ESC key to close modal
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isMobileDrawerOpen) {
+        setIsMobileDrawerOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isMobileDrawerOpen]);
+
   const handleReset = () => {
     setFilters({
       location: "all",
@@ -230,20 +253,26 @@ export default function FleetSearchResults({
   return (
     <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
       {/* Universal Top Filter & Sorting Control Bar */}
-      <div className="mb-6 bg-white rounded-2xl border border-slate-200 p-3.5 sm:p-4 shadow-sm space-y-3">
+      <div className="mb-6 bg-white rounded-2xl border border-slate-200/90 p-3.5 sm:p-4 shadow-sm space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          {/* Left: Filter Fleet trigger button + Reset + live count */}
+          {/* Left: Filter Fleet trigger capsule + Reset + live count */}
           <div className="flex items-center gap-2.5 flex-wrap">
             <button
               type="button"
               onClick={() => setIsMobileDrawerOpen(true)}
-              className="inline-flex items-center justify-center gap-2 py-2 px-4 rounded-xl bg-[#0b0f19] hover:bg-slate-800 text-[#f7d58b] text-xs font-medium shadow-sm active:scale-98 transition-all"
+              className="inline-flex items-center justify-center gap-2 py-1.5 px-4 rounded-full bg-gradient-to-b from-[#fffbf0] to-[#fbf5e6] hover:from-[#fff8e7] hover:to-[#f5ecd4] text-[#855f13] hover:text-[#6c4c0b] border border-[#dfb34a] shadow-2xs hover:shadow-xs active:scale-97 transition-all duration-200 cursor-pointer group"
             >
-              <SlidersHorizontal className="w-3.5 h-3.5 text-[#f7d58b]" />
-              <span>Filter Fleet</span>
-              {activeFilterCount > 0 && (
-                <span className="w-4 h-4 rounded-full bg-[#c59b27] text-white text-[9.5px] font-bold flex items-center justify-center">
+              <div className="w-4.5 h-4.5 rounded-full bg-white/90 border border-[#dfb34a]/60 flex items-center justify-center text-[#936e16] group-hover:scale-105 transition-transform">
+                <SlidersHorizontal className="w-2.5 h-2.5 text-[#936e16]" />
+              </div>
+              <span className="text-xs font-medium tracking-wide">Filter Fleet</span>
+              {activeFilterCount > 0 ? (
+                <span className="min-w-4 h-4 px-1 rounded-full bg-[#936e16] text-white text-[9.5px] font-semibold flex items-center justify-center shadow-2xs">
                   {activeFilterCount}
+                </span>
+              ) : (
+                <span className="text-[10px] text-amber-800/60 font-light">
+                  ({sortedCars.length})
                 </span>
               )}
             </button>
@@ -252,7 +281,7 @@ export default function FleetSearchResults({
               <button
                 onClick={handleReset}
                 type="button"
-                className="inline-flex items-center gap-1 text-[11px] font-light text-amber-700 hover:text-amber-800 hover:underline transition-colors py-1 px-1.5"
+                className="inline-flex items-center gap-1 text-[11px] font-light text-amber-700 hover:text-amber-900 hover:underline transition-colors py-1 px-1.5"
               >
                 <RotateCcw className="w-3 h-3 text-amber-600" />
                 <span>Reset</span>
@@ -277,7 +306,7 @@ export default function FleetSearchResults({
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
               aria-label="Sort cars"
-              className="text-xs font-light text-slate-700 bg-[#f8fafc] border border-slate-200/90 rounded-xl px-3 py-1.5 focus:bg-white focus:border-[#c59b27] focus:outline-none transition-colors cursor-pointer"
+              className="text-xs font-light text-slate-700 bg-[#f8fafc] border border-slate-200/90 rounded-full px-3.5 py-1.5 focus:bg-white focus:border-[#dfb34a] focus:outline-none transition-colors cursor-pointer shadow-2xs"
             >
               <option value="popular">Popularity &amp; Stock</option>
               <option value="price_asc">Price: Low to High</option>
@@ -394,45 +423,60 @@ export default function FleetSearchResults({
 
       {/* Filter Modal / Drawer (Responsive on Mobile & Desktop) */}
       {isMobileDrawerOpen && (
-        <div className="fixed inset-0 z-50 flex flex-col justify-end sm:items-center sm:justify-center p-0 sm:p-4">
+        <div
+          className="fixed inset-0 z-50 overflow-y-auto flex items-end sm:items-center justify-center p-0 sm:p-4 md:p-6"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="fleet-filter-modal-title"
+        >
           {/* Backdrop */}
           <div
             className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
             onClick={() => setIsMobileDrawerOpen(false)}
+            aria-hidden="true"
           />
 
-          {/* Drawer / Modal Body */}
-          <div className="relative bg-white rounded-t-3xl sm:rounded-3xl max-h-[90vh] sm:max-h-[85vh] w-full sm:max-w-xl z-10 flex flex-col shadow-2xl overflow-hidden animate-in slide-in-from-bottom sm:zoom-in-95 duration-200">
-            {/* Drawer Header */}
-            <div className="flex items-center justify-between p-4 border-b border-slate-100 bg-[#fcfbf9]">
-              <div className="flex items-center gap-2">
-                <SlidersHorizontal className="w-4 h-4 text-[#c59b27]" />
-                <h3 className="font-bold text-slate-800 text-sm sm:text-base font-heading">
-                  Filter Fleet ({sortedCars.length} available)
-                </h3>
+          {/* Modal Container */}
+          <div className="relative bg-white rounded-t-3xl sm:rounded-3xl max-h-[92vh] sm:max-h-[88vh] w-full max-w-full sm:max-w-2xl md:max-w-3xl lg:max-w-4xl z-10 flex flex-col shadow-[0_25px_70px_rgba(0,0,0,0.25)] border border-slate-200/80 overflow-hidden animate-in slide-in-from-bottom sm:zoom-in-95 duration-200">
+            {/* Header */}
+            <div className="flex items-center justify-between px-5 sm:px-7 py-3.5 border-b border-slate-100 bg-[#fcfbf9]">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-[#fffbf0] border border-[#dfb34a]/40 text-[#936e16] flex items-center justify-center shadow-2xs">
+                  <SlidersHorizontal className="w-4 h-4 text-[#936e16]" />
+                </div>
+                <div>
+                  <h3 id="fleet-filter-modal-title" className="font-bold text-slate-800 text-sm sm:text-base font-heading">
+                    Filter Fleet Inventory
+                  </h3>
+                  <p className="text-[11px] text-slate-400 font-light">
+                    Refine by city hub, trip dates, category &amp; vehicle specifications ({sortedCars.length} available)
+                  </p>
+                </div>
               </div>
               <div className="flex items-center gap-3">
                 {activeFilterCount > 0 && (
                   <button
                     type="button"
                     onClick={handleReset}
-                    className="text-xs font-light text-amber-700 hover:underline"
+                    className="inline-flex items-center gap-1 text-xs font-light text-amber-700 hover:text-amber-900 hover:underline transition-colors cursor-pointer"
                   >
-                    Reset All
+                    <RotateCcw className="w-3 h-3 text-amber-600" />
+                    <span>Reset All</span>
                   </button>
                 )}
                 <button
                   type="button"
                   onClick={() => setIsMobileDrawerOpen(false)}
-                  className="w-7 h-7 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center hover:bg-slate-200 hover:text-slate-800 transition-colors"
+                  aria-label="Close filters modal"
+                  className="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-800 flex items-center justify-center transition-colors cursor-pointer"
                 >
-                  <X className="w-3.5 h-3.5" />
+                  <X className="w-4 h-4" />
                 </button>
               </div>
             </div>
 
-            {/* Scrollable Filters */}
-            <div className="p-5 overflow-y-auto space-y-5">
+            {/* Scrollable Filters Body with flex-1 min-h-0 */}
+            <div className="flex-1 min-h-0 overflow-y-auto px-5 sm:px-7 py-4.5 space-y-4">
               <FleetSearchFilter
                 filters={filters}
                 onChange={setFilters}
@@ -442,15 +486,36 @@ export default function FleetSearchResults({
               />
             </div>
 
-            {/* Drawer Footer CTA */}
-            <div className="p-4 border-t border-slate-100 bg-white">
-              <button
-                type="button"
-                onClick={() => setIsMobileDrawerOpen(false)}
-                className="w-full py-3 rounded-xl bg-gradient-to-r from-[#c59b27] via-[#d4a838] to-[#b88d22] text-[#0b0f19] font-bold text-xs uppercase tracking-wider text-center shadow-md active:scale-98 transition-all"
-              >
-                View {sortedCars.length} Vehicles →
-              </button>
+            {/* Footer CTA */}
+            <div className="px-5 sm:px-7 py-3.5 border-t border-slate-100 bg-white flex flex-wrap items-center justify-between gap-3">
+              <div className="text-xs text-slate-500 font-light">
+                {activeFilterCount > 0 ? (
+                  <span>
+                    <strong className="font-semibold text-slate-800">{activeFilterCount}</strong> active filters applied
+                  </span>
+                ) : (
+                  <span>Showing all available verified vehicles</span>
+                )}
+              </div>
+
+              <div className="flex items-center gap-2 w-full sm:w-auto">
+                {activeFilterCount > 0 && (
+                  <button
+                    type="button"
+                    onClick={handleReset}
+                    className="flex-1 sm:flex-initial py-2 px-4 rounded-full border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 text-xs font-light transition-all cursor-pointer"
+                  >
+                    Clear All
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setIsMobileDrawerOpen(false)}
+                  className="flex-1 sm:flex-initial py-2.5 px-6 rounded-full bg-gradient-to-r from-[#c59b27] via-[#d4a838] to-[#b88d22] hover:brightness-105 text-[#0b0f19] font-medium text-xs tracking-wide text-center shadow-xs active:scale-98 transition-all cursor-pointer"
+                >
+                  View {sortedCars.length} {sortedCars.length === 1 ? "Vehicle" : "Vehicles"} →
+                </button>
+              </div>
             </div>
           </div>
         </div>
