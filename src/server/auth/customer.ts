@@ -96,6 +96,52 @@ export async function getCurrentCustomer(
 }
 
 /**
+ * Resolves phone or email input into possible database match candidates.
+ * Handles +91 prefixes, spaces, leading zeros, and case-insensitive email.
+ */
+export function getPhoneOrEmailCandidates(input: string): { phoneCandidates: string[]; emailCandidate?: string } {
+  const trimmed = input.trim();
+  const isEmail = trimmed.includes("@");
+
+  if (isEmail) {
+    return {
+      phoneCandidates: [],
+      emailCandidate: trimmed.toLowerCase(),
+    };
+  }
+
+  const digits = trimmed.replace(/[^0-9]/g, "");
+  const candidates = new Set<string>();
+  candidates.add(trimmed);
+
+  if (digits.length === 10) {
+    candidates.add(digits);
+    candidates.add(`+91${digits}`);
+    candidates.add(`91${digits}`);
+    candidates.add(`0${digits}`);
+  } else if (digits.length === 12 && digits.startsWith("91")) {
+    const raw10 = digits.substring(2);
+    candidates.add(digits);
+    candidates.add(`+${digits}`);
+    candidates.add(raw10);
+    candidates.add(`+91${raw10}`);
+  } else if (digits.length === 11 && digits.startsWith("0")) {
+    const raw10 = digits.substring(1);
+    candidates.add(digits);
+    candidates.add(raw10);
+    candidates.add(`+91${raw10}`);
+  } else if (digits.length > 0) {
+    candidates.add(digits);
+    candidates.add(`+${digits}`);
+  }
+
+  return {
+    phoneCandidates: Array.from(candidates),
+    emailCandidate: trimmed.toLowerCase(),
+  };
+}
+
+/**
  * Revokes a customer session by sessionId or refreshTokenHash.
  */
 export async function revokeCustomerSession(sessionId: string) {

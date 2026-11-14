@@ -10,7 +10,7 @@ import {
   validatePasswordResetToken,
   markPasswordResetTokenUsed,
 } from "../auth/password-reset";
-import { getCurrentCustomer } from "../auth/customer";
+import { getCurrentCustomer, getPhoneOrEmailCandidates } from "../auth/customer";
 import { notifyPasswordReset } from "../notifications";
 
 export async function customerRegisterAction(formData: FormData) {
@@ -102,7 +102,13 @@ export async function customerRegisterAction(formData: FormData) {
 }
 
 export async function customerLoginAction(formData: FormData) {
-  const identifier = (formData.get("identifier") as string)?.trim();
+  const rawIdentifier = (
+    formData.get("identifier") ||
+    formData.get("phone") ||
+    formData.get("email") ||
+    formData.get("username")
+  ) as string;
+  const identifier = rawIdentifier?.trim();
   const password = formData.get("password") as string;
   const callbackUrl = (formData.get("callbackUrl") as string)?.trim() || "/account";
 
@@ -112,9 +118,13 @@ export async function customerLoginAction(formData: FormData) {
 
   let success = false;
   try {
+    const { phoneCandidates, emailCandidate } = getPhoneOrEmailCandidates(identifier);
     const customer = await prisma.customerUser.findFirst({
       where: {
-        OR: [{ phone: identifier }, { email: identifier.toLowerCase() }],
+        OR: [
+          ...phoneCandidates.map((p) => ({ phone: p })),
+          ...(emailCandidate ? [{ email: emailCandidate }] : []),
+        ],
         deleted_at: null,
       },
     });
@@ -183,7 +193,12 @@ export async function customerLogoutAction() {
 }
 
 export async function customerRequestPasswordResetAction(formData: FormData) {
-  const identifier = (formData.get("identifier") as string)?.trim();
+  const rawIdentifier = (
+    formData.get("identifier") ||
+    formData.get("phone") ||
+    formData.get("email")
+  ) as string;
+  const identifier = rawIdentifier?.trim();
 
   if (!identifier) {
     redirect("/account/forgot-password?error=Please+enter+your+phone+number+or+email+address.");
@@ -191,9 +206,13 @@ export async function customerRequestPasswordResetAction(formData: FormData) {
 
   let resetToken = "";
   try {
+    const { phoneCandidates, emailCandidate } = getPhoneOrEmailCandidates(identifier);
     const customer = await prisma.customerUser.findFirst({
       where: {
-        OR: [{ phone: identifier }, { email: identifier.toLowerCase() }],
+        OR: [
+          ...phoneCandidates.map((p) => ({ phone: p })),
+          ...(emailCandidate ? [{ email: emailCandidate }] : []),
+        ],
         deleted_at: null,
       },
     });

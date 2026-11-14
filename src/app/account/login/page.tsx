@@ -36,15 +36,17 @@ export default async function CustomerLoginPage({
           <input type="hidden" name="callbackUrl" value={params.callbackUrl || "/account"} />
 
           <div className="mb-3">
-            <label className="form-label fw-semibold text-dark text-sm">Mobile Number</label>
+            <label className="form-label fw-semibold text-dark text-sm">Mobile Number or Email Address</label>
             <div className="position-relative">
-              <i className="fi fi-rr-smartphone position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+              <i className="fi fi-rr-user position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
               <input
-                type="tel"
-                name="phone"
+                type="text"
+                name="identifier"
+                id="customer-login-identifier"
                 required
+                autoComplete="username"
                 className="form-control ps-5"
-                placeholder="+91 98765 43210"
+                placeholder="+91 98765 43210 or your email"
               />
             </div>
           </div>
@@ -56,7 +58,9 @@ export default async function CustomerLoginPage({
               <input
                 type="password"
                 name="password"
+                id="customer-login-password"
                 required
+                autoComplete="current-password"
                 className="form-control ps-5"
                 placeholder="Enter your password"
               />
@@ -70,7 +74,10 @@ export default async function CustomerLoginPage({
                 Remember me
               </label>
             </div>
-            <Link href="/account/forgot-password" className="text-primary text-sm text-decoration-none fw-medium">
+            <Link
+              href={params.callbackUrl ? `/account/forgot-password?callbackUrl=${encodeURIComponent(params.callbackUrl)}` : "/account/forgot-password"}
+              className="text-primary text-sm text-decoration-none fw-medium"
+            >
               Forgot password?
             </Link>
           </div>
@@ -83,7 +90,10 @@ export default async function CustomerLoginPage({
         <div className="text-center mt-4 pt-3 border-top">
           <p className="text-muted mb-2" style={{ fontSize: "13px" }}>
             Don&apos;t have an account?{" "}
-            <Link href="/account/register" className="text-primary fw-bold text-decoration-none">
+            <Link
+              href={params.callbackUrl ? `/account/register?callbackUrl=${encodeURIComponent(params.callbackUrl)}` : "/account/register"}
+              className="text-primary fw-bold text-decoration-none"
+            >
               Create Account
             </Link>
           </p>

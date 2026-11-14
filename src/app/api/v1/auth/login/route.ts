@@ -4,6 +4,7 @@ import { verifyPassword } from "@/server/auth/passwords";
 import { createAccessToken, createRefreshTokenSession } from "@/server/auth/tokens";
 import { apiError, apiSuccess } from "@/server/utils/api-response";
 import { authRateLimiter } from "@/lib/rateLimit";
+import { getPhoneOrEmailCandidates } from "@/server/auth/customer";
 
 export async function POST(req: NextRequest) {
   // Apply rate limiting (5 requests per minute per IP)
@@ -18,10 +19,14 @@ export async function POST(req: NextRequest) {
       return apiError("Phone number/email and password are required.", 400);
     }
 
-    // Find customer by phone or email
+    // Find customer by phone candidates or email
+    const { phoneCandidates, emailCandidate } = getPhoneOrEmailCandidates(loginId);
     const customer = await prisma.customerUser.findFirst({
       where: {
-        OR: [{ phone: loginId }, { email: loginId.toLowerCase() }],
+        OR: [
+          ...phoneCandidates.map((p) => ({ phone: p })),
+          ...(emailCandidate ? [{ email: emailCandidate }] : []),
+        ],
         deleted_at: null,
       },
     });
