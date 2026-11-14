@@ -13,6 +13,7 @@ import {
   Search,
   SlidersHorizontal,
   X,
+  RotateCcw,
 } from "lucide-react";
 
 interface FleetSearchResultsProps {
@@ -228,183 +229,185 @@ export default function FleetSearchResults({
 
   return (
     <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
-      {/* Mobile Quick Control Bar (Visible only on < lg screens) */}
-      <div className="lg:hidden mb-6 bg-white rounded-2xl border border-slate-200 p-3.5 shadow-sm space-y-3">
-        <div className="flex items-center justify-between gap-2.5">
-          <button
-            type="button"
-            onClick={() => setIsMobileDrawerOpen(true)}
-            className="flex-1 inline-flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-[#0b0f19] text-[#c59b27] text-xs font-bold shadow-sm active:scale-98 transition-all"
-          >
-            <SlidersHorizontal className="w-4 h-4 text-[#c59b27]" />
-            <span>Filter Fleet</span>
-            {activeFilterCount > 0 && (
-              <span className="w-5 h-5 rounded-full bg-[#c59b27] text-[#0b0f19] text-[10px] font-black flex items-center justify-center">
-                {activeFilterCount}
-              </span>
-            )}
-          </button>
+      {/* Universal Top Filter & Sorting Control Bar */}
+      <div className="mb-6 bg-white rounded-2xl border border-slate-200 p-3.5 sm:p-4 shadow-sm space-y-3">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          {/* Left: Filter Fleet trigger button + Reset + live count */}
+          <div className="flex items-center gap-2.5 flex-wrap">
+            <button
+              type="button"
+              onClick={() => setIsMobileDrawerOpen(true)}
+              className="inline-flex items-center justify-center gap-2 py-2 px-4 rounded-xl bg-[#0b0f19] hover:bg-slate-800 text-[#f7d58b] text-xs font-medium shadow-sm active:scale-98 transition-all"
+            >
+              <SlidersHorizontal className="w-3.5 h-3.5 text-[#f7d58b]" />
+              <span>Filter Fleet</span>
+              {activeFilterCount > 0 && (
+                <span className="w-4 h-4 rounded-full bg-[#c59b27] text-white text-[9.5px] font-bold flex items-center justify-center">
+                  {activeFilterCount}
+                </span>
+              )}
+            </button>
 
-          <div className="flex items-center gap-1.5">
-            <span className="text-[11px] font-bold text-slate-400 whitespace-nowrap">Sort:</span>
+            {activeFilterCount > 0 && (
+              <button
+                onClick={handleReset}
+                type="button"
+                className="inline-flex items-center gap-1 text-[11px] font-light text-amber-700 hover:text-amber-800 hover:underline transition-colors py-1 px-1.5"
+              >
+                <RotateCcw className="w-3 h-3 text-amber-600" />
+                <span>Reset</span>
+              </button>
+            )}
+
+            <div className="flex items-center gap-2 pl-2 border-l border-slate-200">
+              <span className="text-xs font-medium text-slate-800">
+                {sortedCars.length} {sortedCars.length === 1 ? "Vehicle" : "Vehicles"} Available
+              </span>
+              <span className="text-xs text-slate-400 font-light hidden sm:inline">• In {activeCityName}</span>
+            </div>
+          </div>
+
+          {/* Right: Sort Control */}
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] font-light text-slate-400 whitespace-nowrap flex items-center gap-1">
+              <ArrowUpDown className="w-3 h-3 text-[#c59b27]" />
+              Sort By:
+            </span>
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              aria-label="Sort cars mobile"
-              className="text-xs font-bold text-slate-800 bg-[#f8fafc] border border-slate-200 rounded-xl px-2.5 py-2.5 focus:outline-none focus:border-[#c59b27]"
+              aria-label="Sort cars"
+              className="text-xs font-light text-slate-700 bg-[#f8fafc] border border-slate-200/90 rounded-xl px-3 py-1.5 focus:bg-white focus:border-[#c59b27] focus:outline-none transition-colors cursor-pointer"
             >
-              <option value="popular">Popular</option>
-              <option value="price_asc">Price: Low-High</option>
-              <option value="price_desc">Price: High-Low</option>
-              <option value="name_asc">Name (A-Z)</option>
+              <option value="popular">Popularity &amp; Stock</option>
+              <option value="price_asc">Price: Low to High</option>
+              <option value="price_desc">Price: High to Low</option>
+              <option value="name_asc">Model Name (A-Z)</option>
             </select>
           </div>
         </div>
 
-        {/* Quick Location Pills */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-0.5">
-          {[
-            { label: "All Cities", value: "all" },
-            { label: "Delhi NCR", value: "delhi-ncr" },
-            { label: "Lucknow", value: "lucknow" },
-          ].map((loc) => {
-            const isSel = filters.location === loc.value;
-            return (
-              <button
-                key={loc.value}
-                type="button"
-                onClick={() => setFilters((prev) => ({ ...prev, location: loc.value }))}
-                className={`px-3.5 py-1.5 rounded-full text-xs whitespace-nowrap border transition-all ${
-                  isSel
-                    ? "bg-slate-900 text-amber-300 border-slate-900 font-medium shadow-2xs"
-                    : "bg-white text-slate-600 border-slate-200/80 hover:border-slate-300 font-normal shadow-2xs"
-                }`}
-              >
-                {loc.label}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Main Two-Column Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        {/* Desktop Left Column: Sticky Filter Sidebar */}
-        <div className="hidden lg:block lg:col-span-4 xl:col-span-3">
-          <FleetSearchFilter
-            filters={filters}
-            onChange={setFilters}
-            onReset={handleReset}
-            totalResults={sortedCars.length}
-          />
-        </div>
-
-        {/* Right Column: Search Results & Cards */}
-        <div className="lg:col-span-8 xl:col-span-9 space-y-6">
-          {/* Results Summary and Sorting Bar (Desktop) */}
-          <div className="hidden sm:flex bg-white rounded-2xl border border-slate-200/90 p-4 shadow-sm items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-[#0b0f19] text-[#c59b27] flex items-center justify-center font-bold text-sm shadow-sm">
-                {sortedCars.length}
-              </div>
-              <div>
-                <p className="text-sm font-bold text-[#0b0f19]">
-                  {sortedCars.length === 1
-                    ? "1 Vehicle Available"
-                    : `${sortedCars.length} Vehicles Available`}
-                </p>
-                <p className="text-xs text-slate-500 font-sans">
-                  {filters.startDate && filters.endDate
-                    ? `For ${filters.startDate} to ${filters.endDate} • ${activeCityName}`
-                    : `In ${activeCityName}`}
-                </p>
-              </div>
-            </div>
-
-            {/* Desktop Sort Control */}
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-slate-500 whitespace-nowrap flex items-center gap-1">
-                <ArrowUpDown className="w-3.5 h-3.5 text-[#c59b27]" />
-                Sort By:
-              </span>
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                aria-label="Sort cars"
-                className="text-xs font-bold text-slate-800 bg-[#f8fafc] border border-slate-200 rounded-xl px-3 py-2 focus:bg-white focus:border-[#c59b27] focus:outline-none transition-colors"
-              >
-                <option value="popular">Popularity &amp; Stock</option>
-                <option value="price_asc">Price: Low to High</option>
-                <option value="price_desc">Price: High to Low</option>
-                <option value="name_asc">Model Name (A-Z)</option>
-              </select>
-            </div>
+        {/* Quick Location & Category Filter Pills */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-0.5 pt-1 border-t border-slate-100 scrollbar-none">
+          <div className="flex items-center gap-1.5 flex-shrink-0">
+            {[
+              { label: "All Cities", value: "all" },
+              { label: "Delhi NCR", value: "delhi-ncr" },
+              { label: "Lucknow", value: "lucknow" },
+            ].map((loc) => {
+              const isSel = filters.location === loc.value;
+              return (
+                <button
+                  key={loc.value}
+                  type="button"
+                  onClick={() => setFilters((prev) => ({ ...prev, location: loc.value }))}
+                  className={`px-3 py-1 rounded-full text-[10.5px] whitespace-nowrap border transition-all ${
+                    isSel
+                      ? "bg-[#fffbf0] text-[#936e16] border-[#dfb34a] font-normal shadow-2xs"
+                      : "bg-white text-slate-500 border-slate-200/70 hover:border-slate-300 font-light shadow-2xs hover:text-slate-800"
+                  }`}
+                >
+                  {loc.label}
+                </button>
+              );
+            })}
           </div>
 
-          {/* Cars Grid / Loading / Empty State */}
-          {loading ? (
-            <div className="min-h-[360px] flex flex-col items-center justify-center bg-white rounded-3xl border border-slate-200 p-12 text-center">
-              <RefreshCw className="w-8 h-8 text-[#c59b27] animate-spin mb-3" />
-              <p className="text-sm font-bold text-[#0b0f19]">
-                Checking Live Fleet Telemetry...
-              </p>
-              <p className="text-xs text-slate-500 mt-1">
-                Verifying real-time car availability in {activeCityName}
-              </p>
-            </div>
-          ) : sortedCars.length === 0 ? (
-            <div className="bg-white rounded-3xl border border-slate-200 p-12 text-center space-y-4">
-              <div className="w-16 h-16 rounded-2xl bg-[#fffdf7] text-[#c59b27] border border-[#e5b94f]/40 mx-auto flex items-center justify-center shadow-xs">
-                <Search className="w-8 h-8" />
-              </div>
-              <div>
-                <h3 className="text-lg font-bold text-[#0b0f19] font-heading">
-                  No Cars Found For Selected Filters
-                </h3>
-                <p className="text-xs text-slate-500 max-w-md mx-auto mt-1 font-sans">
-                  We could not find any vehicles matching all your criteria in{" "}
-                  {activeCityName}. Try changing dates or clearing some filters.
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={handleReset}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#0b0f19] text-[#c59b27] font-bold text-xs hover:bg-slate-800 transition-colors shadow-sm"
-              >
-                Clear All Filters
-              </button>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-              {sortedCars.map((car) => (
-                <CarSearchCard
-                  key={car.id}
-                  car={car}
-                  startDate={filters.startDate}
-                  endDate={filters.endDate}
-                />
-              ))}
-            </div>
-          )}
+          <span className="text-slate-200 text-xs flex-shrink-0">|</span>
+
+          <div className="flex items-center gap-1.5 flex-shrink-0">
+            {[
+              { label: "All Types", value: "all" },
+              { label: "7-Seater SUVs", value: "suv" },
+              { label: "Compact SUVs", value: "compact-suv" },
+              { label: "4x4 Adventure", value: "4x4" },
+              { label: "Hatchbacks", value: "hatchback" },
+              { label: "Luxury Sedans", value: "luxury" },
+            ].map((cat) => {
+              const isSel = filters.category === cat.value;
+              return (
+                <button
+                  key={cat.value}
+                  type="button"
+                  onClick={() => setFilters((prev) => ({ ...prev, category: cat.value }))}
+                  className={`px-2.5 py-1 rounded-full text-[10.5px] whitespace-nowrap border transition-all ${
+                    isSel
+                      ? "bg-[#fffbf0] text-[#936e16] border-[#dfb34a] font-normal shadow-2xs"
+                      : "bg-white text-slate-500 border-slate-200/70 hover:border-slate-300 font-light shadow-2xs hover:text-slate-800"
+                  }`}
+                >
+                  {cat.label}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
 
-      {/* Mobile Filter Bottom-Sheet Drawer */}
+      {/* Full-Width Cars Grid (4 Cards in a Row on Desktop) */}
+      <div className="space-y-6">
+        {loading ? (
+          <div className="min-h-[360px] flex flex-col items-center justify-center bg-white rounded-3xl border border-slate-200 p-12 text-center">
+            <RefreshCw className="w-8 h-8 text-[#c59b27] animate-spin mb-3" />
+            <p className="text-sm font-bold text-[#0b0f19]">
+              Checking Live Fleet Telemetry...
+            </p>
+            <p className="text-xs text-slate-500 mt-1">
+              Verifying real-time car availability in {activeCityName}
+            </p>
+          </div>
+        ) : sortedCars.length === 0 ? (
+          <div className="bg-white rounded-3xl border border-slate-200 p-12 text-center space-y-4">
+            <div className="w-16 h-16 rounded-2xl bg-[#fffdf7] text-[#c59b27] border border-[#e5b94f]/40 mx-auto flex items-center justify-center shadow-xs">
+              <Search className="w-8 h-8" />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-[#0b0f19] font-heading">
+                No Cars Found For Selected Filters
+              </h3>
+              <p className="text-xs text-slate-500 max-w-md mx-auto mt-1 font-sans">
+                We could not find any vehicles matching all your criteria in{" "}
+                {activeCityName}. Try changing dates or clearing some filters.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={handleReset}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#0b0f19] text-[#c59b27] font-bold text-xs hover:bg-slate-800 transition-colors shadow-sm"
+            >
+              Clear All Filters
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 sm:gap-6">
+            {sortedCars.map((car) => (
+              <CarSearchCard
+                key={car.id}
+                car={car}
+                startDate={filters.startDate}
+                endDate={filters.endDate}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Filter Modal / Drawer (Responsive on Mobile & Desktop) */}
       {isMobileDrawerOpen && (
-        <div className="fixed inset-0 z-50 flex flex-col justify-end lg:hidden">
+        <div className="fixed inset-0 z-50 flex flex-col justify-end sm:items-center sm:justify-center p-0 sm:p-4">
           {/* Backdrop */}
           <div
             className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
             onClick={() => setIsMobileDrawerOpen(false)}
           />
 
-          {/* Drawer Body */}
-          <div className="relative bg-white rounded-t-3xl max-h-[85vh] w-full z-10 flex flex-col shadow-2xl overflow-hidden animate-in slide-in-from-bottom duration-300">
+          {/* Drawer / Modal Body */}
+          <div className="relative bg-white rounded-t-3xl sm:rounded-3xl max-h-[90vh] sm:max-h-[85vh] w-full sm:max-w-xl z-10 flex flex-col shadow-2xl overflow-hidden animate-in slide-in-from-bottom sm:zoom-in-95 duration-200">
             {/* Drawer Header */}
             <div className="flex items-center justify-between p-4 border-b border-slate-100 bg-[#fcfbf9]">
               <div className="flex items-center gap-2">
                 <SlidersHorizontal className="w-4 h-4 text-[#c59b27]" />
-                <h3 className="font-bold text-[#0b0f19] text-base font-heading">
+                <h3 className="font-bold text-slate-800 text-sm sm:text-base font-heading">
                   Filter Fleet ({sortedCars.length} available)
                 </h3>
               </div>
@@ -413,7 +416,7 @@ export default function FleetSearchResults({
                   <button
                     type="button"
                     onClick={handleReset}
-                    className="text-xs font-bold text-[#c59b27] hover:underline"
+                    className="text-xs font-light text-amber-700 hover:underline"
                   >
                     Reset All
                   </button>
@@ -421,15 +424,15 @@ export default function FleetSearchResults({
                 <button
                   type="button"
                   onClick={() => setIsMobileDrawerOpen(false)}
-                  className="w-8 h-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center hover:bg-slate-200"
+                  className="w-7 h-7 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center hover:bg-slate-200 hover:text-slate-800 transition-colors"
                 >
-                  <X className="w-4 h-4" />
+                  <X className="w-3.5 h-3.5" />
                 </button>
               </div>
             </div>
 
             {/* Scrollable Filters */}
-            <div className="p-5 overflow-y-auto space-y-6">
+            <div className="p-5 overflow-y-auto space-y-5">
               <FleetSearchFilter
                 filters={filters}
                 onChange={setFilters}
@@ -444,7 +447,7 @@ export default function FleetSearchResults({
               <button
                 type="button"
                 onClick={() => setIsMobileDrawerOpen(false)}
-                className="w-full py-3.5 rounded-xl bg-gradient-to-r from-[#c59b27] via-[#d4a838] to-[#b88d22] text-[#0b0f19] font-black text-xs uppercase tracking-wider text-center shadow-md active:scale-98 transition-all"
+                className="w-full py-3 rounded-xl bg-gradient-to-r from-[#c59b27] via-[#d4a838] to-[#b88d22] text-[#0b0f19] font-bold text-xs uppercase tracking-wider text-center shadow-md active:scale-98 transition-all"
               >
                 View {sortedCars.length} Vehicles →
               </button>
