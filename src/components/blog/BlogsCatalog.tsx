@@ -11,22 +11,34 @@ import {
   Search,
   ChevronLeft,
   ChevronRight,
+  FolderOpen,
   Sparkles,
+  Car,
+  MessageCircle,
+  TrendingUp,
+  X,
 } from "lucide-react";
 
 interface BlogsCatalogProps {
   initialBlogs: BlogItemDTO[];
 }
 
-const ITEMS_PER_PAGE = 8; // 2 rows of 4 = 8 per page (or 16 for 4 rows of 4)
-
 export default function BlogsCatalog({ initialBlogs }: BlogsCatalogProps) {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [itemsPerPage, setItemsPerPage] = useState<number>(12); // Default 3 rows of 4 or 4 rows of 4
+  const itemsPerPage = 9;
 
-  // Extract unique categories
+  // Extract unique categories and their counts
+  const categoryCounts = useMemo(() => {
+    const counts: Record<string, number> = { all: initialBlogs.length };
+    initialBlogs.forEach((b) => {
+      const cat = b.categoryName || "Travel Journal";
+      counts[cat] = (counts[cat] || 0) + 1;
+    });
+    return counts;
+  }, [initialBlogs]);
+
   const categories = useMemo(() => {
     const set = new Set<string>();
     initialBlogs.forEach((b) => {
@@ -52,6 +64,11 @@ export default function BlogsCatalog({ initialBlogs }: BlogsCatalogProps) {
     });
   }, [initialBlogs, selectedCategory, searchQuery]);
 
+  // Featured / Recent Guides for Sidebar
+  const recentArticles = useMemo(() => {
+    return initialBlogs.slice(0, 3);
+  }, [initialBlogs]);
+
   // Pagination calculation
   const totalPages = Math.max(1, Math.ceil(filteredBlogs.length / itemsPerPage));
   const safePage = Math.min(currentPage, totalPages);
@@ -64,6 +81,10 @@ export default function BlogsCatalog({ initialBlogs }: BlogsCatalogProps) {
   const handleCategorySelect = (cat: string) => {
     setSelectedCategory(cat);
     setCurrentPage(1);
+    // Smooth scroll to top of list on mobile
+    if (typeof window !== "undefined" && window.innerWidth < 992) {
+      window.scrollTo({ top: 320, behavior: "smooth" });
+    }
   };
 
   const handleSearchChange = (val: string) => {
@@ -72,237 +93,321 @@ export default function BlogsCatalog({ initialBlogs }: BlogsCatalogProps) {
   };
 
   return (
-    <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-14">
-      {/* Editorial Header Bar */}
-      <div className="mb-10 pb-6 border-b border-slate-200/80">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-          <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-[#fffdf7] text-[#936e16] border border-[#e5b94f]/50 shadow-2xs">
-              <Sparkles className="w-3.5 h-3.5 text-[#c59b27]" />
-              <span>PrimeRides Travel Desk • Road Trip Guides</span>
-            </div>
-            <h1 className="text-3xl sm:text-4xl font-extrabold text-[#0b0f19] tracking-tight font-heading leading-tight">
-              Road Trip Journal &amp; <span className="text-[#c59b27]">Expeditions</span>
-            </h1>
-            <p className="text-sm text-slate-500 max-w-2xl font-sans leading-relaxed">
-              Curated highway itineraries, high-altitude mountain pass guides, 4x4 expedition tips, and fleet advice for self-drive enthusiasts.
-            </p>
-          </div>
-
-          {/* Quick Search */}
-          <div className="relative w-full md:w-72">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => handleSearchChange(e.target.value)}
-              placeholder="Search guides, routes, cars..."
-              className="w-full text-xs font-medium text-slate-800 bg-white border border-slate-200 rounded-xl pl-9 pr-4 py-2.5 focus:border-[#c59b27] focus:outline-none transition-colors shadow-2xs"
-            />
-          </div>
-        </div>
-
-        {/* Category Pills Bar */}
-        <div className="flex items-center gap-2 overflow-x-auto pt-6 pb-1 scrollbar-none">
-          {categories.map((cat) => {
-            const isSelected = selectedCategory === cat;
-            const label = cat === "all" ? "All Articles" : cat;
-            return (
-              <button
-                key={cat}
-                type="button"
-                onClick={() => handleCategorySelect(cat)}
-                className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all border ${
-                  isSelected
-                    ? "bg-[#0b0f19] text-[#c59b27] border-[#0b0f19] shadow-sm"
-                    : "bg-white text-slate-600 border-slate-200 hover:border-[#c59b27]/60 hover:text-[#0b0f19]"
-                }`}
-              >
-                {label}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Results Header Count */}
-      <div className="flex items-center justify-between mb-8">
-        <p className="text-xs font-semibold text-slate-500">
-          Showing <span className="text-[#0b0f19] font-bold">{paginatedBlogs.length}</span> of{" "}
-          <span className="text-[#0b0f19] font-bold">{filteredBlogs.length}</span> travel guides
-        </p>
-
-        {/* Rows per page selector */}
-        <div className="flex items-center gap-2 text-xs text-slate-500 font-medium">
-          <span>Show:</span>
-          {[8, 12, 16].map((count) => (
-            <button
-              key={count}
-              type="button"
-              onClick={() => {
-                setItemsPerPage(count);
-                setCurrentPage(1);
-              }}
-              className={`px-2 py-1 rounded-md text-xs font-bold transition-all ${
-                itemsPerPage === count
-                  ? "bg-[#0b0f19] text-[#c59b27]"
-                  : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-              }`}
-            >
-              {count}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* 4-Columns Grid (4 blogs per row on desktop) */}
-      {paginatedBlogs.length === 0 ? (
-        <div className="bg-white rounded-3xl border border-slate-200 p-12 text-center space-y-3">
-          <Compass className="w-12 h-12 text-[#c59b27] mx-auto opacity-70" />
-          <h3 className="text-lg font-bold text-[#0b0f19] font-heading">No Travel Guides Found</h3>
-          <p className="text-xs text-slate-500 max-w-sm mx-auto">
-            Try adjusting your search query or select another category to view more articles.
-          </p>
-          <button
-            type="button"
-            onClick={() => {
-              setSelectedCategory("all");
-              setSearchQuery("");
-            }}
-            className="px-4 py-2 rounded-xl bg-[#0b0f19] text-[#c59b27] text-xs font-bold"
-          >
-            Clear Filters
-          </button>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {paginatedBlogs.map((blog) => (
-            <article
-              key={blog.id}
-              className="bg-white rounded-2xl border border-slate-200/90 overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_32px_rgba(15,23,42,0.08)] hover:border-[#c59b27]/60 transition-all duration-300 flex flex-col justify-between group"
-            >
-              {/* Image Preview */}
-              <Link
-                href={`/blogs/${blog.slug}`}
-                className="relative aspect-[16/10] overflow-hidden bg-slate-900 block"
-              >
-                <img
-                  src={blog.featuredImage || "/assets/img/blog/1.jpg"}
-                  alt={blog.title}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
-                <div className="absolute top-3 left-3">
-                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[#0b0f19]/85 text-[#f7d58b] backdrop-blur-md shadow-xs border border-[#c59b27]/30">
-                    {blog.categoryName}
-                  </span>
-                </div>
-              </Link>
-
-              {/* Body */}
-              <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between space-y-3">
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-[11px] font-semibold text-slate-400">
-                    <span className="flex items-center gap-1">
-                      <Calendar className="w-3 h-3 text-[#c59b27]" />
-                      {blog.publishedAt}
-                    </span>
-                    <span>•</span>
-                    <span className="flex items-center gap-1">
-                      <Clock className="w-3 h-3 text-[#c59b27]" />
-                      {blog.readTime}
-                    </span>
+    <div className="section-padding bg-[#fafaf9]">
+      <div className="container">
+        <div className="row g-4 lg:g-5">
+          {/* ========================================================
+              LEFT COLUMN: SEARCH BAR, ACTIVE FILTERS & BLOG CARDS
+             ======================================================== */}
+          <div className="col-12 col-lg-8 col-xl-8">
+            {/* Top Controls: Search Bar & Count */}
+            <div className="d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-3 mb-4 pb-3 border-bottom">
+              <div>
+                <p className="text-muted mb-0" style={{ fontSize: "13px" }}>
+                  Showing <strong className="text-dark">{paginatedBlogs.length}</strong> of{" "}
+                  <strong className="text-dark">{filteredBlogs.length}</strong> published travel guides
+                </p>
+                {selectedCategory !== "all" && (
+                  <div className="d-inline-flex align-items-center gap-1.5 mt-1.5 px-2.5 py-0.5 rounded-pill bg-light border text-dark" style={{ fontSize: "11.5px" }}>
+                    <span>Category: <strong>{selectedCategory}</strong></span>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedCategory("all")}
+                      className="border-0 bg-transparent p-0 ms-1 text-muted hover:text-dark"
+                      title="Clear category filter"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
                   </div>
-
-                  <Link href={`/blogs/${blog.slug}`}>
-                    <h3 className="text-base font-bold text-[#0b0f19] group-hover:text-[#c59b27] transition-colors line-clamp-2 leading-snug font-heading">
-                      {blog.title}
-                    </h3>
-                  </Link>
-
-                  <p className="text-xs text-slate-500 line-clamp-2 font-sans leading-relaxed">
-                    {blog.summary}
-                  </p>
-                </div>
-
-                {/* Footer */}
-                <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-                  <span className="text-[11px] font-semibold text-slate-400 truncate max-w-[120px]">
-                    {blog.authorName}
-                  </span>
-                  <Link
-                    href={`/blogs/${blog.slug}`}
-                    className="text-xs font-bold text-[#c59b27] group-hover:text-[#936e16] flex items-center gap-1 transition-colors"
-                  >
-                    <span>Read Guide</span>
-                    <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-                  </Link>
-                </div>
+                )}
               </div>
-            </article>
-          ))}
-        </div>
-      )}
 
-      {/* Pagination Controls */}
-      {totalPages > 1 && (
-        <div className="mt-12 pt-6 border-t border-slate-200/80 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-xs font-semibold text-slate-500">
-            Page <span className="text-[#0b0f19] font-bold">{safePage}</span> of{" "}
-            <span className="text-[#0b0f19] font-bold">{totalPages}</span>
-          </p>
+              {/* Quick Search */}
+              <div className="position-relative" style={{ minWidth: "260px" }}>
+                <Search className="w-4 h-4 text-muted position-absolute top-50 start-0 translate-middle-y ms-3" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => handleSearchChange(e.target.value)}
+                  placeholder="Search routes, tips, fleet..."
+                  className="form-control form-control-sm ps-5 bg-white border rounded-pill text-xs py-2 shadow-xs"
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery("")}
+                    className="border-0 bg-transparent position-absolute top-50 end-0 translate-middle-y me-3 text-muted hover:text-dark p-0"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+            </div>
 
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              disabled={safePage <= 1}
-              onClick={() => {
-                setCurrentPage((p) => Math.max(1, p - 1));
-                window.scrollTo({ top: 300, behavior: "smooth" });
-              }}
-              className="px-3.5 py-2 rounded-xl text-xs font-bold border border-slate-200 bg-white text-slate-700 hover:border-[#c59b27] disabled:opacity-40 disabled:pointer-events-none flex items-center gap-1 transition-all"
-            >
-              <ChevronLeft className="w-3.5 h-3.5" />
-              <span>Previous</span>
-            </button>
-
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => {
-              const isCurrent = pageNum === safePage;
-              return (
+            {/* Empty State */}
+            {paginatedBlogs.length === 0 ? (
+              <div className="bg-white rounded-4 border p-5 text-center my-4 shadow-sm">
+                <Compass className="w-12 h-12 text-warning mx-auto mb-3 opacity-75" />
+                <h4 className="fw-bold text-dark mb-2">No Travel Guides Found</h4>
+                <p className="text-muted mb-4 mx-auto" style={{ maxWidth: "420px", fontSize: "13px" }}>
+                  We couldn't find any articles matching &ldquo;{searchQuery || selectedCategory}&rdquo;. Try another topic or clear your active filters.
+                </p>
                 <button
-                  key={pageNum}
                   type="button"
                   onClick={() => {
-                    setCurrentPage(pageNum);
-                    window.scrollTo({ top: 300, behavior: "smooth" });
+                    setSelectedCategory("all");
+                    setSearchQuery("");
                   }}
-                  className={`w-9 h-9 rounded-xl text-xs font-bold transition-all ${
-                    isCurrent
-                      ? "bg-[#0b0f19] text-[#c59b27] shadow-sm font-black"
-                      : "bg-white text-slate-700 border border-slate-200 hover:border-[#c59b27]"
-                  }`}
+                  className="btn btn-primary btn-sm px-4 rounded-pill"
                 >
-                  {pageNum}
+                  View All Travel Guides
                 </button>
-              );
-            })}
+              </div>
+            ) : (
+              /* Blog Cards Grid - Using Exact Homepage blog-card-prime Structure */
+              <div className="row g-4">
+                {paginatedBlogs.map((blog) => (
+                  <div key={blog.id} className="col-12 col-md-6">
+                    <article className="blog-card-prime h-100">
+                      <div className="blog-thumb">
+                        <img
+                          src={blog.featuredImage || "/assets/img/blog/1.jpg"}
+                          alt={blog.title}
+                          loading="lazy"
+                        />
+                        <span className="blog-tag-pill">
+                          {blog.categoryName}
+                        </span>
+                      </div>
+                      <div className="blog-body flex-grow-1 d-flex flex-column justify-content-between">
+                        <div>
+                          <div className="blog-meta">
+                            <span className="blog-meta-date">
+                              <i className="fa-regular fa-calendar me-1"></i> {blog.publishedAt}
+                            </span>
+                            <span className="blog-meta-read-time">
+                              <i className="fa-regular fa-clock me-1"></i> {blog.readTime || "5 min read"}
+                            </span>
+                          </div>
+                          <h3 className="blog-title">
+                            <Link href={`/blogs/${blog.slug}`}>
+                              {blog.title}
+                            </Link>
+                          </h3>
+                          <p className="blog-excerpt">{blog.summary}</p>
+                        </div>
+                        <div className="blog-footer mt-3 pt-2">
+                          <Link
+                            href={`/blogs/${blog.slug}`}
+                            className="blog-link"
+                          >
+                            <span>Read Article</span>
+                            <i className="fa-solid fa-arrow-right ms-1.5" aria-hidden="true"></i>
+                          </Link>
+                        </div>
+                      </div>
+                    </article>
+                  </div>
+                ))}
+              </div>
+            )}
 
-            <button
-              type="button"
-              disabled={safePage >= totalPages}
-              onClick={() => {
-                setCurrentPage((p) => Math.min(totalPages, p + 1));
-                window.scrollTo({ top: 300, behavior: "smooth" });
-              }}
-              className="px-3.5 py-2 rounded-xl text-xs font-bold border border-slate-200 bg-white text-slate-700 hover:border-[#c59b27] disabled:opacity-40 disabled:pointer-events-none flex items-center gap-1 transition-all"
-            >
-              <span>Next</span>
-              <ChevronRight className="w-3.5 h-3.5" />
-            </button>
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div className="d-flex align-items-center justify-content-center gap-2 mt-5 pt-3">
+                <button
+                  type="button"
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={safePage <= 1}
+                  className="btn btn-outline-secondary btn-sm rounded-circle d-flex align-items-center justify-content-center disabled:opacity-40"
+                  style={{ width: "36px", height: "36px" }}
+                  title="Previous Page"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+
+                {Array.from({ length: totalPages }).map((_, i) => {
+                  const pageNum = i + 1;
+                  const isCur = pageNum === safePage;
+                  return (
+                    <button
+                      key={pageNum}
+                      type="button"
+                      onClick={() => setCurrentPage(pageNum)}
+                      className={`btn btn-sm rounded-circle font-monospace fw-bold d-flex align-items-center justify-content-center ${
+                        isCur
+                          ? "btn-primary text-white"
+                          : "btn-light border text-dark"
+                      }`}
+                      style={{ width: "36px", height: "36px", fontSize: "12px" }}
+                    >
+                      {pageNum}
+                    </button>
+                  );
+                })}
+
+                <button
+                  type="button"
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={safePage >= totalPages}
+                  className="btn btn-outline-secondary btn-sm rounded-circle d-flex align-items-center justify-content-center disabled:opacity-40"
+                  style={{ width: "36px", height: "36px" }}
+                  title="Next Page"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* ========================================================
+              RIGHT COLUMN: SIDEBAR (CATEGORIES, TRENDING, FLEET CTA)
+             ======================================================== */}
+          <div className="col-12 col-lg-4 col-xl-4">
+            <div className="sticky-top" style={{ top: "100px", zIndex: 10 }}>
+              <div className="d-flex flex-column gap-4">
+                {/* 1. Blog Categories Widget */}
+                <div className="card border rounded-4 p-4 shadow-sm bg-white">
+                  <div className="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom">
+                    <h5 className="fw-bold text-dark mb-0 d-flex align-items-center gap-2" style={{ fontSize: "16px" }}>
+                      <FolderOpen className="w-4 h-4 text-[#c59b27]" />
+                      <span>Blog Categories</span>
+                    </h5>
+                    <span className="badge bg-light text-muted border">{categories.length}</span>
+                  </div>
+
+                  <div className="d-flex flex-column gap-1.5">
+                    {categories.map((cat) => {
+                      const isSelected = selectedCategory === cat;
+                      const label = cat === "all" ? "All Travel Guides" : cat;
+                      const count = categoryCounts[cat] || 0;
+
+                      return (
+                        <button
+                          key={cat}
+                          type="button"
+                          onClick={() => handleCategorySelect(cat)}
+                          className={`w-100 text-start px-3 py-2.5 rounded-3 d-flex align-items-center justify-content-between transition-all border ${
+                            isSelected
+                              ? "bg-[#0b0f19] text-[#c59b27] border-[#0b0f19] fw-bold shadow-xs"
+                              : "bg-white text-secondary border-transparent hover:bg-light hover:text-dark"
+                          }`}
+                          style={{ fontSize: "13px" }}
+                        >
+                          <span className="text-truncate me-2">{label}</span>
+                          <span
+                            className={`badge rounded-pill ${
+                              isSelected
+                                ? "bg-[#c59b27] text-dark"
+                                : "bg-light text-muted border"
+                            }`}
+                            style={{ fontSize: "11px" }}
+                          >
+                            {count}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* 2. Featured / Popular Guides */}
+                <div className="card border rounded-4 p-4 shadow-sm bg-white">
+                  <div className="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom">
+                    <h5 className="fw-bold text-dark mb-0 d-flex align-items-center gap-2" style={{ fontSize: "16px" }}>
+                      <TrendingUp className="w-4 h-4 text-[#c59b27]" />
+                      <span>Featured Guides</span>
+                    </h5>
+                  </div>
+
+                  <div className="d-flex flex-column gap-3">
+                    {recentArticles.map((article) => (
+                      <Link
+                        key={article.id}
+                        href={`/blogs/${article.slug}`}
+                        className="d-flex align-items-center gap-3 text-decoration-none group text-dark"
+                      >
+                        <div
+                          className="rounded-3 overflow-hidden flex-shrink-0 bg-light"
+                          style={{ width: "70px", height: "55px" }}
+                        >
+                          <img
+                            src={article.featuredImage || "/assets/img/blog/1.jpg"}
+                            alt={article.title}
+                            className="w-100 h-100 object-fit-cover transition-transform group-hover:scale-105"
+                          />
+                        </div>
+                        <div className="flex-grow-1 overflow-hidden">
+                          <span className="text-muted d-block" style={{ fontSize: "10.5px" }}>
+                            {article.publishedAt} • {article.categoryName}
+                          </span>
+                          <h6
+                            className="fw-bold mb-0 text-truncate-2 group-hover:text-primary transition-colors"
+                            style={{ fontSize: "12.5px", lineHeight: "1.35" }}
+                          >
+                            {article.title}
+                          </h6>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 3. Luxury Self-Drive Callout */}
+                <div
+                  className="rounded-4 p-4 text-white position-relative overflow-hidden shadow-sm"
+                  style={{
+                    background: "linear-gradient(135deg, #090e1a 0%, #151e30 100%)",
+                    border: "1px solid rgba(197, 155, 39, 0.3)",
+                  }}
+                >
+                  <div className="d-inline-flex align-items-center gap-1.5 px-2.5 py-0.5 rounded-pill bg-[#c59b27]/20 text-[#c59b27] border border-[#c59b27]/30 mb-3" style={{ fontSize: "10px", fontWeight: 700, letterSpacing: "0.5px" }}>
+                    <Sparkles className="w-3 h-3 text-[#c59b27]" />
+                    <span>SELF-DRIVE IN DELHI &amp; LUCKNOW</span>
+                  </div>
+
+                  <h5 className="fw-bold text-white mb-2" style={{ fontSize: "17px" }}>
+                    Planning Your Road Trip?
+                  </h5>
+                  <p className="text-slate-300 mb-3" style={{ fontSize: "12px", lineHeight: "1.5" }}>
+                    Reserve Mahindra Thar 4x4, Toyota Innova Crysta, or luxury BMW sedans with zero advance fee &amp; doorstep handover.
+                  </p>
+
+                  <Link
+                    href="/cars"
+                    className="btn btn-primary btn-sm w-100 rounded-pill d-flex align-items-center justify-content-center gap-2 fw-semibold"
+                  >
+                    <Car className="w-4 h-4" />
+                    <span>Explore Luxury Fleet</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </Link>
+                </div>
+
+                {/* 4. WhatsApp Road Trip Assistance */}
+                <div className="card border rounded-4 p-3 bg-white shadow-sm d-flex flex-row align-items-center justify-content-between gap-3">
+                  <div className="d-flex align-items-center gap-2.5">
+                    <div className="avatar rounded-circle bg-success-subtle text-success d-flex align-items-center justify-content-center" style={{ width: "38px", height: "38px" }}>
+                      <i className="fa-brands fa-whatsapp fs-5"></i>
+                    </div>
+                    <div>
+                      <h6 className="fw-bold text-dark mb-0" style={{ fontSize: "12.5px" }}>Need Itinerary Help?</h6>
+                      <small className="text-muted" style={{ fontSize: "11px" }}>Talk to our road trip experts</small>
+                    </div>
+                  </div>
+                  <a
+                    href="https://wa.me/919045301702?text=Hi%20PrimeRides%2C%20I%20am%20planning%20a%20road%20trip%20and%20need%20fleet%20recommendations"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn-outline-success btn-sm px-3 rounded-pill fw-semibold text-xs"
+                  >
+                    Chat
+                  </a>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }
-
